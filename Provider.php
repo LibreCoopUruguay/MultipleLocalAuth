@@ -325,8 +325,6 @@ class Provider extends \MapasCulturais\AuthProvider{
         $string = $this->hashPassword($source);
         $token = substr($string, $cut, 20);
         
-        //var_dump($token); die;
-        
         // save hash and created time
         $user->setMetadata('recover_token_' . $token, time());
         $user->saveMetadata();
@@ -336,10 +334,29 @@ class Provider extends \MapasCulturais\AuthProvider{
         $url = $app->createUrl('auth', 'recover-resetform') . '?t=' . $token;
         
         // send email
+        $email_subject = sprintf(i::__('Pedido de recuperação de senha para %s', 'multipleLocal'), $app->config['app.siteName']);
+        $email_text = sprintf(i::__("Alguém solicitou a recuperação da senha utilizada em %s por este email.\n\nPara recuperá-la, acesse o link: %s. /n/n Se você não pediu a recuperação desta senha, apenas ignore esta mensagem.", 'multipleLocal'),
+            $app->config['app.siteName'],
+            "<a href='$url'>$url</a>"
+        );
         
-        // set feedback
-        $this->feedback_success = true;
-        $this->feedback_msg = 'LINK: ' . $url;
+        $app->applyHook('multipleLocalAuth.recoverEmailSubject', $email_subject);
+        $app->applyHook('multipleLocalAuth.recoverEmailBody', $email_text);
+        
+        if ($app->createAndSendMailMessage([
+                'from' => $app->config['mailer.from'],
+                'to' => $user->email,
+                'subject' => $email_subject,
+                'body' => $email_text
+            ])) {
+        
+            // set feedback
+            $this->feedback_success = true;
+            $this->feedback_msg = i::__('Sucesso: Um e-mail foi enviado com instruções para recuperação da senha.', 'multipleLocal');
+        } else {
+            $this->feedback_success = false;
+            $this->feedback_msg = i::__('Erro ao enviar email de recuperação. Entre em contato com os administradors do site.', 'multipleLocal');
+        }
     }
     
     function renderForm($theme) {
