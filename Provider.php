@@ -118,7 +118,7 @@ class Provider extends \MapasCulturais\AuthProvider{
             $url = $app->createUrl('panel', 'my-account');
             $label = i::__('Minha conta', 'multipleLocal');
             
-            echo "<li><a href='$url' $active>$label</a></li>";
+            echo "<li><a href='$url' $active><span class='icon icon-my-account'></span> $label</a></li>";
         
         });
         
