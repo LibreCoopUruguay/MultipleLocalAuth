@@ -1,0 +1,147 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Multiple Local Auth\n"
+"POT-Creation-Date: 2016-12-14 15:16-0200\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: _e;__;esc_attr_e\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: Provider.php:119
+msgid "Minha conta"
+msgstr ""
+
+#: Provider.php:152
+msgid "A senha deve conter no mínimo 6 caracteres"
+msgstr ""
+
+#: Provider.php:155
+msgid "As senhas não conferem"
+msgstr ""
+
+#: Provider.php:173
+msgid "Por favor, informe seu nome"
+msgstr ""
+
+#: Provider.php:178
+msgid "Este endereço de email já está em uso"
+msgstr ""
+
+#: Provider.php:182
+msgid "Por favor, informe um email válido"
+msgstr ""
+
+#: Provider.php:207
+msgid "Email alterado com sucesso"
+msgstr ""
+
+#: Provider.php:210
+msgid "Informe um email válido"
+msgstr ""
+
+#: Provider.php:227
+msgid "Email e senha alterados com sucecsso"
+msgstr ""
+
+#: Provider.php:227
+msgid "Senha alterada com sucesso"
+msgstr ""
+
+#: Provider.php:234
+msgid "Senha inválida"
+msgstr ""
+
+#: Provider.php:269 Provider.php:279
+msgid "Email ou token inválidos"
+msgstr ""
+
+#: Provider.php:290
+msgid "Este token expirou"
+msgstr ""
+
+#: Provider.php:305
+msgid "Senha alterada com sucesso! Você pode fazer login agora"
+msgstr ""
+
+#: Provider.php:318
+msgid "Email não encontrado"
+msgstr ""
+
+#: Provider.php:367 Provider.php:380
+msgid "Usuário ou senha inválidos"
+msgstr ""
+
+#: Provider.php:581
+msgid "É preciso estar autenticado para realizar esta ação"
+msgstr ""
+
+#: views/auth/multiple-local.php:11 views/auth/multiple-local.php:22
+msgid "Entrar"
+msgstr "Ingresar"
+
+#: views/auth/multiple-local.php:16 views/auth/multiple-local.php:33
+#: views/auth/multiple-local.php:51 views/auth/pass-recover.php:16
+msgid "E-mail"
+msgstr ""
+
+#: views/auth/multiple-local.php:19 views/auth/multiple-local.php:36
+#: views/auth/pass-recover.php:19
+msgid "Senha"
+msgstr ""
+
+#: views/auth/multiple-local.php:26 views/auth/multiple-local.php:42
+msgid "Registrar-se"
+msgstr ""
+
+#: views/auth/multiple-local.php:30
+msgid "Nome"
+msgstr ""
+
+#: views/auth/multiple-local.php:39 views/auth/pass-recover.php:22
+msgid "Confirmar senha"
+msgstr ""
+
+#: views/auth/multiple-local.php:46
+msgid "Esqueci minha senha"
+msgstr ""
+
+#: views/auth/multiple-local.php:50
+msgid "Para recuperar sua senha, informe o e-mail utilizado no cadastro."
+msgstr ""
+
+#: views/auth/multiple-local.php:55 views/auth/pass-recover.php:3
+msgid "Recuperar senha"
+msgstr ""
+
+#: views/auth/multiple-local.php:60
+msgid "Redes Sociais"
+msgstr ""
+
+#: views/auth/multiple-local.php:63
+msgid "Utilize sua conta em outros serviços para autenticar-se"
+msgstr ""
+
+#: views/auth/pass-recover.php:25
+msgid "Recuperar"
+msgstr ""
+
+#~ msgid "Clique para marcar/desmarcar este"
+#~ msgstr "Haga clic para marcar/desmarcar este"
+
+#~ msgid "Este"
+#~ msgstr "Este"
+
+#~ msgid "Para relacionar o selo ao"
+#~ msgstr "Para relacionar el sello al"
+
+#~ msgid "teste pt"
+#~ msgstr "teste es"
