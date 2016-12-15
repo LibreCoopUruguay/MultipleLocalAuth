@@ -320,8 +320,8 @@ class Provider extends \MapasCulturais\AuthProvider{
         }
         
         // generate the hash
-        $source = random_int(333333, 444444);
-        $cut = random_int(10, 30);
+        $source = rand(3333, 8888);
+        $cut = rand(10, 30);
         $string = $this->hashPassword($source);
         $token = substr($string, $cut, 20);
         
