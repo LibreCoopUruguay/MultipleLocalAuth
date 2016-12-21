@@ -7,9 +7,9 @@
     </div>
 -->
 
-<div class="alert" style ="width: 50%; margin-left: 25%;">
+<div class="alert <?php echo $feedback_success ? 'success' : 'error'; ?>">
   <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
-  <strong><?php echo $feedback_success ? 'success' : 'error'; ?> </strong> <?php echo $feedback_msg; ?>
+  <?php echo $feedback_msg; ?>
 </div>
 
 
@@ -29,10 +29,10 @@
                 <br/><br/>
                 <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
                 <input type="password" name="password" value="" />
-
+<p>
                 <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Entrar', 'multipleLocal'); ?>" />
                 
-                <a id="multiple-login-recover"><?php \MapasCulturais\i::_e('Esqueci minha senha', 'multipleLocal'); ?></a>
+                <a id="multiple-login-recover" class="multiple-recover-link"><?php \MapasCulturais\i::_e('Esqueci minha senha', 'multipleLocal'); ?></a>
                 
             </form>
             
@@ -51,7 +51,7 @@
 
             <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Recuperar senha', 'multipleLocal'); ?>" />
             
-            <a id="multiple-login-recover-cancel"><?php \MapasCulturais\i::_e('Cancelar', 'multipleLocal'); ?></a>
+            <a id="multiple-login-recover-cancel"  class="multiple-recover-link"><?php \MapasCulturais\i::_e('Cancelar', 'multipleLocal'); ?></a>
 
         </form>
         
