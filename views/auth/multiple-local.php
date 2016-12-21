@@ -1,12 +1,20 @@
 <br/>
-
+<div style="padding-left: 5%;">
 <?php if($feedback_msg): ?>
-
+<!--
     <div class="auth_feedback <?php echo $feedback_success ? 'success' : 'error'; ?>">
         <?php echo $feedback_msg; ?>
     </div>
+-->
+
+<div class="alert" style ="width: 50%; margin-left: 25%;">
+  <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+  <strong><?php echo $feedback_success ? 'success' : 'error'; ?> </strong> <?php echo $feedback_msg; ?>
+</div>
+
 
 <?php endif; ?>
+
 <div class="box-registro col-5">
     
     <div id="multiple-login">
@@ -81,11 +89,13 @@
 
 
     <p><?php \MapasCulturais\i::_e('Utilize sua conta em outros serviços para autenticar-se', 'multipleLocal'); ?>:</p>
+    <p style="text-align: center;">
     <a href="<?php echo $app->createUrl('auth', 'facebook') ?>"><img src="<?php $this->asset('img/fb-login.png'); ?>" /></a>&nbsp;&nbsp;
     <a href="<?php echo $app->createUrl('auth', 'google') ?>"><img src="<?php $this->asset('img/go-login.png'); ?>" /></a>&nbsp;&nbsp;
     <a href="<?php echo $app->createUrl('auth', 'linkedin') ?>"><img src="<?php $this->asset('img/ln-login.png'); ?>" /></a>
     <!--<a href="<?php echo $app->createUrl('auth', 'twitter') ?>">Twitter</a> -->
-
+    </p>
     <?php $app->applyHook('multipleLocalAuth.loginPage:end'); ?>
 
+</div>
 </div>
