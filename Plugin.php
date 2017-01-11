@@ -4,6 +4,10 @@ namespace MultipleLocalAuth;
 use MapasCulturais\App;
 use MapasCulturais\i;
 
+include('Facebook/FacebookStrategy.php');
+include('Google/GoogleStrategy.php');
+include('LinkedIn/LinkedInStrategy.php');
+
 class Plugin extends \MapasCulturais\Plugin {
     
     public function _init() {
