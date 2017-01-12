@@ -12,27 +12,27 @@
     
     <form action="<?php echo $form_action; ?>" method="POST">
 
-        <h2>Email</h2>
+        <h2><?php \MapasCulturais\i::_e('Email', 'multipleLocal'); ?></h2>
 
         
-        Email
+        <?php \MapasCulturais\i::_e('Email', 'multipleLocal'); ?>
         <input type="text" name="email" value="<?php echo $email; ?>" />
         <br/><br/>
        
-        <input type="submit" value="Guardar alteraçoes" />  
+        <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Guardar alteraçoes', 'multipleLocal'); ?>" />  
 
-        <h2>Trocar Senha</h2>
+        <h2><?php \MapasCulturais\i::_e('Trocar Senha', 'multipleLocal'); ?></h2>
 
-        Senha atual
+        <?php \MapasCulturais\i::_e('Senha atual', 'multipleLocal'); ?>
         <input type="password" name="current_pass" value="" />
         <br/><br/>
-        Nova senha
+        <?php \MapasCulturais\i::_e('Nova senha', 'multipleLocal'); ?>
         <input type="password" name="new_pass" value="" />
         <br/><br/>
-        Confirmar nova senha
+        <?php \MapasCulturais\i::_e('Confirmar nova senha', 'multipleLocal'); ?>
         <input type="password" name="confirm_new_pass" value="" />
 <br/><br/>
-        <input type="submit" value="Guardar alteraçoes" />
+        <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Guardar alteraçoes', 'multipleLocal'); ?>" />
 
     </form>
 </div>
