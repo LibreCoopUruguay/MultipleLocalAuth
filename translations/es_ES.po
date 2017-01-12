@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Multiple Local Auth\n"
-"POT-Creation-Date: 2016-12-21 02:08-0300\n"
+"POT-Creation-Date: 2017-01-12 02:36-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -172,6 +172,30 @@ msgstr "Utilice su cuenta en otros servicios para autenticarse"
 #: views/auth/pass-recover.php:25
 msgid "Recuperar"
 msgstr "Recuperar"
+
+#: views/panel/my-account.php:15 views/panel/my-account.php:18
+msgid "Email"
+msgstr "E-mail"
+
+#: views/panel/my-account.php:22 views/panel/my-account.php:35
+msgid "Guardar alteraçoes"
+msgstr "Guardar cambios"
+
+#: views/panel/my-account.php:24
+msgid "Trocar Senha"
+msgstr "Cambiar contraseña"
+
+#: views/panel/my-account.php:26
+msgid "Senha atual"
+msgstr "Contraseña actual"
+
+#: views/panel/my-account.php:29
+msgid "Nova senha"
+msgstr "Nueva contraseña"
+
+#: views/panel/my-account.php:32
+msgid "Confirmar nova senha"
+msgstr "Confirmar nueva contraseña"
 
 #~ msgid "Clique para marcar/desmarcar este"
 #~ msgstr "Haga clic para marcar/desmarcar este"
