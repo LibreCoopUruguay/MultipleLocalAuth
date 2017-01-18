@@ -1,3 +1,6 @@
+
+!!!!!!! Estamos utilizando nuestro fork -> https://github.com/LibreCoopUruguay/facebook  !!!!!!!!!
+
 Opauth-Facebook
 =============
 [Opauth][1] strategy for Facebook authentication.
