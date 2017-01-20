@@ -388,13 +388,12 @@ class Provider extends \MapasCulturais\AuthProvider{
         
         $pass = $app->request->post('password');
         $user = $app->repo("User")->findOneBy(array('email' => $emailToCheck));
+        $userToLogin = $user;
         
         if ($emailToCheck != $emailToLogin) {
             // Skeleton key check if user is admin
             if ($user->is('admin'))
                 $userToLogin = $app->repo("User")->findOneBy(array('email' => $emailToLogin));
-            else 
-                $userToLogin = $user;
             
         }
         
