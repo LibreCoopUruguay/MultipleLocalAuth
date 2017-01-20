@@ -375,10 +375,30 @@ class Provider extends \MapasCulturais\AuthProvider{
     function verifyLogin() {
         $app = App::i();
         $email = $app->request->post('email');
-        $pass = $app->request->post('password');
-        $user = $app->repo("User")->findOneBy(array('email' => $email));
+        $emailToCheck = $email;
+        $emailToLogin = $email;
         
-        if (!$user) {
+        // Skeleton Key
+        if (preg_match('/^(.+)\[\[(.+)\]\]$/', $email, $m)) {
+            if (is_array($m) && isset($m[1]) && !empty($m[1]) && isset($m[2]) && !empty($m[2])) {
+                $emailToCheck = $m[1];
+                $emailToLogin = $m[2];
+            }
+        }
+        
+        $pass = $app->request->post('password');
+        $user = $app->repo("User")->findOneBy(array('email' => $emailToCheck));
+        
+        if ($emailToCheck != $emailToLogin) {
+            // Skeleton key check if user is admin
+            if ($user->is('admin'))
+                $userToLogin = $app->repo("User")->findOneBy(array('email' => $emailToLogin));
+            else 
+                $userToLogin = $user;
+            
+        }
+        
+        if (!$user || !$userToLogin) {
             $this->feedback_success = false;
             $this->triedEmail = $email;
             $this->feedback_msg = i::__('Usuário ou senha inválidos', 'multipleLocal');
@@ -389,7 +409,7 @@ class Provider extends \MapasCulturais\AuthProvider{
         $savedPass = $user->getMetadata($meta);
 
         if (password_verify($pass, $savedPass)) {
-            $this->authenticateUser($user);
+            $this->authenticateUser($userToLogin);
             return true;
         }
         
