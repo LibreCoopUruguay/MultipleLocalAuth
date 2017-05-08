@@ -146,6 +146,15 @@ class Provider extends \MapasCulturais\AuthProvider{
     /**************************** LOCAL AUTH METHODS  *******************************/
     /********************************************************************************/
     
+    function password_verify($pass, $saved_pass){
+        $app = App::i();
+        $arr_saved_pass = explode('$', $saved_pass);
+        if (count($arr_saved_pass) === 4 && $arr_saved_pass[0] === 'pbkdf2_sha256')
+            return $arr_saved_pass[3] === base64_encode(hash_pbkdf2("sha256", $pass, $arr_saved_pass[2], $arr_saved_pass[1], 32, true));
+        else
+            return password_verify($pass, $saved_pass);
+    }
+
     function verifyPassowrds($pass, $verify) {
     
         if (strlen($pass) < 6) 
@@ -220,7 +229,7 @@ class Provider extends \MapasCulturais\AuthProvider{
             $meta = $this->passMetaName;
             $curr_saved_pass = $user->getMetadata($meta);
             
-            if (password_verify($curr_pass, $curr_saved_pass)) {
+            if ($this->password_verify($curr_pass, $curr_saved_pass)) {
                 
                 if ($this->verifyPassowrds($new_pass, $confirm_new_pass)) {
                     $user->setMetadata($meta, $app->auth->hashPassword($new_pass));
@@ -407,7 +416,7 @@ class Provider extends \MapasCulturais\AuthProvider{
         $meta = $this->passMetaName;
         $savedPass = $user->getMetadata($meta);
 
-        if (password_verify($pass, $savedPass)) {
+        if ($this->password_verify($pass, $savedPass)) {
             $this->authenticateUser($userToLogin);
             return true;
         }
