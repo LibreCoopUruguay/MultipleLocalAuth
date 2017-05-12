@@ -84,18 +84,4 @@
 
 </div>
 
-<div class="box-registro col-5">
-    <h5 class="textcenter"><?php \MapasCulturais\i::_e('Redes Sociais', 'multipleLocal'); ?></h5>
-
-
-    <p><?php \MapasCulturais\i::_e('Utilize sua conta em outros serviços para autenticar-se', 'multipleLocal'); ?>:</p>
-    <p style="text-align: center;">
-    <a href="<?php echo $app->createUrl('auth', 'facebook') ?>"><img src="<?php $this->asset('img/fb-login.png'); ?>" /></a>&nbsp;&nbsp;
-    <a href="<?php echo $app->createUrl('auth', 'google') ?>"><img src="<?php $this->asset('img/go-login.png'); ?>" /></a>&nbsp;&nbsp;
-    <a href="<?php echo $app->createUrl('auth', 'linkedin') ?>"><img src="<?php $this->asset('img/ln-login.png'); ?>" /></a>
-    <!--<a href="<?php echo $app->createUrl('auth', 'twitter') ?>">Twitter</a> -->
-    </p>
-    <?php $app->applyHook('multipleLocalAuth.loginPage:end'); ?>
-
-</div>
 </div>
