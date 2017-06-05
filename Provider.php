@@ -437,9 +437,9 @@ class Provider extends \MapasCulturais\AuthProvider{
             $response = [
                 'auth' => [
                     'provider' => 'local',
-                    'uid' => $app->request->post('email'),
+                    'uid' => strtolower($app->request->post('email')),
                     'info' => [
-                        'email' => $app->request->post('email'),
+                        'email' => strtolower($app->request->post('email')),
                         'name' => $app->request->post('name'),
                     ]
                 ]
