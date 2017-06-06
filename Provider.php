@@ -344,7 +344,7 @@ class Provider extends \MapasCulturais\AuthProvider{
         
         // send email
         $email_subject = sprintf(i::__('Pedido de recuperação de senha para %s', 'multipleLocal'), $app->config['app.siteName']);
-        $email_text = sprintf(i::__("Alguém solicitou a recuperação da senha utilizada em %s por este email.\n\nPara recuperá-la, acesse o link: %s. /n/n Se você não pediu a recuperação desta senha, apenas ignore esta mensagem.", 'multipleLocal'),
+        $email_text = sprintf(i::__("Alguém solicitou a recuperação da senha utilizada em %s por este email.<br><br>Para recuperá-la, acesse o link: %s.<br><br>Se você não pediu a recuperação desta senha, apenas ignore esta mensagem.", 'multipleLocal'),
             $app->config['app.siteName'],
             "<a href='$url'>$url</a>"
         );
