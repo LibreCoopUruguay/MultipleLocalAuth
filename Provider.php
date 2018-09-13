@@ -665,11 +665,6 @@ class Provider extends \MapasCulturais\AuthProvider{
         $agent->emailPrivado = $user->email;
 
         //$app->em->persist($agent);
-        if($errors = $agent->validationErrors){
-            $this->errorJson($errors);
-            return;
-        }
-
         $agent->save();
         $app->em->flush();
 
@@ -682,18 +677,5 @@ class Provider extends \MapasCulturais\AuthProvider{
         $this->_setRedirectPath($agent->editUrl);
         
         return $user;
-    }
-
-    /**
-     * Sets the response content type to application/json and prints a json of ['error' => true, 'data' => $data]
-     *
-     * @param mixed $data
-     *
-     * @TODO Alterar o status padrão para 400. será necessário alterar os js para esperar este retorno.
-     */
-    public function errorJson($data, $status = 200){
-        $app = App::i();
-        $app->contentType('application/json');
-        $app->halt($status, json_encode(['error' => true, 'data' => $data]));
     }
 }
