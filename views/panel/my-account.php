@@ -5,7 +5,7 @@
     <?php if($feedback_msg): ?>
 
         <div class="auth_feedback <?php echo $feedback_success ? 'success' : 'error'; ?>">
-            <?php echo $feedback_msg; ?>
+            <?php echo htmlentities($feedback_msg); ?>
         </div>
 
     <?php endif; ?>
@@ -16,7 +16,7 @@
 
         
         <?php \MapasCulturais\i::_e('Email', 'multipleLocal'); ?>
-        <input type="text" name="email" value="<?php echo $email; ?>" />
+        <input type="text" name="email" value="<?php echo htmlentities($email); ?>" />
         <br/><br/>
        
         <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Guardar alteraçoes', 'multipleLocal'); ?>" />  
