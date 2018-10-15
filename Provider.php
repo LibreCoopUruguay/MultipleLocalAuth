@@ -188,11 +188,15 @@ class Provider extends \MapasCulturais\AuthProvider{
         if (empty($email) || Validator::email()->validate($email) !== true)
             return $this->setFeedback(i::__('Por favor, informe um email válido', 'multipleLocal'));
 
-        // email exists?
-        $user = $app->repo("User")->findOneBy(array('email' => $email));
-        if ($user)
-            return $this->setFeedback(i::__('Este endereço de email já está em uso', 'multipleLocal'));
+        // email exists? (case insensitive)
+        $checkEmailExistsQuery = $app->em->createQuery("SELECT u FROM \MapasCulturais\Entities\User u WHERE LOWER(u.email) = :email");
+        $checkEmailExistsQuery->setParameter('email', strtolower($email));
+        $checkEmailExists = $checkEmailExistsQuery->getResult();
         
+        if (!empty($checkEmailExists)) {
+            return $this->setFeedback(i::__('Este endereço de email já está em uso', 'multipleLocal'));
+        }
+
         // validate password
         return $this->verifyPassowrds($pass, $pass_v);
         
