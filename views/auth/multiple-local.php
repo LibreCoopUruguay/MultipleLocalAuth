@@ -3,13 +3,13 @@
 <?php if($feedback_msg): ?>
 <!--
     <div class="auth_feedback <?php echo $feedback_success ? 'success' : 'error'; ?>">
-        <?php echo $feedback_msg; ?>
+        <?php echo htmlentities($feedback_msg); ?>
     </div>
 -->
 
 <div class="alert <?php echo $feedback_success ? 'success' : 'error'; ?>">
   <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
-  <?php echo $feedback_msg; ?>
+  <?php echo htmlentities($feedback_msg); ?>
 </div>
 
 
@@ -25,7 +25,7 @@
 
                 
                 <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
-                <input type="text" name="email" value="<?php echo $triedEmail; ?>" />
+                <input type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
                 <br/><br/>
                 <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
                 <input type="password" name="password" value="" />
@@ -67,10 +67,10 @@
         
             
         <?php \MapasCulturais\i::_e('Nome', 'multipleLocal'); ?>
-        <input type="text" name="name" value="<?php echo $triedName; ?>" />
+        <input type="text" name="name" value="<?php echo htmlentities($triedName); ?>" />
         <br/><br/>
         <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
-        <input type="text" name="email" value="<?php echo $triedEmail; ?>" />
+        <input type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
         <br/><br/>
         <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
         <input type="password" name="password" value="" />
