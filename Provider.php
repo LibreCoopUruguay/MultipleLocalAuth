@@ -61,9 +61,9 @@ class Provider extends \MapasCulturais\AuthProvider{
 
             $app->auth->processResponse();
             if($app->auth->isUserAuthenticated()){
-                $app->redirect ($app->auth->getRedirectPath());
+                $app->redirect($app->auth->getRedirectPath());
             }else{
-                $app->redirect ($this->createUrl(''));
+                $app->redirect($this->createUrl(''));
             }
         });
         
@@ -124,9 +124,11 @@ class Provider extends \MapasCulturais\AuthProvider{
         
         $app->hook('ALL(panel.my-account)', function () use($app){
         
-            if ($app->request->post('email'))
+            $email = filter_var($app->request->post('email'),FILTER_SANITIZE_EMAIL);
+            if ($email) {
                 $app->auth->processMyAccount();
-            
+            }
+                
             $active = $this->template == 'panel/my-account' ? 'class="active"' : '';
             $user = $app->user;
             $email = $user->email ? $user->email : '';
@@ -161,16 +163,18 @@ class Provider extends \MapasCulturais\AuthProvider{
     function validateRegisterFields() {
         $app = App::i();
         
-        $email = $app->request->post('email');
+        $email = filter_var( $app->request->post('email') , FILTER_SANITIZE_EMAIL);
+        $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
+        $pass_v = filter_var($app->request->post('confirm_password'), FILTER_SANITIZE_STRING);
+        $name = filter_var($app->request->post('name'), FILTER_SANITIZE_STRING);
+        
         $this->triedEmail = $email;
-        $pass = $app->request->post('password');
-        $pass_v = $app->request->post('confirm_password');
-        $name = $app->request->post('name');
         $this->triedName = $name;
         
         // validate name
-        if (null == $name || $name == '')
+        if (empty($name)){
             return $this->setFeedback(i::__('Por favor, informe seu nome', 'multipleLocal'));
+        }
         
         // email exists? (case insensitive)
         $checkEmailExistsQuery = $app->em->createQuery("SELECT u FROM \MapasCulturais\Entities\User u WHERE LOWER(u.email) = :email");
@@ -181,7 +185,7 @@ class Provider extends \MapasCulturais\AuthProvider{
             return $this->setFeedback(i::__('Este endereço de email já está em uso', 'multipleLocal'));
         
         // validate email
-        if (null == $email || $email == '' || Validator::email()->validate($email) !== true)
+        if (empty($email) || Validator::email()->validate($email) !== true)
             return $this->setFeedback(i::__('Por favor, informe um email válido', 'multipleLocal'));
         
         // validate password
@@ -199,7 +203,7 @@ class Provider extends \MapasCulturais\AuthProvider{
     function processMyAccount() {
         $app = App::i();
         
-        $email = $app->request->post('email');
+        $email = filter_var($app->request->post('email'), FILTER_SANITIZE_EMAIL);
         $user = $app->user;
         $emailChanged = false;
         
@@ -217,9 +221,9 @@ class Provider extends \MapasCulturais\AuthProvider{
         
         if ($app->request->post('new_pass') != '') { // We are changing the password
             
-            $curr_pass = $app->request->post('current_pass');
-            $new_pass = $app->request->post('new_pass');
-            $confirm_new_pass = $app->request->post('confirm_new_pass');
+            $curr_pass =filter_var($app->request->post('current_pass'), FILTER_SANITIZE_STRING);
+            $new_pass = filter_var($app->request->post('new_pass'), FILTER_SANITIZE_STRING);
+            $confirm_new_pass = filter_var($app->request->post('confirm_new_pass'), FILTER_SANITIZE_STRING);
             $meta = $this->passMetaName;
             $curr_saved_pass = $user->getMetadata($meta);
             
@@ -251,7 +255,7 @@ class Provider extends \MapasCulturais\AuthProvider{
     function renderRecoverForm($theme) {
         $app = App::i();
         $theme->render('pass-recover', [
-            'form_action' => $app->createUrl('auth', 'dorecover') . '?t=' . $app->request->get('t'),
+            'form_action' => $app->createUrl('auth', 'dorecover') . '?t=' . filter_var($app->request->get('t'),FILTER_SANITIZE_STRING),
             'feedback_success' => $app->auth->feedback_success,
             'feedback_msg' => $app->auth->feedback_msg,   
             'triedEmail' => $app->auth->triedEmail,
@@ -260,11 +264,11 @@ class Provider extends \MapasCulturais\AuthProvider{
     
     function dorecover() {
         $app = App::i();
-        $email = $app->request->post('email');
-        $pass = $app->request->post('password');
-        $pass_v = $app->request->post('confirm_password');
+        $email = filter_var($app->request->post('email'), FILTER_SANITIZE_STRING);
+        $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
+        $pass_v = filter_var($app->request->post('confirm_password'), FILTER_SANITIZE_STRING);
         $user = $app->repo("User")->findOneBy(array('email' => $email));
-        $token = $app->request->get('t');
+        $token = filter_var($app->request->get('t'), FILTER_SANITIZE_STRING);
         
         if (!$user) {
             $this->feedback_success = false;
@@ -312,7 +316,7 @@ class Provider extends \MapasCulturais\AuthProvider{
     
     function recover() {
         $app = App::i();
-        $email = $app->request->post('email');
+        $email = filter_var($app->request->post('email'), FILTER_SANITIZE_STRING);
         $user = $app->repo("User")->findOneBy(array('email' => $email));
         
         if (!$user) {
@@ -377,7 +381,7 @@ class Provider extends \MapasCulturais\AuthProvider{
     
     function verifyLogin() {
         $app = App::i();
-        $email = $app->request->post('email');
+        $email = filter_var($app->request->post('email'), FILTER_SANITIZE_EMAIL);
         $emailToCheck = $email;
         $emailToLogin = $email;
         
@@ -389,7 +393,7 @@ class Provider extends \MapasCulturais\AuthProvider{
             }
         }
         
-        $pass = $app->request->post('password');
+        $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
         $user = $app->repo("User")->findOneBy(array('email' => $emailToCheck));
         $userToLogin = $user;
         
@@ -425,16 +429,16 @@ class Provider extends \MapasCulturais\AuthProvider{
         $app = App::i();
         if ($this->validateRegisterFields()) {
             
-            $pass = $app->request->post('password');
+            $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
             
             // Para simplificar, montaremos uma resposta no padrão Oauth
             $response = [
                 'auth' => [
                     'provider' => 'local',
-                    'uid' => $app->request->post('email'),
+                    'uid' => filter_var($app->request->post('email'), FILTER_SANITIZE_EMAIL),
                     'info' => [
-                        'email' => $app->request->post('email'),
-                        'name' => $app->request->post('name'),
+                        'email' => filter_var($app->request->post('email'), FILTER_SANITIZE_EMAIL),
+                        'name' => filter_var($app->request->post('name'), FILTER_SANITIZE_STRING),
                     ]
                 ]
             ];
@@ -655,7 +659,7 @@ class Provider extends \MapasCulturais\AuthProvider{
 
         $agent->emailPrivado = $user->email;
 
-        //$app->em->persist($agent);
+        //$app->em->persist($agent);    
         $agent->save();
         $app->em->flush();
 
