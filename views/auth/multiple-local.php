@@ -54,6 +54,16 @@
         
     </div>
     
+				<div>
+					<p> 
+					<label class="caption" for="terminos">
+						<span> Si no logras acceder a la plataforma sugerimos restablecer contraseña, haciendo clic sobre "Olvidé mi contraseña", si el problema persiste o por cualquier consulta comunicarse con: culturaenlinea@mec.gub.uy
+							
+						</span>
+					</label>
+					</p>					
+				</div>    
+    
 </div>
 
 <div class="box-registro col-6">
@@ -77,10 +87,8 @@
 				<div class="render-field checkbox-field">
 					<p><input onchange="this.setCustomValidity(validity.valueMissing ? 'Please indicate that you accept the Terms and Conditions' : '');" id="field_terms" type="checkbox" required name="terms"> 
 					<label class="caption" for="terminos">
-						<span> Acepto los
-							<a aria-current="false" target="_blank" href="<?php echo $app->createUrl('site', 'page', array('terminos-y-condiciones')) ?>"> Términos y Condiciones</a>
-								y la	
-							<a aria-current="false" target="_blank" href="<?php echo $app->createUrl('site', 'page', array('politica-de-privacidad')) ?>">Política de Privacidad</a>
+						<span> Acepto la
+							<a aria-current="false" target="_blank" href="<?php echo $app->createUrl('site', 'page', array('terminos-y-condiciones')) ?>"> Política de Privacidad y los Términos y Condiciones</a>
 								de Culturaenlinea.uy
 						</span>
 					</label>
