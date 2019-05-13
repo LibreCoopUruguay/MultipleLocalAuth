@@ -13,6 +13,9 @@ class Provider extends \MapasCulturais\AuthProvider{
     var $triedEmail = '';
     var $triedName = '';
     
+    public $register_form_action = '';
+    public $register_form_method = 'POST';
+    
     protected $passMetaName = 'localAuthenticationPassword';
     
     function dump($x) {
@@ -46,6 +49,13 @@ class Provider extends \MapasCulturais\AuthProvider{
         
         $opauth = new \Opauth($opauth_config, false );
         $this->opauth = $opauth;
+
+        //Register form config
+        $this->register_form_action = $app->createUrl('auth', 'register');    
+        if(isset($config['register_form'])){
+            $this->register_form_action= $config['register_form']['action'];
+            $this->register_form_method= $config['register_form']['method'];
+        }
 
         // add actions to auth controller
         $app->hook('GET(auth.index)', function () use($app){
@@ -140,7 +150,8 @@ class Provider extends \MapasCulturais\AuthProvider{
             ]);
         
         });
-        
+
+        $app->applyHook('auth.provider.init');        
     }
     
     
@@ -374,11 +385,14 @@ class Provider extends \MapasCulturais\AuthProvider{
             $this->feedback_msg = i::__('Erro ao enviar email de recuperação. Entre em contato com os administradors do site.', 'multipleLocal');
         }
     }
-    
+
     function renderForm($theme) {
         $app = App::i();
+        $config = $this->_config;
         $theme->render('multiple-local', [
-            'register_form_action' => $app->createUrl('auth', 'register'),
+            'config' => $config,
+            'register_form_action' => $app->auth->register_form_action,
+            'register_form_method' => $app->auth->register_form_method,
             'login_form_action' => $app->createUrl('auth', 'login'),
             'recover_form_action' => $app->createUrl('auth', 'recover'),
             'feedback_success'        => $app->auth->feedback_success,
