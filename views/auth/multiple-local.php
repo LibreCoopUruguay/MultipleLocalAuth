@@ -12,7 +12,7 @@
             return true;
         } 
 
-        return $config['strategies'][$name]['visible'] == true;
+        return $config['strategies'][$name]['visible'] === true;
     }
 ?>
 <br/>
@@ -51,7 +51,7 @@
             </form>
         </div>
     </div>
-    <?php if (isset($config['strategies'])): ?>
+    <?php if (showStrategy('Facebook') || showStrategy('Google') || showStrategy('LinkedIn') || showStrategy('LoginCidadao')): ?>
     <div class="box-registro  col" style="width:30%;">
         <h5 class="textcenter"><?php \MapasCulturais\i::_e('Conectar-se', 'multipleLocal'); ?></h5>
         <p><?php \MapasCulturais\i::_e('Utilize sua conta em outros serviços para entrar', 'multipleLocal'); ?>:</p>
@@ -59,13 +59,13 @@
             <?php if (showStrategy('Facebook')): ?>
             <a href="<?php echo $app->createUrl('auth', 'facebook') ?>"><img src="<?php $this->asset('img/fb-login.png'); ?>" /></a>&nbsp;&nbsp;
             <?php endif; ?>
-            <?php if (isset($config['strategies']['Google'])): ?>
+            <?php if (showStrategy('Google')): ?>
             <a href="<?php echo $app->createUrl('auth', 'google') ?>"><img src="<?php $this->asset('img/go-login.png'); ?>" /></a>&nbsp;&nbsp;
             <?php endif; ?>
-            <?php if (isset($config['strategies']['Linkedin'])): ?>
+            <?php if (showStrategy('LinkedIn')): ?>
             <a href="<?php echo $app->createUrl('auth', 'linkedin') ?>"><img src="<?php $this->asset('img/ln-login.png'); ?>" /></a>&nbsp;&nbsp;
             <?php endif; ?>
-            <?php if (isset($config['strategies']['LoginCidadao'])): ?>
+            <?php if (showStrategy('LoginCidadao')): ?>
             <a href="<?php echo $app->createUrl('auth', 'logincidadao') ?>"><img src="<?php $this->asset('img/lc-login.png'); ?>" /></a>
             <?php endif; ?>
         </p>
