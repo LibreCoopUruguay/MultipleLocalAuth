@@ -597,7 +597,18 @@ class Provider extends \MapasCulturais\AuthProvider{
             $auth_uid = $response['auth']['uid'];
             $auth_provider = $app->getRegisteredAuthProviderId($response['auth']['provider']);
 
-            $user = $app->repo('User')->findOneBy(['email' => $response['auth']['info']['email']]);
+            $cpf = (isset($response['auth']['raw']['cpf'])) ? $this->mask($response['auth']['raw']['cpf'],'###.###.###-##') : null;
+            if (!empty($cpf)) {                
+                $agent = $app->repo('Agent')->findByMetadata('documento', $cpf);
+                if(!empty($agent)) {
+                    $user = $agent[0]->user;
+                }
+            }
+
+            if (empty($user)) {
+                $email = $response['auth']['info']['email'];
+                $user = $app->repo('User')->findOneBy(['email' => $email]);
+            }            
 
             return $user;
         }else{
@@ -680,6 +691,12 @@ class Provider extends \MapasCulturais\AuthProvider{
             $agent->name = '';
         }
 
+        //cpf
+        $cpf = (isset($response['auth']['raw']['cpf'])) ? $this->mask($response['auth']['raw']['cpf'],'###.###.###-##') : null;
+        if(!empty($cpf)){
+            $agent->setMetadata('documento', $cpf);
+        }
+
         $agent->emailPrivado = $user->email;
 
         //$app->em->persist($agent);
@@ -695,5 +712,21 @@ class Provider extends \MapasCulturais\AuthProvider{
         $this->_setRedirectPath($agent->editUrl);
         
         return $user;
+    }
+
+    function mask($val, $mask) {
+        if (strlen($val) == strlen($mask)) return $val;
+        $maskared = '';
+        $k = 0;
+        for($i = 0; $i<=strlen($mask)-1; $i++) {
+            if($mask[$i] == '#') {
+                if(isset($val[$k]))
+                    $maskared .= $val[$k++];
+            } else {
+                if(isset($mask[$i]))
+                    $maskared .= $mask[$i];
+            }
+        }
+        return $maskared;
     }
 }
