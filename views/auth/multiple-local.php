@@ -1,7 +1,9 @@
 <?php
 
-    function showStrategy($name){
-        global $config;
+    function showStrategy($name, $config){
+        if (!isset($config['strategies'])){
+            return false;
+        }
 
         if (!isset($config['strategies'][$name])){
             return false;
@@ -51,21 +53,21 @@
             </form>
         </div>
     </div>
-    <?php if (showStrategy('Facebook') || showStrategy('Google') || showStrategy('LinkedIn') || showStrategy('LoginCidadao')): ?>
+    <?php if (showStrategy('Facebook', $config) || showStrategy('Google', $config) || showStrategy('LinkedIn', $config) || showStrategy('LoginCidadao', $config)): ?>
     <div class="box-registro  col" style="width:30%;">
         <h5 class="textcenter"><?php \MapasCulturais\i::_e('Conectar-se', 'multipleLocal'); ?></h5>
         <p><?php \MapasCulturais\i::_e('Utilize sua conta em outros serviços para entrar', 'multipleLocal'); ?>:</p>
         <p style="text-align: center;">
-            <?php if (showStrategy('Facebook')): ?>
+            <?php if (showStrategy('Facebook', $config)): ?>
             <a href="<?php echo $app->createUrl('auth', 'facebook') ?>"><img src="<?php $this->asset('img/fb-login.png'); ?>" /></a>&nbsp;&nbsp;
             <?php endif; ?>
-            <?php if (showStrategy('Google')): ?>
+            <?php if (showStrategy('Google', $config)): ?>
             <a href="<?php echo $app->createUrl('auth', 'google') ?>"><img src="<?php $this->asset('img/go-login.png'); ?>" /></a>&nbsp;&nbsp;
             <?php endif; ?>
-            <?php if (showStrategy('LinkedIn')): ?>
+            <?php if (showStrategy('LinkedIn', $config)): ?>
             <a href="<?php echo $app->createUrl('auth', 'linkedin') ?>"><img src="<?php $this->asset('img/ln-login.png'); ?>" /></a>&nbsp;&nbsp;
             <?php endif; ?>
-            <?php if (showStrategy('LoginCidadao')): ?>
+            <?php if (showStrategy('LoginCidadao', $config)): ?>
             <a href="<?php echo $app->createUrl('auth', 'logincidadao') ?>"><img src="<?php $this->asset('img/lc-login.png'); ?>" /></a>
             <?php endif; ?>
         </p>
