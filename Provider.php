@@ -13,6 +13,9 @@ class Provider extends \MapasCulturais\AuthProvider{
     var $triedEmail = '';
     var $triedName = '';
     
+    public $register_form_action = '';
+    public $register_form_method = 'POST';
+    
     protected $passMetaName = 'localAuthenticationPassword';
     
     function dump($x) {
@@ -46,6 +49,13 @@ class Provider extends \MapasCulturais\AuthProvider{
         
         $opauth = new \Opauth($opauth_config, false );
         $this->opauth = $opauth;
+
+        //Register form config
+        $this->register_form_action = $app->createUrl('auth', 'register');    
+        if(isset($config['register_form'])){
+            $this->register_form_action= $config['register_form']['action'];
+            $this->register_form_method= $config['register_form']['method'];
+        }
 
         // add actions to auth controller
         $app->hook('GET(auth.index)', function () use($app){
@@ -140,7 +150,8 @@ class Provider extends \MapasCulturais\AuthProvider{
             ]);
         
         });
-        
+
+        $app->applyHook('auth.provider.init');        
     }
     
     
@@ -374,11 +385,14 @@ class Provider extends \MapasCulturais\AuthProvider{
             $this->feedback_msg = i::__('Erro ao enviar email de recuperação. Entre em contato com os administradors do site.', 'multipleLocal');
         }
     }
-    
+
     function renderForm($theme) {
         $app = App::i();
+        $config = $this->_config;
         $theme->render('multiple-local', [
-            'register_form_action' => $app->createUrl('auth', 'register'),
+            'config' => $config,
+            'register_form_action' => $app->auth->register_form_action,
+            'register_form_method' => $app->auth->register_form_method,
             'login_form_action' => $app->createUrl('auth', 'login'),
             'recover_form_action' => $app->createUrl('auth', 'recover'),
             'feedback_success'        => $app->auth->feedback_success,
@@ -583,7 +597,18 @@ class Provider extends \MapasCulturais\AuthProvider{
             $auth_uid = $response['auth']['uid'];
             $auth_provider = $app->getRegisteredAuthProviderId($response['auth']['provider']);
 
-            $user = $app->repo('User')->findOneBy(['email' => $response['auth']['info']['email']]);
+            $cpf = (isset($response['auth']['raw']['cpf'])) ? $this->mask($response['auth']['raw']['cpf'],'###.###.###-##') : null;
+            if (!empty($cpf)) {                
+                $agent = $app->repo('Agent')->findByMetadata('documento', $cpf);
+                if(!empty($agent)) {
+                    $user = $agent[0]->user;
+                }
+            }
+
+            if (empty($user)) {
+                $email = $response['auth']['info']['email'];
+                $user = $app->repo('User')->findOneBy(['email' => $email]);
+            }            
 
             return $user;
         }else{
@@ -666,6 +691,12 @@ class Provider extends \MapasCulturais\AuthProvider{
             $agent->name = '';
         }
 
+        //cpf
+        $cpf = (isset($response['auth']['raw']['cpf'])) ? $this->mask($response['auth']['raw']['cpf'],'###.###.###-##') : null;
+        if(!empty($cpf)){
+            $agent->setMetadata('documento', $cpf);
+        }
+
         $agent->emailPrivado = $user->email;
 
         //$app->em->persist($agent);
@@ -681,5 +712,21 @@ class Provider extends \MapasCulturais\AuthProvider{
         $this->_setRedirectPath($agent->editUrl);
         
         return $user;
+    }
+
+    function mask($val, $mask) {
+        if (strlen($val) == strlen($mask)) return $val;
+        $maskared = '';
+        $k = 0;
+        for($i = 0; $i<=strlen($mask)-1; $i++) {
+            if($mask[$i] == '#') {
+                if(isset($val[$k]))
+                    $maskared .= $val[$k++];
+            } else {
+                if(isset($mask[$i]))
+                    $maskared .= $mask[$i];
+            }
+        }
+        return $maskared;
     }
 }
