@@ -737,11 +737,13 @@ class Provider extends \MapasCulturais\AuthProvider{
     function getUserFromDB($email) {
         $app = App::i();
         //Busca usuario por email
-        $user = $app->repo("User")->findOneBy(array('email' => $email));
-        if (!$user) {
-            //Caso não encontrou, tentar novamente, com o email  em minusculo, pois pode ter ocorrido erro na digitação
-            $user = $app->repo("User")->findOneBy(array('email' => strtolower($email)));
-        }        
+        $checkEmailExistsQuery = $app->em->createQuery("SELECT u FROM \MapasCulturais\Entities\User u WHERE LOWER(u.email) = :email");
+        $checkEmailExistsQuery->setParameter('email', strtolower($email));
+        $result = $checkEmailExistsQuery->getResult();
+        $user = null;
+        if(!empty($result)){
+            $user = $result[0];
+        }
         return $user;
     }
 }
