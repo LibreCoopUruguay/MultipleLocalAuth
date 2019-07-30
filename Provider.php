@@ -287,7 +287,7 @@ class Provider extends \MapasCulturais\AuthProvider{
         $email = filter_var($app->request->post('email'), FILTER_SANITIZE_STRING);
         $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
         $pass_v = filter_var($app->request->post('confirm_password'), FILTER_SANITIZE_STRING);
-        $user = $app->repo("User")->findOneBy(array('email' => $email));
+        $user = $this->getUserFromDB($email);
         $token = filter_var($app->request->get('t'), FILTER_SANITIZE_STRING);
         
         if (!$user) {
@@ -337,7 +337,7 @@ class Provider extends \MapasCulturais\AuthProvider{
     function recover() {
         $app = App::i();
         $email = filter_var($app->request->post('email'), FILTER_SANITIZE_STRING);
-        $user = $app->repo("User")->findOneBy(array('email' => $email));
+        $user = $this->getUserFromDB($email);
         
         if (!$user) {
             $this->feedback_success = false;
@@ -417,13 +417,13 @@ class Provider extends \MapasCulturais\AuthProvider{
         }
         
         $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
-        $user = $app->repo("User")->findOneBy(array('email' => $emailToCheck));
+        $user = $this->getUserFromDB($emailToCheck);
         $userToLogin = $user;
         
         if ($emailToCheck != $emailToLogin) {
             // Skeleton key check if user is admin
             if ($user->is('admin'))
-                $userToLogin = $app->repo("User")->findOneBy(array('email' => $emailToLogin));
+                $userToLogin = $this->getUserFromDB($emailToLogin);
             
         }
         
@@ -465,6 +465,10 @@ class Provider extends \MapasCulturais\AuthProvider{
                     ]
                 ]
             ];
+
+            //Removendo email em maiusculo
+            $response['auth']['uid'] = strtolower($response['auth']['uid']);
+            $response['auth']['info']['email'] = strtolower($response['auth']['info']['email']);
             
             $user = $this->createUser($response);
             
@@ -728,5 +732,16 @@ class Provider extends \MapasCulturais\AuthProvider{
             }
         }
         return $maskared;
+    }
+
+    function getUserFromDB($email) {
+        $app = App::i();
+        //Busca usuario por email
+        $user = $app->repo("User")->findOneBy(array('email' => $email));
+        if (!$user) {
+            //Caso não encontrou, tentar novamente, com o email  em minusculo, pois pode ter ocorrido erro na digitação
+            $user = $app->repo("User")->findOneBy(array('email' => strtolower($email)));
+        }        
+        return $user;
     }
 }
