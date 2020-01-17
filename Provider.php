@@ -5,6 +5,7 @@ use MapasCulturais\Entities;
 use MapasCulturais\i;
 use MapasCulturais\Validator;
 
+
 class Provider extends \MapasCulturais\AuthProvider{
     protected $opauth;
     
@@ -66,10 +67,10 @@ class Provider extends \MapasCulturais\AuthProvider{
                 $app->redirect($this->createUrl(''));
             }
         });
-        
-        
-        
+
+
         /******* INIT LOCAL AUTH **********/
+
         
         $app->hook('POST(auth.register)', function () use($app){
             
@@ -148,29 +149,62 @@ class Provider extends \MapasCulturais\AuthProvider{
     /**************************** LOCAL AUTH METHODS  *******************************/
     /********************************************************************************/
     
+
+    function verificarToken($token, $claveSecreta)
+    {
+        $url = "https://www.google.com/recaptcha/api/siteverify";
+        $datos = [
+            "secret" => $claveSecreta,
+            "response" => $token,
+        ];
+        $opciones = array(
+            "http" => array(
+            "header" => "Content-type: application/x-www-form-urlencoded\r\n",
+            "method" => "POST",
+            "content" => http_build_query($datos), # Agregar el contenido definido antes
+           ),
+        );
+        $contexto = stream_context_create($opciones);
+        $resultado = file_get_contents($url, false, $contexto);
+        if ($resultado === false) {
+            return false;
+        }
+        $resultado = json_decode($resultado);
+        $pruebaPasada = $resultado->success;
+        return $pruebaPasada;
+    }
+
+    function verifyRecaptcha2() {
+	if (!isset($_POST["g-recaptcha-response"]) || empty($_POST["g-recaptcha-response"]))
+           return false;
+	$token = $_POST["g-recaptcha-response"];
+	$verificado = $this->verificarToken($token, $GLOBALS["clave_secreta_recaptcha"]);
+   	if ($verificado)
+    	   return true;
+	else
+           return false;
+    }
+
     function verifyPassowrds($pass, $verify) {
-    
         if (strlen($pass) < 6) 
             return $this->setFeedback(i::__('A senha deve conter no mínimo 6 caracteres', 'multipleLocal'));
-        
         if ($pass != $verify) 
             return $this->setFeedback(i::__('As senhas não conferem', 'multipleLocal'));
-            
         return true;
-    
     }
-    
     function validateRegisterFields() {
         $app = App::i();
-        
         $email = filter_var( $app->request->post('email') , FILTER_SANITIZE_EMAIL);
         $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
         $pass_v = filter_var($app->request->post('confirm_password'), FILTER_SANITIZE_STRING);
         $name = filter_var($app->request->post('name'), FILTER_SANITIZE_STRING);
-        
         $this->triedEmail = $email;
         $this->triedName = $name;
-        
+
+        // VALIDO CAPTCHA
+        if (!$this->verifyRecaptcha2())
+           return $this->setFeedback(i::__('Verifique con el captcha que es un humano!', 'multipleLocal'));
+
         // validate name
         if (empty($name)){
             return $this->setFeedback(i::__('Por favor, informe seu nome', 'multipleLocal'));
@@ -190,9 +224,8 @@ class Provider extends \MapasCulturais\AuthProvider{
         
         // validate password
         return $this->verifyPassowrds($pass, $pass_v);
-        
+
     }
-    
     function hashPassword($pass) {
         return password_hash($pass, PASSWORD_DEFAULT);
     }

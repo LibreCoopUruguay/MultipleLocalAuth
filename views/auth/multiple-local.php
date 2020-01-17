@@ -1,3 +1,5 @@
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 <br/>
 <div style="padding-left: 5%;">
 <?php if($feedback_msg): ?>
@@ -84,27 +86,40 @@
         <input type="password" name="confirm_password" value="" />
 
         <div class="registro__container__form__field" name="terminos" style="min-height: 0px;">
-				<div class="render-field checkbox-field">
-					<p><input onchange="this.setCustomValidity(validity.valueMissing ? 'Please indicate that you accept the Terms and Conditions' : '');" id="field_terms" type="checkbox" required name="terms"> 
-					<label class="caption" for="terminos">
-						<span> Acepto la
-							<a aria-current="false" target="_blank" href="<?php echo $app->createUrl('site', 'page', array('terminos-y-condiciones')) ?>"> Política de Privacidad y los Términos y Condiciones</a>
-								de Culturaenlinea.uy
-						</span>
-					</label>
-					</p>
+		<div class="render-field checkbox-field">
+			<p><input onchange="this.setCustomValidity(validity.valueMissing ? 'Please indicate that you accept the Terms and Conditions' : '');" id="field_terms" type="checkbox" required name="terms"> 
+				<label class="caption" for="terminos">
+					<span> Acepto la
+						<a aria-current="false" target="_blank" href="<?php echo $app->createUrl('site', 'page', array('terminos-y-condiciones')) ?>"> Política de Privacidad y los Términos y Condiciones</a>
+						de Culturaenlinea.uy
+					</span>
+				</label>
+			</p>
 
-					
-				</div>
-			</div>
-			
-			<input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Registrar-se', 'multipleLocal'); ?>" />       
-        
-        </div>
-    </form>
+		</div>
+<!--
+		<div id="html_element"></div>
+-->
+	</div>
+
+        <div class="g-recaptcha" data-sitekey="6LdZBNAUAAAAAGKzUKyL2UAU5Q5v9LsO2iCiDN8L"></div>
+	<br/>
+
+	<input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Registrar-se', 'multipleLocal'); ?>" />
+
+<!-- estas son las cosas del Leo ;)
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer>
+</script>
+-->
+    </div>
+</form>
+
+
 <script type="text/javascript">
   document.getElementById("field_terms").setCustomValidity("Por favor, indica que aceptas los Términos y Condiciones");
 </script>
+
+
 </div>
 
 
