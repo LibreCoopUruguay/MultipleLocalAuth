@@ -57,13 +57,7 @@
     </div>
     
 				<div>
-					<p> 
-					<label class="caption" for="terminos">
-						<span> Si no logras acceder a la plataforma sugerimos restablecer contraseña, haciendo clic sobre "Olvidé mi contraseña", si el problema persiste o por cualquier consulta comunicarse con: culturaenlinea@mec.gub.uy
-							
-						</span>
-					</label>
-					</p>					
+						<span style="font-size: smaller;"><p> <i>Si no logras acceder a la plataforma sugerimos restablecer contraseña, haciendo clic sobre "Olvidé mi contraseña", si el problema persiste o por cualquier consulta comunicarse con: culturaenlinea@mec.gub.uy</i></p>	</span>				
 				</div>    
     
 </div>
