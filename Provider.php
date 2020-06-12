@@ -31,6 +31,93 @@ class Provider extends \MapasCulturais\AuthProvider{
     protected function _init() {
 
         $app = App::i();
+
+        $app->hook('POST(auth.adminchangeuserpassword)',function () use ($app) {
+            
+            $new_pass = $this->data['password'];
+            $email = $this->data['email'];
+            $user = $app->auth->getUserFromDB($email);
+            
+            $user->setMetadata('localAuthenticationPassword', $app->auth->hashPassword($new_pass));
+            
+            // save
+            $app->disableAccessControl();
+            $user->saveMetadata(true);
+            $app->enableAccessControl();
+            $user->save(true);
+            $app->em->flush();
+
+            $this->json (array("password"=>$new_pass,"user"=>$user,"password"=>$app->auth->hashPassword($new_pass)));
+
+        });
+
+        $app->hook('adminchangeuserpassword', function ($userEmail) use($app){
+            echo
+            '
+            <a class="btn btn-primary js-open-dialog" data-dialog="#admin-change-user-password" data-dialog-block="true">
+                Criar nova senha para: '.$userEmail.'
+            </a>
+
+            <div id="admin-change-user-password" class="js-dialog" title="Alterar senha">
+                <label for="admin-set-user-password">Nova senha:</label><br>
+                <input type="text" id="admin-set-user-password" name="admin-set-user-password" ><br>
+                <input type="hidden" id="email-to-admin-set-password" value='.$userEmail.' />
+                <button class="btn add" id="user-managerment-adminChangePassword" > Atualizar </button>
+            </div>
+            ';
+        });
+
+        $app->hook('POST(auth.adminchangeuseremail)',function () use ($app) {
+
+            $new_email = $this->data['new_email'];
+            $email = $this->data['email'];
+ 
+            $user = $app->auth->getUserFromDB($email);
+
+            // email exists? (case insensitive)
+            $checkEmailExistsQuery = $app->em->createQuery("SELECT u FROM \MapasCulturais\Entities\User u WHERE LOWER(u.email) = :email");
+            $checkEmailExistsQuery->setParameter('email', strtolower($new_email));
+            $checkEmailExists = $checkEmailExistsQuery->getResult();
+
+            if (!empty($checkEmailExists)) {
+                $this->json (array("error"=>"Este endereço de email já está em uso"));
+            }
+
+            if (Validator::email()->validate($new_email)) {
+                $user->email = $new_email;
+
+                // save
+                $app->disableAccessControl();
+                $user->saveMetadata(true);
+                $app->enableAccessControl();
+                $user->save(true);
+                $app->em->flush();
+
+                $this->json (array("new_email"=>$new_email));
+            } else {
+                $this->json (array("error"=>"Informe um email válido"));
+            }
+            
+
+        });
+
+        $app->hook('adminchangeuseremail', function ($userEmail) use($app){
+            echo
+            '
+            <a class="btn btn-primary js-open-dialog" data-dialog="#admin-change-user-email" data-dialog-block="true">
+                Alterar email para: '.$userEmail.'
+            </a>
+
+            <div id="admin-change-user-email" class="js-dialog" title="Alterar email">
+                <label for="new-email">Novo email:</label><br>
+                <input type="text" id="new-email" name="new-email" ><br>
+                <input type="hidden" id="email-to-admin-set-email" value='.$userEmail.' />
+                <button class="btn add" id="user-managerment-adminChangeEmail" > Atualizar </button>
+            </div>
+            ';
+        });
+
+        
         
         $config = $this->_config;
         
@@ -158,6 +245,12 @@ class Provider extends \MapasCulturais\AuthProvider{
     /********************************************************************************/
     /**************************** LOCAL AUTH METHODS  *******************************/
     /********************************************************************************/
+
+    function json($data, $status = 200) {
+        $app = App::i();
+        $app->contentType('application/json');
+        $app->halt($status, json_encode($data));
+    }
     
     function password_verify($pass, $saved_pass){
         $app = App::i();
