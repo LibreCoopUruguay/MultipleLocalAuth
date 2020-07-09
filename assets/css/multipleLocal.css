@@ -31,9 +31,23 @@
 
 /* Forms
 ---------------------------------------------------------------------------*/
-.box-registro { margin-top: 1.5rem; color: #666; background: #fff; border-radius: 2px; box-shadow: 0 2px 2px 0 rgba(0,0,0,.15); -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,.15); }
-#content .box-registro { margin: auto; float: none !important; }
-.box-registro input[type="text"], .box-registro input[type="password"], .box-registro input[type="email"] { width: 100%; }
+.box-registro { 
+	margin-top: 10px; 
+	color: #666; 
+	background: #fff; 
+	border-radius: 2px; 
+	box-shadow: 0 2px 2px 0 rgba(0,0,0,.15); 
+	-webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,.15); 
+}
+#content .box-registro { 
+	margin: auto; 
+	float: none !important; 
+}
+.box-registro input[type="text"], 
+.box-registro input[type="password"], 
+.box-registro input[type="email"] { 
+	width: 100%; 
+}
 
 /* alertas */
 
@@ -52,6 +66,7 @@
 
 .alert.error {
     border-color: red;
+    margin-bottom: 0px;
 }
 
 .closebtn {

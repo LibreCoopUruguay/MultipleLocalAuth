@@ -5,6 +5,7 @@ use MapasCulturais\Entities;
 use MapasCulturais\i;
 use MapasCulturais\Validator;
 
+
 class Provider extends \MapasCulturais\AuthProvider{
     protected $opauth;
     
@@ -125,17 +126,20 @@ class Provider extends \MapasCulturais\AuthProvider{
         
         /****** INIT OPAUTH ******/
         
-        $opauth_config = [
-            'strategy_dir' => PROTECTED_PATH . '/vendor/opauth/',
-            'Strategy' => $config['strategies'],
-            'security_salt' => $config['salt'],
-            'security_timeout' => $config['timeout'],
-            'path' => $config['path'],
-            'callback_url' => $app->createUrl('auth','response')
-        ];
+        if (isset($config['strategies'])){
+            $opauth_config = [
+                'strategy_dir' => PROTECTED_PATH . '/vendor/opauth/',
+                'Strategy' => $config['strategies'],
+                'security_salt' => $config['salt'],
+                'security_timeout' => $config['timeout'],
+                'path' => $config['path'],
+                'callback_url' => $app->createUrl('auth','response')
+            ];
+            
+            $opauth = new \Opauth($opauth_config, false );
+            $this->opauth = $opauth;
+        }
         
-        $opauth = new \Opauth($opauth_config, false );
-        $this->opauth = $opauth;
 
         //Register form config
         $this->register_form_action = $app->createUrl('auth', 'register');    
@@ -149,7 +153,11 @@ class Provider extends \MapasCulturais\AuthProvider{
             $app->auth->renderForm($this);
         });
 
-        $providers = implode('|', array_keys($config['strategies']));
+        $providers = [];
+
+        if(isset($config['strategies'])){
+            $providers = implode('|', array_keys($config['strategies']));
+        }        
 
         $app->hook("<<GET|POST>>(auth.<<{$providers}>>)", function () use($opauth, $config){
             $opauth->run();
@@ -158,15 +166,15 @@ class Provider extends \MapasCulturais\AuthProvider{
 
             $app->auth->processResponse();
             if($app->auth->isUserAuthenticated()){
-                $app->redirect ($app->auth->getRedirectPath());
+                $app->redirect($app->auth->getRedirectPath());
             }else{
-                $app->redirect ($this->createUrl(''));
+                $app->redirect($this->createUrl(''));
             }
         });
-        
-        
-        
+
+
         /******* INIT LOCAL AUTH **********/
+
         
         $app->hook('POST(auth.register)', function () use($app){
             
@@ -220,12 +228,12 @@ class Provider extends \MapasCulturais\AuthProvider{
         });
         
         $app->hook('ALL(panel.my-account)', function () use($app){
-
+        
             $email = filter_var($app->request->post('email'),FILTER_SANITIZE_EMAIL);
-
-            if ($email)
+            if ($email) {
                 $app->auth->processMyAccount();
-            
+            }
+                
             $active = $this->template == 'panel/my-account' ? 'class="active"' : '';
             $user = $app->user;
             $email = $user->email ? $user->email : '';
@@ -252,42 +260,79 @@ class Provider extends \MapasCulturais\AuthProvider{
         $app->halt($status, json_encode($data));
     }
     
-    function password_verify($pass, $saved_pass){
+
+    function verificarToken($token, $claveSecreta)
+    {
+        $url = "https://www.google.com/recaptcha/api/siteverify";
+        $datos = [
+            "secret" => $claveSecreta,
+            "response" => $token,
+        ];
+        $opciones = array(
+            "http" => array(
+            "header" => "Content-type: application/x-www-form-urlencoded\r\n",
+            "method" => "POST",
+            "content" => http_build_query($datos), # Agregar el contenido definido antes
+           ),
+        );
+        $contexto = stream_context_create($opciones);
+        $resultado = file_get_contents($url, false, $contexto);
+        if ($resultado === false) {
+            return false;
+        }
+        $resultado = json_decode($resultado);
+        $pruebaPasada = $resultado->success;
+        return $pruebaPasada;
+    }
+
+    function verifyRecaptcha2() {
         $app = App::i();
-        $arr_saved_pass = explode('$', $saved_pass);
-        if (count($arr_saved_pass) === 4 && $arr_saved_pass[0] === 'pbkdf2_sha256')
-            return $arr_saved_pass[3] === base64_encode(hash_pbkdf2("sha256", $pass, $arr_saved_pass[2], $arr_saved_pass[1], 32, true));
+        $config = $this->_config;
+        //$config = $app->config['auth.config'];
+        if (!isset($config['google-recaptcha-sitekey'])) return true;
+        if (!isset($_POST["g-recaptcha-response"]) || empty($_POST["g-recaptcha-response"]))
+            return false;
+        $token = $_POST["g-recaptcha-response"];
+        $verificado = $this->verificarToken($token, $config["google-recaptcha-secret"]);
+        if ($verificado)
+            return true;
         else
-            return password_verify($pass, $saved_pass);
+            return false;
     }
 
     function verifyPassowrds($pass, $verify) {
-    
         if (strlen($pass) < 6) 
             return $this->setFeedback(i::__('A senha deve conter no mínimo 6 caracteres', 'multipleLocal'));
-        
         if ($pass != $verify) 
             return $this->setFeedback(i::__('As senhas não conferem', 'multipleLocal'));
-            
         return true;
-    
     }
-    
     function validateRegisterFields() {
         $app = App::i();
-        
         $email = filter_var( $app->request->post('email') , FILTER_SANITIZE_EMAIL);
         $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
         $pass_v = filter_var($app->request->post('confirm_password'), FILTER_SANITIZE_STRING);
         $name = filter_var($app->request->post('name'), FILTER_SANITIZE_STRING);
-
         $this->triedEmail = $email;
         $this->triedName = $name;
-        
-        // validate name
-        if (empty($name))
-            return $this->setFeedback(i::__('Por favor, informe seu nome', 'multipleLocal'));
 
+        // VALIDO CAPTCHA
+        if (!$this->verifyRecaptcha2())
+           return $this->setFeedback(i::__('Verifique con el captcha que es un humano!', 'multipleLocal'));
+
+        // validate name
+        if (empty($name)){
+            return $this->setFeedback(i::__('Por favor, informe seu nome', 'multipleLocal'));
+        }
+        
+        // email exists? (case insensitive)
+        $checkEmailExistsQuery = $app->em->createQuery("SELECT u FROM \MapasCulturais\Entities\User u WHERE LOWER(u.email) = :email");
+        $checkEmailExistsQuery->setParameter('email', strtolower($email));
+        $checkEmailExists = $checkEmailExistsQuery->getResult();
+
+        if (!empty($checkEmailExists))
+            return $this->setFeedback(i::__('Este endereço de email já está em uso', 'multipleLocal'));
+        
         // validate email
         if (empty($email) || Validator::email()->validate($email) !== true)
             return $this->setFeedback(i::__('Por favor, informe um email válido', 'multipleLocal'));
@@ -303,9 +348,8 @@ class Provider extends \MapasCulturais\AuthProvider{
 
         // validate password
         return $this->verifyPassowrds($pass, $pass_v);
-        
+
     }
-    
     function hashPassword($pass) {
         return password_hash($pass, PASSWORD_DEFAULT);
     }
@@ -340,7 +384,7 @@ class Provider extends \MapasCulturais\AuthProvider{
             $meta = $this->passMetaName;
             $curr_saved_pass = $user->getMetadata($meta);
             
-            if ($this->password_verify($curr_pass, $curr_saved_pass)) {
+            if (password_verify($curr_pass, $curr_saved_pass)) {
                 
                 if ($this->verifyPassowrds($new_pass, $confirm_new_pass)) {
                     $user->setMetadata($meta, $app->auth->hashPassword($new_pass));
@@ -380,7 +424,7 @@ class Provider extends \MapasCulturais\AuthProvider{
         $email = filter_var($app->request->post('email'), FILTER_SANITIZE_STRING);
         $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
         $pass_v = filter_var($app->request->post('confirm_password'), FILTER_SANITIZE_STRING);
-        $user = $this->getUserFromDB($email);
+        $user = $app->repo("User")->findOneBy(array('email' => $email));
         $token = filter_var($app->request->get('t'), FILTER_SANITIZE_STRING);
         
         if (!$user) {
@@ -430,7 +474,7 @@ class Provider extends \MapasCulturais\AuthProvider{
     function recover() {
         $app = App::i();
         $email = filter_var($app->request->post('email'), FILTER_SANITIZE_STRING);
-        $user = $this->getUserFromDB($email);
+        $user = $app->repo("User")->findOneBy(array('email' => $email));
         
         if (!$user) {
             $this->feedback_success = false;
@@ -510,7 +554,7 @@ class Provider extends \MapasCulturais\AuthProvider{
         }
         
         $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
-        $user = $this->getUserFromDB($emailToCheck);
+        $user = $app->repo("User")->findOneBy(array('email' => $emailToCheck));
         $userToLogin = $user;
         
         if ($emailToCheck != $emailToLogin) {
@@ -530,7 +574,7 @@ class Provider extends \MapasCulturais\AuthProvider{
         $meta = $this->passMetaName;
         $savedPass = $user->getMetadata($meta);
 
-        if ($this->password_verify($pass, $savedPass)) {
+        if (password_verify($pass, $savedPass)) {
             $this->authenticateUser($userToLogin);
             return true;
         }
@@ -554,7 +598,7 @@ class Provider extends \MapasCulturais\AuthProvider{
                     'uid' => filter_var($app->request->post('email'), FILTER_SANITIZE_EMAIL),
                     'info' => [
                         'email' => filter_var($app->request->post('email'), FILTER_SANITIZE_EMAIL),
-                        'name' =>filter_var($app->request->post('name'), FILTER_SANITIZE_STRING),
+                        'name' => filter_var($app->request->post('name'), FILTER_SANITIZE_STRING),
                     ]
                 ]
             ];
@@ -599,7 +643,7 @@ class Provider extends \MapasCulturais\AuthProvider{
      * @param string $redirect_path
      */
     protected function _setRedirectPath($redirect_path){
-        $_SESSION['mapasculturais.auth.redirect_path'] = $redirect_path;
+        parent::_setRedirectPath($redirect_path);
     }
     /**
      * Returns the URL to redirect after authentication
@@ -796,7 +840,7 @@ class Provider extends \MapasCulturais\AuthProvider{
 
         $agent->emailPrivado = $user->email;
 
-        //$app->em->persist($agent);
+        //$app->em->persist($agent);    
         $agent->save();
         $app->em->flush();
 
