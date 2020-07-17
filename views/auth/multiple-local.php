@@ -29,7 +29,7 @@
 <br/>
 <div style="padding-left: 5%;">
     <?php if($feedback_msg): ?>
-    <div class="alert" <?php echo $feedback_success ? 'success' : 'error'; ?>>
+    <div class="alert <?php echo $feedback_success ? 'success' : 'error'; ?>">
         <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
         <?php echo htmlentities($feedback_msg); ?>
     </div>
@@ -39,12 +39,15 @@
         <div id="multiple-login">
             <h5 class="textcenter"><?php \MapasCulturais\i::_e('Entrar', 'multipleLocal'); ?></h5>
             <form action="<?php echo $login_form_action; ?>" method="POST">
-                <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
+                <?php \MapasCulturais\i::_e('E-mail ou CPF', 'multipleLocal'); ?>
                 <input type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
                 <br/><br/>
                 <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
                 <input type="password" name="password" value="" />
                 <br/><br/>
+                <?php if (isset($config['google-recaptcha-sitekey'])): ?>
+                    <div class="g-recaptcha" data-sitekey="<?php echo $config['google-recaptcha-sitekey']; ?>"></div>
+                <?php endif; ?>
                 <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Entrar', 'multipleLocal'); ?>" />
                 <a id="multiple-login-recover" class="multiple-recover-link"><?php \MapasCulturais\i::_e('Esqueci minha senha', 'multipleLocal'); ?></a>
             </form>
@@ -102,8 +105,22 @@
         <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
         <input type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
         <br/><br/>
+
+
+        <?php \MapasCulturais\i::_e('CPF', 'multipleLocal'); ?>
+        <input type="text" id="RegraValida" value="" name="cpf" maxlength="14">
+        <br/><br/>
+
+        
         <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
-        <input type="password" name="password" value="" />
+        <input id="pwd-progress-bar-validation"  type="password" name="password" value="" />
+        <small>Medidor de força da senha</small><br>
+        <small> * A senha deve conter uma letra maiuscola</small><br>
+        <small> * A senha deve conter uma letra minuscola</small><br>
+        <small> * A senha deve conter um caractere especial</small><br>
+        <small> * A senha deve conter no minimo 6 digitos </small><br>
+        <progress id="progress" value="0" max="100">70</progress>
+        <span id="progresslabel"></span>
         <br/><br/>
         <?php \MapasCulturais\i::_e('Confirmar senha', 'multipleLocal'); ?>
         <input type="password" name="confirm_password" value="" />
@@ -112,9 +129,9 @@
 		<div class="render-field checkbox-field">
 			<p><input onchange="this.setCustomValidity(validity.valueMissing ? 'Please indicate that you accept the Terms and Conditions' : '');" id="field_terms" type="checkbox" required name="terms"> 
 				<label class="caption" for="terminos">
-					<span> Acepto la
-						<a aria-current="false" target="_blank" href="<?php echo $app->createUrl('site', 'page', array('terminos-y-condiciones')) ?>"> Política de Privacidad y los Términos y Condiciones</a>
-						de Culturaenlinea.uy
+					<span> Aceito a
+						<a aria-current="false" target="_blank" href="<?php echo $app->createUrl('auth', '', array('termos-e-condicoes')) ?>"> Politica de Privacidade e termos de condições de uso</a> 
+						do MapasCulturaisCeara
 					</span>
 				</label>
 			</p>
@@ -140,7 +157,7 @@
 
 
 <script type="text/javascript">
-  document.getElementById("field_terms").setCustomValidity("Por favor, indica que aceptas los Términos y Condiciones");
+  document.getElementById("field_terms").setCustomValidity("Por favor, indique que aceita os Termos e condições de uso");
 </script>
 
 
