@@ -680,8 +680,12 @@ class Provider extends \MapasCulturais\AuthProvider{
             $user->setMetadata($this->loginAttempMetadata, 0 );
         }
 
-        $user->saveMetadata();
-        $app->em->flush();
+        $app->disableAccessControl();
+        $user->saveMetadata(true);
+        $app->enableAccessControl();
+
+        // $user->saveMetadata();
+        // $app->em->flush();
 
 
     }
@@ -752,13 +756,18 @@ class Provider extends \MapasCulturais\AuthProvider{
         
         $userToLogin = $user;
 
-        if(isset($user) && intval($user->getMetadata($this->accountIsActiveMetadata) == 0 )) {
+        $accountIsActive = $user->getMetadata($this->accountIsActiveMetadata);
+        
+        if(isset($accountIsActive) && isset($user) && intval($accountIsActive == 0 )) {
             return $this->setFeedback(i::__('Verifique seu email para validar a sua conta', 'multipleLocal'));
         }
+        
 
+        $config = $this->_config;
+        $timeBlockedloginAttemp = isset($config['timeBlockedloginAttemp']) ? $config['timeBlockedloginAttemp'] : 900;
         //verifica se o metadata 'timeBlockedloginAttempMetadata' existe e é maior que o tempo de agora, se for, então o usuario ta bloqueado te tentar fazer login
         if(isset($user) && intval($user->getMetadata($this->timeBlockedloginAttempMetadata) >= time()) ) {
-            return $this->setFeedback(i::__('Login bloqueado por alguns minutos', 'multipleLocal'));
+            return $this->setFeedback(i::__("Login bloqueado, tente novamente em ".intval($timeBlockedloginAttemp/60)." minutos, ou resete a sua senha", 'multipleLocal'));
         }
 
         
