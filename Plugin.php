@@ -7,6 +7,7 @@ use MapasCulturais\i;
 include('Facebook/FacebookStrategy.php');
 include('Google/GoogleStrategy.php');
 include('LinkedIn/LinkedInStrategy.php');
+include('LoginCidadao/LoginCidadaoStrategy.php');
 
 class Plugin extends \MapasCulturais\Plugin {
     
