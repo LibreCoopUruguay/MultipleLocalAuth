@@ -1,66 +1,98 @@
+<?php
+
+    function showStrategy($name, $config){
+        if (!isset($config['strategies'])){
+            return false;
+        }
+
+        if (!isset($config['strategies'][$name])){
+            return false;
+        }
+
+        //Default Visible TRUE
+        if (!isset($config['strategies'][$name]['visible'])){
+            return true;
+        } 
+
+        return $config['strategies'][$name]['visible'] === true;
+    }
+?>
+
+<?php if (isset($config['google-recaptcha-sitekey'])): ?>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<?php endif; ?>
 
 <br/>
 <div style="padding-left: 5%;">
-<?php if($feedback_msg): ?>
-<!--
-    <div class="auth_feedback <?php echo $feedback_success ? 'success' : 'error'; ?>">
+
+
+<br/>
+<div style="padding-left: 5%;">
+    <?php if($feedback_msg): ?>
+    <div class="alert <?php echo $feedback_success ? 'success' : 'error'; ?>">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
         <?php echo htmlentities($feedback_msg); ?>
     </div>
--->
+    <?php endif; ?>
 
-<div class="alert <?php echo $feedback_success ? 'success' : 'error'; ?>">
-  <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
-  <?php echo htmlentities($feedback_msg); ?>
-</div>
-
-
-<?php endif; ?>
-
-<div class="box-registro col-6">
-    
-    <div id="multiple-login">
-    
-        <h5 class="textcenter"><?php \MapasCulturais\i::_e('Entrar', 'multipleLocal'); ?></h5>
-
+    <div class="box-registro col-6" style="width:30%;">
+        <div id="multiple-login">
+            <h5 class="textcenter"><?php \MapasCulturais\i::_e('Entrar', 'multipleLocal'); ?></h5>
             <form action="<?php echo $login_form_action; ?>" method="POST">
-                
-                <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
+                <?php \MapasCulturais\i::_e('E-mail ou CPF', 'multipleLocal'); ?>
                 <input type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
                 <br/><br/>
                 <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
                 <input type="password" name="password" value="" />
+                <br/><br/>
+                <?php if (isset($config['google-recaptcha-sitekey'])): ?>
+                    <div class="g-recaptcha" data-sitekey="<?php echo $config['google-recaptcha-sitekey']; ?>"></div>
+                <?php endif; ?>
                 <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Entrar', 'multipleLocal'); ?>" />
                 <a id="multiple-login-recover" class="multiple-recover-link"><?php \MapasCulturais\i::_e('Esqueci minha senha', 'multipleLocal'); ?></a>
-                
             </form>
-            
-    </div>
-    
-    <div id="multiple-recover">
-    
-        <h5 class="textcenter"><?php \MapasCulturais\i::_e('Esqueci minha senha', 'multipleLocal'); ?></h5>
-
-        <form action="<?php echo $recover_form_action; ?>" method="POST">
-
-            <p><?php \MapasCulturais\i::_e('Para recuperar sua senha, informe o e-mail utilizado no cadastro.', 'multipleLocal'); ?></p>
-            <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
-            <input type="text" name="email" value="" />
-            <br/><br/>
-
-            <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Recuperar senha', 'multipleLocal'); ?>" />
-            
-            <a id="multiple-login-recover-cancel"  class="multiple-recover-link"><?php \MapasCulturais\i::_e('Cancelar', 'multipleLocal'); ?></a>
-
-        </form>
+        </div>
         
+        <div id="multiple-recover" style="display:none;">
+            <h5 class="textcenter"><?php \MapasCulturais\i::_e('Esqueci minha senha', 'multipleLocal'); ?></h5>
+            <form action="<?php echo $recover_form_action; ?>" method="POST">
+                <p><?php \MapasCulturais\i::_e('Para recuperar sua senha, informe o e-mail utilizado no cadastro.', 'multipleLocal'); ?></p>
+                <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
+                <input type="text" name="email" value="" />
+                <br/><br/>
+                <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Recuperar senha', 'multipleLocal'); ?>" />
+                <a id="multiple-login-recover-cancel"  class="multiple-recover-link"><?php \MapasCulturais\i::_e('Cancelar', 'multipleLocal'); ?></a>
+            </form>
+        </div>
     </div>
+    <?php if (showStrategy('Facebook', $config) || showStrategy('Google', $config) || showStrategy('LinkedIn', $config) || showStrategy('LoginCidadao', $config)): ?>
+    <div class="box-registro  col" style="width:30%;">
+        <h5 class="textcenter"><?php \MapasCulturais\i::_e('Conectar-se', 'multipleLocal'); ?></h5>
+        <p><?php \MapasCulturais\i::_e('Utilize sua conta em outros serviços para entrar', 'multipleLocal'); ?>:</p>
+        <p style="text-align: center;">
+            <?php if (showStrategy('Facebook', $config)): ?>
+            <a href="<?php echo $app->createUrl('auth', 'facebook') ?>"><img src="<?php $this->asset('img/fb-login.png'); ?>" /></a>&nbsp;&nbsp;
+            <?php endif; ?>
+            <?php if (showStrategy('Google', $config)): ?>
+            <a href="<?php echo $app->createUrl('auth', 'google') ?>"><img src="<?php $this->asset('img/go-login.png'); ?>" /></a>&nbsp;&nbsp;
+            <?php endif; ?>
+            <?php if (showStrategy('LinkedIn', $config)): ?>
+            <a href="<?php echo $app->createUrl('auth', 'linkedin') ?>"><img src="<?php $this->asset('img/ln-login.png'); ?>" /></a>&nbsp;&nbsp;
+            <?php endif; ?>
+            <?php if (showStrategy('LoginCidadao', $config)): ?>
+            <a href="<?php echo $app->createUrl('auth', 'logincidadao') ?>"><img src="<?php $this->asset('img/lc-login.png'); ?>" /></a>
+            <?php endif; ?>
+        </p>
+        <?php $app->applyHook('multipleLocalAuth.loginPage:end'); ?>
+    </div>
+    <?php endif; ?>
+
     
-				<div>
-						<span style="font-size: smaller;"><p> <i>Si no logras acceder a la plataforma sugerimos restablecer contraseña, haciendo clic sobre "Olvidé mi contraseña", si el problema persiste o por cualquier consulta comunicarse con: culturaenlinea@mec.gub.uy</i></p>	</span>				
-				</div>    
+    
+				  
     
 </div>
+
 
 <div class="box-registro col-6">
     <h5 class="textcenter"><?php \MapasCulturais\i::_e('Registrar-se', 'multipleLocal'); ?></h5>
@@ -73,8 +105,22 @@
         <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
         <input type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
         <br/><br/>
+
+
+        <?php \MapasCulturais\i::_e('CPF', 'multipleLocal'); ?>
+        <input type="text" id="RegraValida" value="" name="cpf" maxlength="14">
+        <br/><br/>
+
+        
         <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
-        <input type="password" name="password" value="" />
+        <input id="pwd-progress-bar-validation"  type="password" name="password" value="" />
+        <small>Medidor de força da senha</small><br>
+        <small> * A senha deve conter uma letra maiuscola</small><br>
+        <small> * A senha deve conter uma letra minuscola</small><br>
+        <small> * A senha deve conter um caractere especial</small><br>
+        <small> * A senha deve conter no minimo 6 digitos </small><br>
+        <progress id="progress" value="0" max="100">70</progress>
+        <span id="progresslabel"></span>
         <br/><br/>
         <?php \MapasCulturais\i::_e('Confirmar senha', 'multipleLocal'); ?>
         <input type="password" name="confirm_password" value="" />
@@ -83,9 +129,9 @@
 		<div class="render-field checkbox-field">
 			<p><input onchange="this.setCustomValidity(validity.valueMissing ? 'Please indicate that you accept the Terms and Conditions' : '');" id="field_terms" type="checkbox" required name="terms"> 
 				<label class="caption" for="terminos">
-					<span> Acepto la
-						<a aria-current="false" target="_blank" href="<?php echo $app->createUrl('site', 'page', array('terminos-y-condiciones')) ?>"> Política de Privacidad y los Términos y Condiciones</a>
-						de Culturaenlinea.uy
+					<span> Aceito a
+						<a aria-current="false" target="_blank" href="<?php echo $app->createUrl('auth', '', array('termos-e-condicoes')) ?>"> Politica de Privacidade e termos de condições de uso</a> 
+						do MapasCulturaisCeara
 					</span>
 				</label>
 			</p>
@@ -95,8 +141,9 @@
 		<div id="html_element"></div>
 -->
 	</div>
-
-        <div class="g-recaptcha" data-sitekey="6LdZBNAUAAAAAGKzUKyL2UAU5Q5v9LsO2iCiDN8L"></div>
+        <?php if (isset($config['google-recaptcha-sitekey'])): ?>
+        <div class="g-recaptcha" data-sitekey="<?php echo $config['google-recaptcha-sitekey']; ?>"></div>
+        <?php endif; ?>
 	<br/>
 
 	<input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Registrar-se', 'multipleLocal'); ?>" />
@@ -110,11 +157,10 @@
 
 
 <script type="text/javascript">
-  document.getElementById("field_terms").setCustomValidity("Por favor, indica que aceptas los Términos y Condiciones");
+  document.getElementById("field_terms").setCustomValidity("Por favor, indique que aceita os Termos e condições de uso");
 </script>
 
 
 </div>
-
 
 </div>
