@@ -39,7 +39,13 @@
         <div id="multiple-login">
             <h5 class="textcenter"><?php \MapasCulturais\i::_e('Entrar', 'multipleLocal'); ?></h5>
             <form action="<?php echo $login_form_action; ?>" method="POST">
-                <?php \MapasCulturais\i::_e('E-mail ou CPF', 'multipleLocal'); ?>
+                <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?> 
+
+                <!-- somente mostre o CPF se tiver ativado nas config -->
+                <?php if(isset($config['enableLoginByCPF']) && $config['enableLoginByCPF']) { ?>
+                    ou CPF
+                <?php } ?>
+
                 <input type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
                 <br/><br/>
                 <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
@@ -106,19 +112,18 @@
         <input type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
         <br/><br/>
 
-
-        <?php \MapasCulturais\i::_e('CPF', 'multipleLocal'); ?>
-        <input type="text" id="RegraValida" value="" name="cpf" maxlength="14">
-        <br/><br/>
+        <!-- somente mostre o CPF se tiver ativado nas config -->
+        <?php if(isset($config['enableLoginByCPF']) && $config['enableLoginByCPF']) { ?>
+            <?php \MapasCulturais\i::_e('CPF', 'multipleLocal'); ?>
+            <input type="text" id="RegraValida" value="" name="cpf" maxlength="14">
+            <br/><br/>
+        <?php } ?>
 
         
         <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
         <input id="pwd-progress-bar-validation"  type="password" name="password" value="" />
         <small>Medidor de força da senha</small><br>
-        <small> * A senha deve conter uma letra maiuscola</small><br>
-        <small> * A senha deve conter uma letra minuscola</small><br>
-        <small> * A senha deve conter um caractere especial</small><br>
-        <small> * A senha deve conter no minimo 6 digitos </small><br>
+        <ul id="passwordRulesUL"> </ul>
         <progress id="progress" value="0" max="100">70</progress>
         <span id="progresslabel"></span>
         <br/><br/>
