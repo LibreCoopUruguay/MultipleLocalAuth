@@ -6,7 +6,7 @@ use MapasCulturais\i;
 use MapasCulturais\Validator;
 
 
-class Provider extends \MapasCulturais\AuthProvider{
+class Provider extends \MapasCulturais\AuthProvider {
     protected $opauth;
     
     var $feedback_success   = false;
@@ -236,12 +236,14 @@ class Provider extends \MapasCulturais\AuthProvider{
         });
         
         $app->hook('POST(auth.login)', function () use($app){
-        
-            if ($app->auth->verifyLogin())
-                $app->redirect($app->auth->getRedirectPath());
-            else
+            $redirectUrl = $app->request->post('redirectUrl');
+            $email = $app->request->post('email');
+            $redirectUrl = (empty($redirectUrl)) ? $app->auth->getRedirectPath() : $redirectUrl;
+            if ($app->auth->verifyLogin()) {
+                $app->redirect($redirectUrl);
+            } else {
                 $app->auth->renderForm($this);
-        
+            }
         });
         
         $app->hook('POST(auth.recover)', function () use($app){

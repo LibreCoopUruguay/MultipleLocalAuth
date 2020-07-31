@@ -39,6 +39,7 @@
         <div id="multiple-login">
             <h5 class="textcenter"><?php \MapasCulturais\i::_e('Entrar', 'multipleLocal'); ?></h5>
             <form action="<?php echo $login_form_action; ?>" method="POST">
+            <input type="hidden" name="redirectUrl" value="<?php echo isset($redirectUrl) ? $redirectUrl : '' ;?>" />
                 <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?> 
 
                 <!-- somente mostre o CPF se tiver ativado nas config -->
