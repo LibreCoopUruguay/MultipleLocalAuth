@@ -89,3 +89,32 @@
     font-size: 0.9em;
     color: #666;
 }
+
+#main-section .section-login{
+    padding-left: 5% !important;
+}
+
+
+/* Smartphones (portrait) ----------- */
+@media only screen and (max-width: 982px) {
+    #main-section .box-registro {
+        width: 90% !important;
+    }
+
+    #main-section .section-login{
+        padding-left: 0 !important;
+    }
+}
+
+/* iPads (portrait and landscape) ----------- */
+@media only screen and (min-width: 983px) and (max-width: 1600px) {
+    #main-section .box-registro {
+        width: 30% !important;
+    }
+
+    #main-section .section-login{
+        padding-left: 0 !important;
+    }
+}
+
+
