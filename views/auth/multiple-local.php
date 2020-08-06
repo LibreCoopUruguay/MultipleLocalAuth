@@ -27,7 +27,7 @@
 
 
 <br/>
-<div style="padding-left: 5%;">
+<div class="section-login">
     <?php if($feedback_msg): ?>
     <div class="alert <?php echo $feedback_success ? 'success' : 'error'; ?>">
         <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
