@@ -76,7 +76,9 @@ class Provider extends \MapasCulturais\AuthProvider {
             $user = $usermeta->owner;
             $user->setMetadata($app->auth->accountIsActiveMetadata, 1);
 
-            $user->saveMetadata();
+            $app->disableAccessControl();
+            $user->saveMetadata(true);
+            $app->enableAccessControl();
             $app->em->flush();
             
             $msg = i::__('Email validado com sucesso', 'multipleLocal');  
