@@ -364,30 +364,30 @@ class Provider extends \MapasCulturais\AuthProvider {
         $err = "";
         if(!empty($pass) && $pass != "" ){
             if (strlen($pass) <= $passwordLength) {
-                $err .= "Sua senha deve conter pelo menos 8 dígitos !";
+                $err .= i::__("Sua senha deve conter pelo menos 8 dígitos !", 'multipleLocal');
             }
             if(isset($config['passwordMustHaveNumbers']) && 
                 $config['passwordMustHaveNumbers'] == true &&
                 !preg_match("#[0-9]+#",$pass)) {
-                $err .= " Sua senha deve conter pelo menos 1 número !";
+                $err .= i::__(" Sua senha deve conter pelo menos 1 número !", 'multipleLocal');
             }
             if(isset($config['passwordMustHaveCapitalLetters']) && 
                 $config['passwordMustHaveCapitalLetters'] &&
                 !preg_match("#[A-Z]+#",$pass)) {
-                $err .= " Sua senha deve conter pelo menos 1 letra maiúscula !";
+                $err .= i::__(" Sua senha deve conter pelo menos 1 letra maiúscula !", 'multipleLocal');
             }
             if(isset($config['passwordMustHaveLowercaseLetters']) && 
                 $config['passwordMustHaveLowercaseLetters'] &&
                 !preg_match("#[a-z]+#",$pass)) {
-                $err .= " Sua senha deve conter pelo menos 1 letra minúscula !";
+                $err .= i::__(" Sua senha deve conter pelo menos 1 letra minúscula !", 'multipleLocal');
             }
             if(isset($config['passwordMustHaveSpecialCharacters']) && 
                 $config['passwordMustHaveSpecialCharacters'] &&
                 !preg_match('/[\'^£$%&*()}{@#~?><>,|=_+¬-]/', $pass)) {
-                $err .= " Sua senha deve conter pelo menos 1 caractere especial !";
+                $err .= i::__(" Sua senha deve conter pelo menos 1 caractere especial !", 'multipleLocal');
             }
         }else{
-            $err .= "Por favor, insira sua senha";
+            $err .= i::__("Por favor, insira sua senha", 'multipleLocal');
         }
 
         if (strlen($err) > 1) 
@@ -641,7 +641,17 @@ class Provider extends \MapasCulturais\AuthProvider {
     function renderForm($theme) {
         $app = App::i();
         $config = $this->_config;
+
+        $jsLabelsInternationalization = [
+            'passwordMustHaveCapitalLetters'=> i::__('A senha deve conter uma letra maiúsculas', 'multipleLocal'),
+            'passwordMustHaveLowercaseLetters'=> i::__('A senha deve conter uma letra minúsculas', 'multipleLocal'),
+            'passwordMustHaveSpecialCharacters'=> i::__('A senha deve conter um caractere especial', 'multipleLocal'),
+            'passwordMustHaveNumbers'=> i::__('A senha deve conter um numero ', 'multipleLocal'),
+            'minimumPasswordLength'=> i::__('O tamanho mínimo da senha é de: ', 'multipleLocal'),
+        ];
+
         $theme->render('multiple-local', [
+            'jsLabelsInternationalization' => $jsLabelsInternationalization,
             'config' => $config,
             'register_form_action' => $app->auth->register_form_action,
             'register_form_method' => $app->auth->register_form_method,
