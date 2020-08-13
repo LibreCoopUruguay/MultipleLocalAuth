@@ -1,5 +1,7 @@
 <?php
 
+    $this->jsObject['labels']['multiplelocal'] = $jsLabelsInternationalization;
+
     function showStrategy($name, $config){
         if (!isset($config['strategies'])){
             return false;
@@ -39,11 +41,12 @@
         <div id="multiple-login">
             <h5 class="textcenter"><?php \MapasCulturais\i::_e('Entrar', 'multipleLocal'); ?></h5>
             <form action="<?php echo $login_form_action; ?>" method="POST">
+            <input type="hidden" name="redirectUrl" value="<?php echo isset($redirectUrl) ? $redirectUrl : '' ;?>" />
                 <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?> 
 
                 <!-- somente mostre o CPF se tiver ativado nas config -->
                 <?php if(isset($config['enableLoginByCPF']) && $config['enableLoginByCPF']) { ?>
-                    ou CPF
+                    <?php \MapasCulturais\i::_e('ou CPF', 'multipleLocal'); ?> 
                 <?php } ?>
 
                 <input type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
@@ -122,7 +125,7 @@
         
         <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
         <input id="pwd-progress-bar-validation"  type="password" name="password" value="" />
-        <small>Medidor de força da senha</small><br>
+        <small><?php \MapasCulturais\i::_e('Medidor de força da senha', 'multipleLocal'); ?></small><br>
         <ul id="passwordRulesUL"> </ul>
         <progress id="progress" value="0" max="100">70</progress>
         <span id="progresslabel"></span>
@@ -134,9 +137,9 @@
 		<div class="render-field checkbox-field">
 			<p><input onchange="this.setCustomValidity(validity.valueMissing ? 'Please indicate that you accept the Terms and Conditions' : '');" id="field_terms" type="checkbox" required name="terms"> 
 				<label class="caption" for="terminos">
-					<span> Aceito a
-						<a aria-current="false" target="_blank" href="<?php echo $app->createUrl('auth', '', array('termos-e-condicoes')) ?>"> Politica de Privacidade e termos de condições de uso</a> 
-						do MapasCulturaisCeara
+					<span> <?php \MapasCulturais\i::_e('Aceito a', 'multipleLocal'); ?>
+						<a aria-current="false" target="_blank" href="<?php echo $app->createUrl('auth', '', array('termos-e-condicoes')) ?>"> <?php \MapasCulturais\i::_e('Politica de Privacidade e termos de condições de uso', 'multipleLocal'); ?></a> 
+						<?php \MapasCulturais\i::_e('do MapasCulturaisCeara', 'multipleLocal'); ?>
 					</span>
 				</label>
 			</p>
