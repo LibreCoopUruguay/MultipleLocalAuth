@@ -36,7 +36,6 @@ $(function() {
         }
     }
     
-
     var password = document.getElementById("pwd-progress-bar-validation");
     if(password) {
         // verifica a força da senha
@@ -53,28 +52,29 @@ $(function() {
 
             if(data.passwordRules.passwordMustHaveCapitalLetters) {
                 rules.push(passwordMustHaveCapitalLetters);
-                $("#passwordRulesUL").append("<li>A senha deve conter uma letra maiúsculas</li>");
+                
+                $("#passwordRulesUL").append(`<li> ${MapasCulturais.labels.multiplelocal.passwordMustHaveCapitalLetters} </li>`);
             }
 
             if(data.passwordRules.passwordMustHaveLowercaseLetters) {
                 rules.push(passwordMustHaveLowercaseLetters);
-                $("#passwordRulesUL").append("<li>A senha deve conter uma letra minúsculas</li>");
+                $("#passwordRulesUL").append(`<li> ${MapasCulturais.labels.multiplelocal.passwordMustHaveLowercaseLetters} </li>`);
             }
 
             if(data.passwordRules.passwordMustHaveSpecialCharacters) {
                 rules.push(passwordMustHaveSpecialCharacters);
-                $("#passwordRulesUL").append("<li>A senha deve conter um caractere especial</li>");
+                $("#passwordRulesUL").append(`<li> ${MapasCulturais.labels.multiplelocal.passwordMustHaveSpecialCharacters} </li>`);
             }
 
             if(data.passwordRules.passwordMustHaveNumbers) {
                 rules.push(passwordMustHaveNumbers);
-                $("#passwordRulesUL").append("<li>A senha deve conter um numero</li>");
+                $("#passwordRulesUL").append(`<li> ${MapasCulturais.labels.multiplelocal.passwordMustHaveNumbers} </li>`);
             }
 
             if(data.passwordRules.minimumPasswordLength) {
                 minimumPasswordLength = data.passwordRules.minimumPasswordLength
             }
-            $("#passwordRulesUL").append(`<li>A senha deve conter no minimo ${minimumPasswordLength} digitos</li>`);
+            $("#passwordRulesUL").append(`<li> ${MapasCulturais.labels.multiplelocal.minimumPasswordLength} ${minimumPasswordLength} </li>`);
 
             console.log("get passwordvalidationinfos OK");
         });
