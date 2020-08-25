@@ -832,6 +832,9 @@ class Provider extends \MapasCulturais\AuthProvider {
     
     function doRegister() {
         $app = App::i();
+        $config = $app->_config;
+        
+
         if ($this->validateRegisterFields()) {
             
             $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
@@ -865,7 +868,9 @@ class Provider extends \MapasCulturais\AuthProvider {
             $response['auth']['uid'] = strtolower($response['auth']['uid']);
             $response['auth']['info']['email'] = strtolower($response['auth']['info']['email']);
             
-            $user = $this->createUser($response);
+            $app->applyHookBoundTo($this, 'auth.createUser:before', [$response]);
+            $user = $this->_createUser($response);
+            $app->applyHookBoundTo($this, 'auth.createUser:after', [$user, $response]);
 
             $baseUrl = $app->getBaseUrl();
 
@@ -878,8 +883,18 @@ class Provider extends \MapasCulturais\AuthProvider {
                     <head>
                     </head>
                     <body>
-                        <h1>Benvind@ a plataforma Mapa Cultural do Ceará</h1>
-                        Para validar seu email, <a href="'.$baseUrl.'auth/confirma-email?token='.$token.'" target="_blank"> Clique Aqui ! </a><br>
+                        <div>
+                            <font face="tahoma, sans-serif" color="#666666">Benvind@ a plataforma '.$config['app.siteName'].' <b>'.$response['auth']['info']['name'].'</b>!<br><br></font>
+                        </div>
+                        <div>
+                            <font face="tahoma, sans-serif" color="#666666">Comece a cadastrar seus agentes, espaços e eventos para construir seu mapa cultural.<br><br></font>
+                        </div>
+                        <div>
+                            <font face="tahoma, sans-serif" color="#666666"> Para validar seu email, <a href="'.$baseUrl.'auth/confirma-email?token='.$token.'" target="_blank"> Clique Aqui ! </a><br> <br><br></font>
+                        </div>
+                        <div>
+                            <font face="tahoma, sans-serif" color="#666666">Até +! =]<br><br></font>
+                        </div>
                     </body>
                 </html>'
             ]);

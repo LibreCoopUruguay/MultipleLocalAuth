@@ -139,7 +139,7 @@
 				<label class="caption" for="terminos">
 					<span> <?php \MapasCulturais\i::_e('Aceito a', 'multipleLocal'); ?>
 						<a aria-current="false" target="_blank" href="<?php echo $app->createUrl('auth', '', array('termos-e-condicoes')) ?>"> <?php \MapasCulturais\i::_e('Politica de Privacidade e termos de condições de uso', 'multipleLocal'); ?></a> 
-						<?php \MapasCulturais\i::_e('do MapasCulturaisCeara', 'multipleLocal'); ?>
+						<?php \MapasCulturais\i::_e('do MapasCulturais', 'multipleLocal'); ?>
 					</span>
 				</label>
 			</p>
