@@ -865,7 +865,9 @@ class Provider extends \MapasCulturais\AuthProvider {
             $response['auth']['uid'] = strtolower($response['auth']['uid']);
             $response['auth']['info']['email'] = strtolower($response['auth']['info']['email']);
             
-            $user = $this->createUser($response);
+            $app->applyHookBoundTo($this, 'auth.createUser:before', [$response]);
+            $user = $this->_createUser($response);
+            $app->applyHookBoundTo($this, 'auth.createUser:after', [$user, $response]);
 
             $baseUrl = $app->getBaseUrl();
 
@@ -878,7 +880,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     <head>
                     </head>
                     <body>
-                        <h1>Benvind@ a plataforma Mapa Cultural do Ceará</h1>
+                        <h1>Olá '.$response['auth']['info']['email'].' ! Benvind@ a plataforma Mapa Cultural do Ceará</h1>
                         Para validar seu email, <a href="'.$baseUrl.'auth/confirma-email?token='.$token.'" target="_blank"> Clique Aqui ! </a><br>
                     </body>
                 </html>'
