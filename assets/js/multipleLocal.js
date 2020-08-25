@@ -1,4 +1,6 @@
 $(function() {
+
+    console.log("MultipleLocal.Js carregado!")
     
     // mascara para o input de CPF
     var cpfInput = document.getElementById("RegraValida");
