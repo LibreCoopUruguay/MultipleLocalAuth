@@ -94,6 +94,9 @@
     padding-left: 5% !important;
 }
 
+#progress{
+    width: 100%!important;
+}
 
 /* Smartphones (portrait) ----------- */
 @media only screen and (max-width: 982px) {
