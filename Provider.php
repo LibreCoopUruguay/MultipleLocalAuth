@@ -880,7 +880,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     <head>
                     </head>
                     <body>
-                        <h1>Olá '.$response['auth']['info']['email'].' ! Benvind@ a plataforma Mapa Cultural do Ceará</h1>
+                        <h1>Olá '.$response['auth']['info']['email'].' ! Benvind@ a plataforma Mapa Cultural</h1>
                         Para validar seu email, <a href="'.$baseUrl.'auth/confirma-email?token='.$token.'" target="_blank"> Clique Aqui ! </a><br>
                     </body>
                 </html>'
