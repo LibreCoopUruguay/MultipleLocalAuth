@@ -597,6 +597,9 @@ class Provider extends \MapasCulturais\AuthProvider {
             $this->feedback_msg = i::__('Email não encontrado', 'multipleLocal');
             return false;
         }
+
+        if (!$this->verifyRecaptcha2())
+           return $this->setFeedback(i::__('Captcha incorreto, tente novamente !', 'multipleLocal'));
         
         // generate the hash
         $source = rand(3333, 8888);
