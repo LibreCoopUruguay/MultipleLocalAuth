@@ -17,15 +17,15 @@ class Provider extends \MapasCulturais\AuthProvider {
     public $register_form_action = '';
     public $register_form_method = 'POST';
     
-    public $passMetaName = 'localAuthenticationPassword';
+    public static $passMetaName = 'localAuthenticationPassword';
 
-    public $cpfMetadata = 'cpf';
+    public static $cpfMetadata = 'cpf';
 
-    public $tokenVerifyAccountMetadata = 'tokenVerifyAccount';
-    public $accountIsActiveMetadata = 'accountIsActive';
+    public static $tokenVerifyAccountMetadata = 'tokenVerifyAccount';
+    public static $accountIsActiveMetadata = 'accountIsActive';
 
-    public $loginAttempMetadata = "loginAttemp";
-    public $timeBlockedloginAttempMetadata = "timeBlockedloginAttemp";
+    public static $loginAttempMetadata = "loginAttemp";
+    public static $timeBlockedloginAttempMetadata = "timeBlockedloginAttemp";
     
     function dump($x) {
         \Doctrine\Common\Util\Debug::dump($x);
@@ -65,7 +65,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             $app = App::i();
             $token = filter_var($app->request->get('token'), FILTER_SANITIZE_STRING);
 
-            $usermeta = $app->repo("UserMeta")->findOneBy(array('key' => $app->auth->tokenVerifyAccountMetadata, 'value' => $token));
+            $usermeta = $app->repo("UserMeta")->findOneBy(array('key' => Provider::$tokenVerifyAccountMetadata, 'value' => $token));
 
             if (!$usermeta) {
                $errorMsg = i::__('Token inválidos', 'multipleLocal');   
@@ -74,7 +74,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             }
 
             $user = $usermeta->owner;
-            $user->setMetadata($app->auth->accountIsActiveMetadata, 1);
+            $user->setMetadata(Provider::$accountIsActiveMetadata, 1);
 
             $app->disableAccessControl();
             $user->saveMetadata(true);
@@ -430,7 +430,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             //retira ". e -" do $request->post('cpf')
             $cpf = str_replace("-","",$cpf);
             $cpf = str_replace(".","",$cpf);
-            $userExists = $app->repo("UserMeta")->findOneBy(array('key' => $this->cpfMetadata, 'value' => $cpf));
+            $userExists = $app->repo("UserMeta")->findOneBy(array('key' => self::$cpfMetadata, 'value' => $cpf));
 
             if (!empty($userExists)) {
                 return $this->setFeedback(i::__('Este CPF já está em uso', 'multipleLocal'));
@@ -494,7 +494,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             $curr_pass =filter_var($app->request->post('current_pass'), FILTER_SANITIZE_STRING);
             $new_pass = filter_var($app->request->post('new_pass'), FILTER_SANITIZE_STRING);
             $confirm_new_pass = filter_var($app->request->post('confirm_new_pass'), FILTER_SANITIZE_STRING);
-            $meta = $this->passMetaName;
+            $meta = self::$passMetaName;
             $curr_saved_pass = $user->getMetadata($meta);
             
             if (password_verify($curr_pass, $curr_saved_pass)) {
@@ -571,7 +571,7 @@ class Provider extends \MapasCulturais\AuthProvider {
         if (!$this->verifyPassowrds($pass, $pass_v))
             return false;
         
-        $user->setMetadata($this->passMetaName, $this->hashPassword($pass));
+        $user->setMetadata(self::$passMetaName, $this->hashPassword($pass));
         
         $app->disableAccessControl();
         $user->save(true); 
@@ -681,29 +681,29 @@ class Provider extends \MapasCulturais\AuthProvider {
         }
   
         //pegue o metadata de tentativas de login 
-        $loginAttempMetadata = $user->getMetadata($this->loginAttempMetadata);
+        $loginAttempMetadata = $user->getMetadata(self::$loginAttempMetadata);
 
         //nao existe? entao crie pela primeira vez
         if(!$loginAttempMetadata) {
-            $user->setMetadata($this->loginAttempMetadata, 0);
+            $user->setMetadata(self::$loginAttempMetadata, 0);
         }
 
         //se o metadata existe, for menor ou = a 'TENTATIVAS' de login && o tempo de ban for menor que o tempo de agora, some a tentativa de login +1
-        if($loginAttempMetadata <= $numberloginAttemp && $user->getMetadata($this->timeBlockedloginAttempMetadata) < time()) {
+        if($loginAttempMetadata <= $numberloginAttemp && $user->getMetadata(self::$timeBlockedloginAttempMetadata) < time()) {
 
-            $user->setMetadata($this->loginAttempMetadata, intval($loginAttempMetadata) + 1);
+            $user->setMetadata(self::$loginAttempMetadata, intval($loginAttempMetadata) + 1);
         }
 
         //se tentou logar mais que 'TENTATIVAS', e o tempo de ban for menor doque o tempo de agora, dê um ban de X minutos
-        if($loginAttempMetadata > $numberloginAttemp && $user->getMetadata($this->timeBlockedloginAttempMetadata) < time()) {
-            $user->setMetadata($this->timeBlockedloginAttempMetadata, time() + $timeBlockedloginAttemp ); 
-            $user->setMetadata($this->loginAttempMetadata, 0 );
+        if($loginAttempMetadata > $numberloginAttemp && $user->getMetadata(self::$timeBlockedloginAttempMetadata) < time()) {
+            $user->setMetadata(self::$timeBlockedloginAttempMetadata, time() + $timeBlockedloginAttemp ); 
+            $user->setMetadata(self::$loginAttempMetadata, 0 );
         }
 
         // se o parametro deleteBlockedTime for true, então tire o BAN do usuario
         if($deleteBlockedTime) {
-            $user->setMetadata($this->timeBlockedloginAttempMetadata, 0 );
-            $user->setMetadata($this->loginAttempMetadata, 0 );
+            $user->setMetadata(self::$timeBlockedloginAttempMetadata, 0 );
+            $user->setMetadata(self::$loginAttempMetadata, 0 );
         }
 
         $app->disableAccessControl();
@@ -773,7 +773,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             //retira ". e -" do $request->post('cpf')
             $email = str_replace("-","",$email);
             $email = str_replace(".","",$email);
-            $findUserByCpfMetadata = $app->repo("UserMeta")->findOneBy(array('key' => $this->cpfMetadata, 'value' => $email));
+            $findUserByCpfMetadata = $app->repo("UserMeta")->findOneBy(array('key' => self::$cpfMetadata, 'value' => $email));
             $user = $findUserByCpfMetadata->owner;
         } else {
             // LOGIN COM EMAIL
@@ -790,7 +790,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             return false;
         }
         
-        $accountIsActive = $user->getMetadata($this->accountIsActiveMetadata);
+        $accountIsActive = $user->getMetadata(self::$accountIsActiveMetadata);
         
         if(isset($accountIsActive) && isset($user) && intval($accountIsActive == 0 )) {
             return $this->setFeedback(i::__('Verifique seu email para validar a sua conta', 'multipleLocal'));
@@ -800,7 +800,7 @@ class Provider extends \MapasCulturais\AuthProvider {
         $config = $this->_config;
         $timeBlockedloginAttemp = isset($config['timeBlockedloginAttemp']) ? $config['timeBlockedloginAttemp'] : 900;
         //verifica se o metadata 'timeBlockedloginAttempMetadata' existe e é maior que o tempo de agora, se for, então o usuario ta bloqueado te tentar fazer login
-        if(isset($user) && intval($user->getMetadata($this->timeBlockedloginAttempMetadata) >= time()) ) {
+        if(isset($user) && intval($user->getMetadata(self::$timeBlockedloginAttempMetadata) >= time()) ) {
             return $this->setFeedback(i::__("Login bloqueado, tente novamente em ".intval($timeBlockedloginAttemp/60)." minutos, ou resete a sua senha", 'multipleLocal'));
         }
 
@@ -814,7 +814,7 @@ class Provider extends \MapasCulturais\AuthProvider {
         
         
         
-        $meta = $this->passMetaName;
+        $meta = self::$passMetaName;
         $savedPass = $user->getMetadata($meta);
 
         if (password_verify($pass, $savedPass)) {
@@ -899,13 +899,13 @@ class Provider extends \MapasCulturais\AuthProvider {
                 </html>'
             ]);
             
-            $user->setMetadata($this->passMetaName, $app->auth->hashPassword( $pass ));
+            $user->setMetadata(self::$passMetaName, $app->auth->hashPassword( $pass ));
 
-            $user->setMetadata($this->cpfMetadata, $response['auth']['info']['cpf']);
+            $user->setMetadata(self::$cpfMetadata, $response['auth']['info']['cpf']);
 
-            $user->setMetadata($this->tokenVerifyAccountMetadata, $token);
+            $user->setMetadata(self::$tokenVerifyAccountMetadata, $token);
 
-            $user->setMetadata($this->accountIsActiveMetadata, 0);
+            $user->setMetadata(self::$accountIsActiveMetadata, 0);
             
             // save
             $app->disableAccessControl();
