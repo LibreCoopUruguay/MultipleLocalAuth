@@ -69,6 +69,11 @@
                 <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
                 <input type="text" name="email" value="" />
                 <br/><br/>
+
+                <?php if (isset($config['google-recaptcha-sitekey'])): ?>
+                    <div class="g-recaptcha" data-sitekey="<?php echo $config['google-recaptcha-sitekey']; ?>"></div>
+                <?php endif; ?>
+                
                 <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Recuperar senha', 'multipleLocal'); ?>" />
                 <a id="multiple-login-recover-cancel"  class="multiple-recover-link"><?php \MapasCulturais\i::_e('Cancelar', 'multipleLocal'); ?></a>
             </form>

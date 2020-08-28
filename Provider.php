@@ -74,7 +74,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             }
 
             $user = $usermeta->owner;
-            $user->setMetadata(Provider::$accountIsActiveMetadata, 1);
+            $user->setMetadata(Provider::$accountIsActiveMetadata, '1');
 
             $app->disableAccessControl();
             $user->saveMetadata(true);
@@ -258,6 +258,16 @@ class Provider extends \MapasCulturais\AuthProvider {
         $app->hook('GET(auth.recover-resetform)', function () use($app){
         
             $app->auth->renderRecoverForm($this);
+        
+        });
+
+        $app->hook('GET(auth.junk)', function () use($app){
+        
+            $app = App::i();
+            $user = $app->repo("User")->findOneBy(array('email' => 'junk02@junk02.com'));
+            $userMetas =  $user->getMetadata();
+            var_dump($userMetas);
+            die();
         
         });
         
@@ -597,6 +607,9 @@ class Provider extends \MapasCulturais\AuthProvider {
             $this->feedback_msg = i::__('Email não encontrado', 'multipleLocal');
             return false;
         }
+
+        if (!$this->verifyRecaptcha2())
+           return $this->setFeedback(i::__('Captcha incorreto, tente novamente !', 'multipleLocal'));
         
         // generate the hash
         $source = rand(3333, 8888);
@@ -792,7 +805,7 @@ class Provider extends \MapasCulturais\AuthProvider {
         
         $accountIsActive = $user->getMetadata(self::$accountIsActiveMetadata);
         
-        if(isset($accountIsActive) && isset($user) && intval($accountIsActive == 0 )) {
+        if(isset($user) && $accountIsActive === '0' ) {
             return $this->setFeedback(i::__('Verifique seu email para validar a sua conta', 'multipleLocal'));
         }
         
@@ -905,7 +918,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             $user->setMetadata(self::$tokenVerifyAccountMetadata, $token);
 
-            $user->setMetadata(self::$accountIsActiveMetadata, 0);
+            $user->setMetadata(self::$accountIsActiveMetadata, '0');
             
             // save
             $app->disableAccessControl();
