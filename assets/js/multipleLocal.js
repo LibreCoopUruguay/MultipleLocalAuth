@@ -41,7 +41,7 @@ $(function() {
         // verifica a força da senha
         let passwordMustHaveCapitalLetters = /[A-Z]/;
         let passwordMustHaveLowercaseLetters = /[a-z]/;
-        let passwordMustHaveSpecialCharacters = /[$@$!%*#?&]/;
+        let passwordMustHaveSpecialCharacters = /[$@$!%*#?&\.\,\:<>+\_\-\"\'()]/;
         let passwordMustHaveNumbers = /[0-9]/;
         let minimumPasswordLength = 8;
 
