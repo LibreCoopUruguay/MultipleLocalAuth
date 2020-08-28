@@ -557,19 +557,20 @@ class Provider extends \MapasCulturais\AuthProvider {
             return false;
         }
         
-        $meta = 'recover_token_' . $token;
-        $savedToken = $user->getMetadata($meta);
+        $savedToken = $user->getMetadata('recover_token');
         
-        if (!$savedToken) {
+        if (!$savedToken || $savedToken != $token) {
             $this->feedback_success = false;
             $this->triedEmail = $email;
             $this->feedback_msg = i::__('Email ou token inválidos', 'multipleLocal');
             return false;
         }
+
+        $recover_token_time = $user->getMetadata('recover_token_time');
         
         // check if token is still valid
         $now = time();
-        $diff = $now - intval($savedToken);
+        $diff = $now - intval($recover_token_time);
         
         if ($diff > 60 * 60 * 24 * 30) {
             $this->feedback_success = false;
@@ -582,6 +583,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             return false;
         
         $user->setMetadata(self::$passMetaName, $this->hashPassword($pass));
+        $user->setMetadata(Provider::$accountIsActiveMetadata, '1');
         
         $app->disableAccessControl();
         $user->save(true); 
@@ -618,9 +620,13 @@ class Provider extends \MapasCulturais\AuthProvider {
         $token = substr($string, $cut, 20);
         
         // save hash and created time
-        $user->setMetadata('recover_token_' . $token, time());
+        $app->disableAccessControl();
+        $user->setMetadata('recover_token', $token);
+        $user->setMetadata('recover_token_time', time());
         $user->saveMetadata();
         $app->em->flush();
+        $app->enableAccessControl();
+        
         
         // build recover URL
         $url = $app->createUrl('auth', 'recover-resetform') . '?t=' . $token;
