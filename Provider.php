@@ -19,8 +19,11 @@ class Provider extends \MapasCulturais\AuthProvider {
     
     public static $passMetaName = 'localAuthenticationPassword';
 
-    public static $tokenVerifyAccountMetadata = 'tokenVerifyAccount';
+    public static $recoverTokenMetadata = 'recover_token';
+    public static $recoverTokenTimeMetadata = 'recover_token_time';
+    
     public static $accountIsActiveMetadata = 'accountIsActive';
+    public static $tokenVerifyAccountMetadata = 'tokenVerifyAccount';
 
     public static $loginAttempMetadata = "loginAttemp";
     public static $timeBlockedloginAttempMetadata = "timeBlockedloginAttemp";
