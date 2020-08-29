@@ -5,63 +5,63 @@
         font-weight: bold;
     }
 
+    form {
+
+        fieldset {
+            display: flex;
+            flex-flow: column;
+
+            &:not(:last-of-type) {
+                margin-bottom: 25px
+            }
+
+            &:last-of-type {
+                margin: 0 0 0.875rem;
+            }
+
+            label {
+                color: #111111;
+                font-family: $f-body;
+                font-size: $font-size-base;
+                letter-spacing: 0;
+                line-height: 1.375rem;
+                margin-bottom: 0.875rem;
+            }
+
+            input {
+                width: 100%;
+            }
+        }
+
+        .submit-options {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            margin-bottom: 60px;
+
+            a {
+                text-align: right;
+                color: $brand-secondary;
+                font-family: $f-body;
+                font-size: 0.875rem;
+                letter-spacing: 0;
+                line-height: 1.1875rem;
+                margin-bottom: 30px;
+                font-weight: normal;
+            }
+
+            input[type=submit] {
+                @extend .btn;
+            }
+        }
+    }
+
     .section-login {
         .options {
             #multiple {
                 &-login {
                     .login-options {
                         @extend .card;
-
-                        & > form {
-
-                            fieldset {
-                                display: flex;
-                                flex-flow: column;
-
-                                &:not(:last-of-type) {
-                                    margin-bottom: 25px
-                                }
-
-                                &:last-of-type {
-                                    margin: 0 0 0.875rem;
-                                }
-
-                                label {
-                                    color: #111111;
-                                    font-family: $f-body;
-                                    font-size: $font-size-base;
-                                    letter-spacing: 0;
-                                    line-height: 1.375rem;
-                                    margin-bottom: 0.875rem;
-                                }
-
-                                input {
-                                    width: 100%;
-                                }
-                            }
-
-                            .submit-options {
-                                display: flex;
-                                flex-direction: column;
-                                justify-content: flex-end;
-                                margin-bottom: 60px;
-
-                                a {
-                                    text-align: right;
-                                    color: $brand-secondary;
-                                    font-family: $f-body;
-                                    font-size: 0.875rem;
-                                    letter-spacing: 0;
-                                    line-height: 1.1875rem;
-                                    margin-bottom: 30px;
-                                    font-weight: normal;
-                                }
-
-                                input[type=submit] {
-                                    @extend .btn;
-                                }
-                            }
-                        }
 
                         .social-login {
                             margin-bottom: 60px;
@@ -139,6 +139,9 @@
     }
 
     .section-register {
-        
+        & > form {
+            @extend .card;
+
+        }
     }
 }
