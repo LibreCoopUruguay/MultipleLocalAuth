@@ -1,18 +1,39 @@
 .section-login-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 30px;
+    max-width: 730px;
+    margin: 0 auto;
+
+    @include large {
+        max-width: 730px;
+    }
+
     h5 {
         font-size: $font-size-h3;
         font-family: $f-title;
         font-weight: bold;
+        text-align: center;
+        margin-bottom: 30px;
     }
 
     form {
+        padding-top: 30px;
 
         fieldset {
             display: flex;
             flex-flow: column;
 
             &:not(:last-of-type) {
-                margin-bottom: 25px
+                margin-bottom: 5px;
+
+                @include large {
+                    margin-bottom: 25px
+                }
+
+                @include tablet {
+                    margin-bottom: 25px
+                }
             }
 
             &:last-of-type {
@@ -26,10 +47,33 @@
                 letter-spacing: 0;
                 line-height: 1.375rem;
                 margin-bottom: 0.875rem;
+                display: flex;
+                justify-content: space-between;
             }
 
             input {
                 width: 100%;
+            }
+        }
+
+        .progressbar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+
+            span {
+                font-size: 11px;
+                font-family: $f-body;
+                font-weight: bold;
+                color: #666666;
+
+                &:first-of-type {
+                    margin-right: 15px;
+                }
+
+                &:last-of-type {
+                    margin-left: 15px;
+                }
             }
         }
 
@@ -84,7 +128,7 @@
                                     align-items: center;
                                     flex: 1 1 0; 
                                     color: white;
-                                    padding: 19px 17px;
+                                    padding: 19px 8px;
                                     text-decoration: none;
                                     border-radius: 10px;
                                     font-size: 0.6875rem;
@@ -97,7 +141,7 @@
                                         width: 26px;
 
                                         filter: brightness(0) invert(1);
-                                        margin-right: 10px;
+                                        margin-right: 6px;
                                     }
 
                                     &.facebook {
@@ -130,18 +174,77 @@
                     
 
                 }
-
-                &-login, &-recover {
-                    
-                }
             }
         }
     }
 
     .section-register {
-        & > form {
+        & > .register-options {
             @extend .card;
 
+            form {
+                fieldset {
+                    label[for=pwd-progress-bar-validation] {
+                        .hoverable-options {
+                            position: relative;
+
+                            i {
+                                width: 20px;
+                                height: 20px;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                border-radius: 50%;
+                                text-align: center;
+                                color: white;
+                                font-style: normal;
+                                font-weight: bolder;
+                                background: $brand-secondary;
+                                font-size: 16px;
+                                letter-spacing: 0;
+                                line-height: 16px;
+                            }
+
+                            &:hover {
+                                #passwordRulesUL {
+                                    transform: scale(1);
+                                    z-index: 1;
+                                    transition: all .2s ease-in-out;
+                                    
+                                }
+                            }
+                            
+                            #passwordRulesUL {
+                                transform: scale(0);
+                                position: absolute;
+                                z-index: -1;
+                                transition: all .2s ease-in-out;
+                                bottom: 40px;
+                                left: -280px;
+                                list-style: none;
+                                margin: 0;
+                                padding: 0;
+                                width: 280px;
+                                border: 1px solid #F5F5F5;
+                                border-radius: 10px;
+                                background: #FFFFFF;
+                                box-shadow: 0 2px 4px 0 rgba(0,0,0,0.3);
+                                padding: 16px 20px;
+                                font-size: 0.6875rem;
+
+                                &:after {
+                                    $shift: 10px;
+                                    
+                                    position: absolute;
+                                    bottom: -$shift;
+                                    right: 27px;
+                                }
+                            }
+                        }
+                        
+                    }
+                }
+            }
         }
     }
 }
