@@ -165,7 +165,9 @@ function showStrategy($name, $config) {
                         <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
                         <div class="hoverable-options">
                             <i> ? </i>
-                            <ul id="passwordRulesUL"></ul>
+                            <ul id="passwordRulesUL">
+                                <div class="arrow"></div>
+                            </ul>
                         </div>
                         
                     </label>

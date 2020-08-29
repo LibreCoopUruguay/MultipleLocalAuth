@@ -123,10 +123,10 @@
                             &--content {
                                 display: flex;
 
-                                & > a {
+                                &>a {
                                     display: flex;
                                     align-items: center;
-                                    flex: 1 1 0; 
+                                    flex: 1 1 0;
                                     color: white;
                                     padding: 19px 8px;
                                     text-decoration: none;
@@ -136,7 +136,7 @@
                                     &:not(:first-child):not(:last-child) {
                                         margin: 0 10px;
                                     }
-                                    
+
                                     img {
                                         width: 26px;
 
@@ -170,17 +170,15 @@
                     }
                 }
 
-                &-recover {
-                    
-
-                }
+                &-recover {}
             }
         }
     }
 
     .section-register {
-        & > .register-options {
+        &>.register-options {
             @extend .card;
+            margin-bottom: 10px;
 
             form {
                 fieldset {
@@ -210,10 +208,10 @@
                                     transform: scale(1);
                                     z-index: 1;
                                     transition: all .2s ease-in-out;
-                                    
+
                                 }
                             }
-                            
+
                             #passwordRulesUL {
                                 transform: scale(0);
                                 position: absolute;
@@ -228,21 +226,41 @@
                                 border: 1px solid #F5F5F5;
                                 border-radius: 10px;
                                 background: #FFFFFF;
-                                box-shadow: 0 2px 4px 0 rgba(0,0,0,0.3);
+                                box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.3);
                                 padding: 16px 20px;
                                 font-size: 0.6875rem;
 
-                                &:after {
-                                    $shift: 10px;
-                                    
+                                .arrow {
+                                    width: 50px;
+                                    height: 25px;
                                     position: absolute;
-                                    bottom: -$shift;
-                                    right: 27px;
+                                    top: 100%;
+                                    right: -19px;
+                                    transform: translateX(-50%);
+                                    overflow: hidden;
+
+                                    &::after {
+                                        content: "";
+                                        position: absolute;
+                                        width: 20px;
+                                        height: 20px;
+                                        background: white;
+                                        transform: translateX(-50%) translateY(-50%) rotate(45deg);
+                                        top: 0;
+                                        left: 50%;
+                                        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+                                    }
                                 }
                             }
                         }
-                        
+
                     }
+
+
+                }
+
+                input[type=checkbox] {
+                    margin-right: 5px;
                 }
             }
         }

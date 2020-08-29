@@ -1104,6 +1104,10 @@ progress::-webkit-progress-bar {
   margin-top: -7px;
 }
 
+.section-login-wrapper .section-register > .register-options {
+  margin-bottom: 10px;
+}
+
 .section-login-wrapper .section-register > .register-options form fieldset label[for=pwd-progress-bar-validation] .hoverable-options {
   position: relative;
 }
@@ -1150,10 +1154,30 @@ progress::-webkit-progress-bar {
   font-size: 0.6875rem;
 }
 
-.section-login-wrapper .section-register > .register-options form fieldset label[for=pwd-progress-bar-validation] .hoverable-options #passwordRulesUL:after {
+.section-login-wrapper .section-register > .register-options form fieldset label[for=pwd-progress-bar-validation] .hoverable-options #passwordRulesUL .arrow {
+  width: 50px;
+  height: 25px;
   position: absolute;
-  bottom: -10px;
-  right: 27px;
+  top: 100%;
+  right: -19px;
+  transform: translateX(-50%);
+  overflow: hidden;
+}
+
+.section-login-wrapper .section-register > .register-options form fieldset label[for=pwd-progress-bar-validation] .hoverable-options #passwordRulesUL .arrow::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: white;
+  transform: translateX(-50%) translateY(-50%) rotate(45deg);
+  top: 0;
+  left: 50%;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.section-login-wrapper .section-register > .register-options form input[type=checkbox] {
+  margin-right: 5px;
 }
 
 /* ----- 5: PAGES ------- */
