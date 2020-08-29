@@ -782,20 +782,29 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             $cpf = $email;
 
-            $findUserByCpfMetadata1 = $app->repo("AgentMeta")->findOneBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
+            $findUserByCpfMetadata1 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
 
             //retira ". e -" do $request->post('cpf')
             $cpf = str_replace("-","",$cpf);
             $cpf = str_replace(".","",$cpf);
-            $findUserByCpfMetadata2 = $app->repo("AgentMeta")->findOneBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
+            $findUserByCpfMetadata2 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
 
             $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
 
             if(!$foundAgent) {
-                return $this->setFeedback(i::__('CPF ou senha incorreto', 'multipleLocal'));
+                return $this->setFeedback(i::__('CPF ou senha incorreta', 'multipleLocal'));
+            }
+
+            if(count($foundAgent) > 1) {
+                return $this->setFeedback(i::__('Somente é necessario que UM AGENTE tenha cpf UNICO, por favor exluca os demais agentes que tem CPF duplicado', 'multipleLocal'));
             }
             
-            $user = $app->repo("User")->findOneBy(array('id' => $foundAgent->owner->user->id));
+            $user = $app->repo("User")->findOneBy(array('id' => $foundAgent[0]->owner->user->id));
+
+            if($user->profile->id != $foundAgent[0]->owner->id) {
+                return $this->setFeedback(i::__('CPF ou senha incorreta. Utilize o CPF do seu agente principal', 'multipleLocal'));
+            }
+
         } else {
             // LOGIN COM EMAIL
             $user = $app->repo("User")->findOneBy(array('email' => $emailToCheck));
