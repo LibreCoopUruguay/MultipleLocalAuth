@@ -1160,6 +1160,7 @@ class Provider extends \MapasCulturais\AuthProvider {
         }
 
         $agent->emailPrivado = $user->email;
+        $agent->emailPublico = $user->email;
 
         //$app->em->persist($agent);    
         $agent->save();
