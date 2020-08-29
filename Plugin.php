@@ -36,6 +36,8 @@ class Plugin extends \MapasCulturais\Plugin {
     public function register() {
         $this->registerUserMetadata(Provider::$passMetaName, ['label' => i::__('Senha')]);
         
+        $this->registerUserMetadata(Provider::$recoverTokenMetadata, ['label' => i::__('Token para recuperação de senha')]);
+        $this->registerUserMetadata(Provider::$recoverTokenTimeMetadata, ['label' => i::__('Timestamp do token para recuperação de senha')]);
         $this->registerUserMetadata(Provider::$accountIsActiveMetadata, ['label' => i::__('Conta ativa?')]);
         $this->registerUserMetadata(Provider::$tokenVerifyAccountMetadata, ['label' => i::__('Token de verificação')]);
         $this->registerUserMetadata(Provider::$loginAttempMetadata, ['label' => i::__('Número de tentativas de login')]);
