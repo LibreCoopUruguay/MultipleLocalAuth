@@ -19,10 +19,11 @@ class Provider extends \MapasCulturais\AuthProvider {
     
     public static $passMetaName = 'localAuthenticationPassword';
 
-    public static $cpfMetadata = 'cpf';
-
-    public static $tokenVerifyAccountMetadata = 'tokenVerifyAccount';
+    public static $recoverTokenMetadata = 'recover_token';
+    public static $recoverTokenTimeMetadata = 'recover_token_time';
+    
     public static $accountIsActiveMetadata = 'accountIsActive';
+    public static $tokenVerifyAccountMetadata = 'tokenVerifyAccount';
 
     public static $loginAttempMetadata = "loginAttemp";
     public static $timeBlockedloginAttempMetadata = "timeBlockedloginAttemp";
@@ -260,16 +261,6 @@ class Provider extends \MapasCulturais\AuthProvider {
             $app->auth->renderRecoverForm($this);
         
         });
-
-        $app->hook('GET(auth.junk)', function () use($app){
-        
-            $app = App::i();
-            $user = $app->repo("User")->findOneBy(array('email' => 'junk02@junk02.com'));
-            $userMetas =  $user->getMetadata();
-            var_dump($userMetas);
-            die();
-        
-        });
         
         $app->hook('POST(auth.dorecover)', function () use($app){
         
@@ -393,7 +384,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             }
             if(isset($config['passwordMustHaveSpecialCharacters']) && 
                 $config['passwordMustHaveSpecialCharacters'] &&
-                !preg_match('/[\'^£$%&*()}{@#~?><>,|=_+¬-\.\,\:\"]/', $pass)) {
+                !preg_match('/[\'^£$%&*()}{@#~?><>,|=_"]/', $pass)) {
                 $err .= i::__(" Sua senha deve conter pelo menos 1 caractere especial !", 'multipleLocal');
             }
         }else{
@@ -440,7 +431,9 @@ class Provider extends \MapasCulturais\AuthProvider {
             //retira ". e -" do $request->post('cpf')
             $cpf = str_replace("-","",$cpf);
             $cpf = str_replace(".","",$cpf);
-            $userExists = $app->repo("UserMeta")->findOneBy(array('key' => self::$cpfMetadata, 'value' => $cpf));
+
+            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();  
+            $userExists = $app->repo("UserMeta")->findOneBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
 
             if (!empty($userExists)) {
                 return $this->setFeedback(i::__('Este CPF já está em uso', 'multipleLocal'));
@@ -788,16 +781,38 @@ class Provider extends \MapasCulturais\AuthProvider {
         // verifica se esta habilitado 'enableLoginByCPF' em conf.php && esta tentando fazer login com CPF
         if (isset($config['enableLoginByCPF']) && $config['enableLoginByCPF'] && preg_match("/^(([0-9]{3}.[0-9]{3}.[0-9]{3}-[0-9]{2})|([0-9]{11}))$/", $email ) ) {
             // LOGIN COM CPF
+            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig(); 
+
+            $cpf = $email;
+
+            $findUserByCpfMetadata1 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
 
             //retira ". e -" do $request->post('cpf')
-            $email = str_replace("-","",$email);
-            $email = str_replace(".","",$email);
-            $findUserByCpfMetadata = $app->repo("UserMeta")->findOneBy(array('key' => self::$cpfMetadata, 'value' => $email));
-            $user = $findUserByCpfMetadata->owner;
+            $cpf = str_replace("-","",$cpf);
+            $cpf = str_replace(".","",$cpf);
+            $findUserByCpfMetadata2 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
+
+            $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
+
+            if(!$foundAgent) {
+                return $this->setFeedback(i::__('CPF ou senha incorreta', 'multipleLocal'));
+            }
+
+            if(count($foundAgent) > 1) {
+                return $this->setFeedback(i::__('Somente é necessario que UM AGENTE tenha cpf UNICO, por favor exluca os demais agentes que tem CPF duplicado', 'multipleLocal'));
+            }
+            
+            $user = $app->repo("User")->findOneBy(array('id' => $foundAgent[0]->owner->user->id));
+
+            if($user->profile->id != $foundAgent[0]->owner->id) {
+                return $this->setFeedback(i::__('CPF ou senha incorreta. Utilize o CPF do seu agente principal', 'multipleLocal'));
+            }
+
         } else {
             // LOGIN COM EMAIL
             $user = $app->repo("User")->findOneBy(array('email' => $emailToCheck));
         }
+
 
         $userToLogin = $user;
 
@@ -920,7 +935,8 @@ class Provider extends \MapasCulturais\AuthProvider {
             
             $user->setMetadata(self::$passMetaName, $app->auth->hashPassword( $pass ));
 
-            $user->setMetadata(self::$cpfMetadata, $response['auth']['info']['cpf']);
+            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig(); 
+            $user->setMetadata($metadataFieldCpf, $response['auth']['info']['cpf']);
 
             $user->setMetadata(self::$tokenVerifyAccountMetadata, $token);
 
@@ -1038,6 +1054,14 @@ class Provider extends \MapasCulturais\AuthProvider {
         }
         return $valid;
     }
+
+    public function getMetadataFieldCpfFromConfig() {
+        $app = App::i();
+        $config = $app->config;
+
+        return isset($config['auth.config']['metadataFieldCPF']) ? $config['auth.config']['metadataFieldCPF'] : 'documento';
+    }
+
     public function _getAuthenticatedUser() {
 
 
@@ -1060,8 +1084,9 @@ class Provider extends \MapasCulturais\AuthProvider {
             $auth_provider = $app->getRegisteredAuthProviderId($response['auth']['provider']);
 
             $cpf = (isset($response['auth']['raw']['cpf'])) ? $this->mask($response['auth']['raw']['cpf'],'###.###.###-##') : null;
-            if (!empty($cpf)) {                
-                $agent = $app->repo('Agent')->findByMetadata('documento', $cpf);
+            if (!empty($cpf)) {        
+                $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();       
+                $agent = $app->repo('Agent')->findByMetadata($metadataFieldCpf, $cpf);
                 if(!empty($agent)) {
                     $user = $agent[0]->user;
                 }
@@ -1156,10 +1181,12 @@ class Provider extends \MapasCulturais\AuthProvider {
         //cpf
         $cpf = (isset($response['auth']['info']['cpf']) && $response['auth']['info']['cpf'] != "") ? $this->mask($response['auth']['info']['cpf'],'###.###.###-##') : null;
         if(!empty($cpf)){
-            $agent->setMetadata('documento', $cpf);
+            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();   
+            $agent->setMetadata($metadataFieldCpf, $cpf);
         }
 
         $agent->emailPrivado = $user->email;
+        $agent->emailPublico = $user->email;
 
         //$app->em->persist($agent);    
         $agent->save();
