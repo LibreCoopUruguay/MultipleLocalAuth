@@ -1,0 +1,144 @@
+.section-login-wrapper {
+    h5 {
+        font-size: $font-size-h3;
+        font-family: $f-title;
+        font-weight: bold;
+    }
+
+    .section-login {
+        .options {
+            #multiple {
+                &-login {
+                    .login-options {
+                        @extend .card;
+
+                        & > form {
+
+                            fieldset {
+                                display: flex;
+                                flex-flow: column;
+
+                                &:not(:last-of-type) {
+                                    margin-bottom: 25px
+                                }
+
+                                &:last-of-type {
+                                    margin: 0 0 0.875rem;
+                                }
+
+                                label {
+                                    color: #111111;
+                                    font-family: $f-body;
+                                    font-size: $font-size-base;
+                                    letter-spacing: 0;
+                                    line-height: 1.375rem;
+                                    margin-bottom: 0.875rem;
+                                }
+
+                                input {
+                                    width: 100%;
+                                }
+                            }
+
+                            .submit-options {
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: flex-end;
+                                margin-bottom: 60px;
+
+                                a {
+                                    text-align: right;
+                                    color: $brand-secondary;
+                                    font-family: $f-body;
+                                    font-size: 0.875rem;
+                                    letter-spacing: 0;
+                                    line-height: 1.1875rem;
+                                    margin-bottom: 30px;
+                                    font-weight: normal;
+                                }
+
+                                input[type=submit] {
+                                    @extend .btn;
+                                }
+                            }
+                        }
+
+                        .social-login {
+                            margin-bottom: 60px;
+
+                            &--title {
+                                color: $brand-secondary;
+                                font-family: $f-body;
+                                font-size: $font-size-base;
+                                letter-spacing: 0;
+                                line-height: 1.375px;
+                                margin-bottom: 35px;
+                                text-align: center;
+                            }
+
+                            &--content {
+                                display: flex;
+
+                                & > a {
+                                    display: flex;
+                                    align-items: center;
+                                    flex: 1 1 0; 
+                                    color: white;
+                                    padding: 19px 17px;
+                                    text-decoration: none;
+                                    border-radius: 10px;
+                                    font-size: 0.6875rem;
+
+                                    &:not(:first-child):not(:last-child) {
+                                        margin: 0 10px;
+                                    }
+                                    
+                                    img {
+                                        width: 26px;
+
+                                        filter: brightness(0) invert(1);
+                                        margin-right: 10px;
+                                    }
+
+                                    &.facebook {
+                                        background-color: #3B5998;
+                                    }
+
+                                    &.google {
+                                        background-color: #DD4B39;
+
+                                        img {
+                                            width: 36px;
+                                        }
+                                    }
+
+                                    &.linkedin {
+                                        background-color: #007BB6;
+
+                                        img {
+                                            // fix logo dot
+                                            margin-top: -7px;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                &-recover {
+                    
+
+                }
+
+                &-login, &-recover {
+                    
+                }
+            }
+        }
+    }
+
+    .section-register {
+        
+    }
+}

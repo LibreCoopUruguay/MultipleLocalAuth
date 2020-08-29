@@ -13,17 +13,14 @@
 
 
 /* ----- 3: LAYOUT ------- */
-@import '3-layout/l-header';
-@import '3-layout/l-footer';
 @import '3-layout/l-form';
 
 /* ----- 4: COMPONENTS ------- */
 @import '4-components/c-button';
 @import '4-components/c-card';
-@import '4-components/c-status-card';
-@import '4-components/c-informative-box';
-@import '4-components/c-modal';
-@import '4-components/c-term';
+
+/* ----- 4: AREAS ------- */
+@import '5-areas/a-login';
 
 
 /* ----- 5: PAGES ------- */

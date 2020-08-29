@@ -55,7 +55,7 @@ $green-dark: #003c46;
 
 
 // Typography
-$font-path: '../fonts/' !default;
+$font-path: '/assets/fonts/' !default;
 $font-family-base: 'Open Sans' !default;
 $font-regular-name: 'OpenSans-Regular-webfont' !default;
 $font-regular-svg-id: 'open_sansregular' !default;
@@ -96,7 +96,7 @@ $headings-font-stack: $headings-font-family, serif !default;
 $headings-font-weight: normal !default;
 $headings-color: $brand-accent !default;
 
-$f_body: $font-family-base, "Arial", sans-serif;
-$f_title: $headings-font-stack;
+$f-body: $font-family-base, "Arial", sans-serif;
+$f-title: $headings-font-stack;
 
 $default-box-shadow: 0 2px 6px 0 rgba(0,0,0,0.3); 
