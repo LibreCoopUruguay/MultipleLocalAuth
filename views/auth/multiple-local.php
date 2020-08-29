@@ -36,7 +36,7 @@ function showStrategy($name, $config) {
 
         <div class="options">
             <div id="multiple-login">
-                <h5 class="textcenter"><?php \MapasCulturais\i::_e('Entrar', 'multipleLocal'); ?></h5>
+                <h5><?php \MapasCulturais\i::_e('Entrar', 'multipleLocal'); ?></h5>
                 <div class="login-options">
                     <form action="<?php echo $login_form_action; ?>" method="POST">
                         <input type="hidden" name="redirectUrl" value="<?php echo isset($redirectUrl) ? $redirectUrl : ''; ?>" />
@@ -131,82 +131,88 @@ function showStrategy($name, $config) {
     <div class="section-register">
         <h5><?php \MapasCulturais\i::_e('Criar cadastro', 'multipleLocal'); ?></h5>
 
-        <form action="<?php echo $register_form_action; ?>" method="POST">
-            <fieldset>
-                <label for="in-name">
-                    <?php \MapasCulturais\i::_e('Nome', 'multipleLocal'); ?>
-                </label>
-
-                <input type="text" id="in-name" name="name" value="<?php echo htmlentities($triedName); ?>" />
-            </fieldset>
-
-            <fieldset>
-                <label for="in-email">
-                    <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
-                </label>
-                <input id="in-email" type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
-            </fieldset>
-
-
-            <!-- somente mostre o CPF se tiver ativado nas config -->
-            <?php if (isset($config['enableLoginByCPF']) && $config['enableLoginByCPF']) { ?>
+        <div class="register-options">
+            <form action="<?php echo $register_form_action; ?>" method="POST">
                 <fieldset>
-                    <label for="RegraValida">
-                        <?php \MapasCulturais\i::_e('CPF', 'multipleLocal'); ?>
+                    <label for="in-name">
+                        <?php \MapasCulturais\i::_e('Nome', 'multipleLocal'); ?>
                     </label>
 
-                    <input type="text" id="RegraValida" value="" name="cpf" maxlength="14">
+                    <input type="text" id="in-name" name="name" value="<?php echo htmlentities($triedName); ?>" />
                 </fieldset>
-            <?php } ?>
 
-            <fieldset>
-                <label for="pwd-progress-bar-validation">
-                    <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
-                </label>
-                <input id="pwd-progress-bar-validation" type="password" name="password" value="" />
-            </fieldset>
+                <fieldset>
+                    <label for="in-email">
+                        <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
+                    </label>
+                    <input id="in-email" type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
+                </fieldset>
 
-            <small><?php \MapasCulturais\i::_e('Medidor de força da senha', 'multipleLocal'); ?></small>
 
-            <ul id="passwordRulesUL">
-
-            </ul>
-
-            <progress id="progress" value="0" max="100">70</progress>
-
-            <span id="progresslabel"></span>
-            
-            <fieldset>
-                <label for="in-repassword">
-                    <?php \MapasCulturais\i::_e('Confirmar senha', 'multipleLocal'); ?>
-                </label>
-
-                <input id="in-repassword" type="password" name="confirm_password" value="" />
-            </fieldset>
-
-            <div class="registro__container__form__field" name="terminos" style="min-height: 0px;">
-                <div class="render-field checkbox-field">
-                    <p>
-                        <input onchange="this.setCustomValidity(validity.valueMissing ? 'Please indicate that you accept the Terms and Conditions' : '');" id="field_terms" type="checkbox" required name="terms">
-                        <label class="caption" for="terminos">
-                            <span> <?php \MapasCulturais\i::_e('Aceito a', 'multipleLocal'); ?>
-                                <a aria-current="false" target="_blank" href="<?php echo $app->createUrl('auth', '', array('termos-e-condicoes')) ?>"> <?php \MapasCulturais\i::_e('Politica de Privacidade e termos de condições de uso', 'multipleLocal'); ?></a>
-                                <?php \MapasCulturais\i::_e('do MapasCulturais', 'multipleLocal'); ?>
-                            </span>
+                <!-- somente mostre o CPF se tiver ativado nas config -->
+                <?php if (isset($config['enableLoginByCPF']) && $config['enableLoginByCPF']) { ?>
+                    <fieldset>
+                        <label for="RegraValida">
+                            <?php \MapasCulturais\i::_e('CPF', 'multipleLocal'); ?>
                         </label>
-                    </p>
+
+                        <input type="text" id="RegraValida" value="" name="cpf" maxlength="14">
+                    </fieldset>
+                <?php } ?>
+
+                <fieldset>
+                    <label for="pwd-progress-bar-validation">
+                        <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
+                        <div class="hoverable-options">
+                            <i> ? </i>
+                            <ul id="passwordRulesUL"></ul>
+                        </div>
+                        
+                    </label>
+                    <input id="pwd-progress-bar-validation" type="password" name="password" value="" />
+                </fieldset>
+
+                
+
+                <div class="progressbar">
+                    <span> <?php \MapasCulturais\i::_e('Força da senha', 'multipleLocal'); ?> </span>
+                    <progress id="progress" value="0" max="100">70</progress>
+                    <span id="progresslabel"></span>
+                </div>
+                
+                <fieldset>
+                    <label for="in-repassword">
+                        <?php \MapasCulturais\i::_e('Confirmar senha', 'multipleLocal'); ?>
+                    </label>
+
+                    <input id="in-repassword" type="password" name="confirm_password" value="" />
+                </fieldset>
+
+                <div class="registro__container__form__field" name="terminos" style="min-height: 0px;">
+                    <div class="render-field checkbox-field">
+                        <p>
+                            <input onchange="this.setCustomValidity(validity.valueMissing ? 'Please indicate that you accept the Terms and Conditions' : '');" id="field_terms" type="checkbox" required name="terms">
+                            <label class="caption" for="field_terms">
+                                <span> <?php \MapasCulturais\i::_e('Aceito a', 'multipleLocal'); ?>
+                                    <a aria-current="false" target="_blank" href="<?php echo $app->createUrl('auth', '', array('termos-e-condicoes')) ?>"> <?php \MapasCulturais\i::_e('Politica de Privacidade e termos de condições de uso', 'multipleLocal'); ?></a>
+                                    <?php \MapasCulturais\i::_e('do MapasCulturais', 'multipleLocal'); ?>
+                                </span>
+                            </label>
+                        </p>
+
+                    </div>
 
                 </div>
 
-            </div>
+                <?php if (isset($config['google-recaptcha-sitekey'])) : ?>
+                    <div class="g-recaptcha" data-sitekey="<?php echo $config['google-recaptcha-sitekey']; ?>"></div>
+                <?php endif; ?>
 
-            <?php if (isset($config['google-recaptcha-sitekey'])) : ?>
-                <div class="g-recaptcha" data-sitekey="<?php echo $config['google-recaptcha-sitekey']; ?>"></div>
-            <?php endif; ?>
-
-            <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Registrar-se', 'multipleLocal'); ?>" />
-        </form>
-
+                <div class="submit-options">
+                    <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Cadastrar', 'multipleLocal'); ?>" />
+                </div>
+            </form>
+        </div>
 
         <script type="text/javascript">
             document.getElementById("field_terms").setCustomValidity("Por favor, indique que aceita os Termos e condições de uso");

@@ -93,7 +93,117 @@
 /*! no static exports found */
 /***/ (function(module, exports) {
 
+$(function () {
+  // mascara para o input de CPF
+  var cpfInput = document.getElementById("RegraValida");
 
+  if (cpfInput) {
+    // função para dizer se o CPF é valido ou invalido no front-end (NÃO ESTÁ SENDO USADA MAS ESTÁ AQUI PARA REFERENCIA)
+    var ValidaCPF = function ValidaCPF() {
+      var RegraValida = document.getElementById("RegraValida").value;
+      var cpfValido = /^(([0-9]{3}.[0-9]{3}.[0-9]{3}-[0-9]{2})|([0-9]{11}))$/;
+
+      if (cpfValido.test(RegraValida) == true) {
+        console.log("CPF Válido");
+      } else {
+        console.log("CPF Inválido");
+      }
+    };
+
+    cpfInput.addEventListener('keydown', function () {
+      function fMasc(objeto, mascara) {
+        obj = objeto;
+        masc = mascara;
+        setTimeout(function () {
+          obj.value = masc(obj.value);
+        }, 1);
+      }
+
+      function mCPF(cpf) {
+        cpf = cpf.replace(/\D/g, "");
+        cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+        cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+        cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        return cpf;
+      }
+
+      fMasc(this, mCPF);
+    });
+  }
+
+  var password = document.getElementById("pwd-progress-bar-validation");
+
+  if (password) {
+    // verifica a força da senha
+    var passwordMustHaveCapitalLetters = /[A-Z]/;
+    var passwordMustHaveLowercaseLetters = /[a-z]/;
+    var passwordMustHaveSpecialCharacters = /[$@$!%*#?&\.\,\:<>+\_\-\"\'()]/;
+    var passwordMustHaveNumbers = /[0-9]/;
+    var minimumPasswordLength = 8;
+    var rules = []; //faz uma requisição para pegar as configs de força de senha
+
+    $.get("".concat(MapasCulturais.baseURL, "auth/passwordvalidationinfos"), function (data) {
+      if (data.passwordRules.passwordMustHaveCapitalLetters) {
+        rules.push(passwordMustHaveCapitalLetters);
+        $("#passwordRulesUL").append("<li> ".concat(MapasCulturais.labels.multiplelocal.passwordMustHaveCapitalLetters, " </li>"));
+      }
+
+      if (data.passwordRules.passwordMustHaveLowercaseLetters) {
+        rules.push(passwordMustHaveLowercaseLetters);
+        $("#passwordRulesUL").append("<li> ".concat(MapasCulturais.labels.multiplelocal.passwordMustHaveLowercaseLetters, " </li>"));
+      }
+
+      if (data.passwordRules.passwordMustHaveSpecialCharacters) {
+        rules.push(passwordMustHaveSpecialCharacters);
+        $("#passwordRulesUL").append("<li> ".concat(MapasCulturais.labels.multiplelocal.passwordMustHaveSpecialCharacters, " </li>"));
+      }
+
+      if (data.passwordRules.passwordMustHaveNumbers) {
+        rules.push(passwordMustHaveNumbers);
+        $("#passwordRulesUL").append("<li> ".concat(MapasCulturais.labels.multiplelocal.passwordMustHaveNumbers, " </li>"));
+      }
+
+      if (data.passwordRules.minimumPasswordLength) {
+        minimumPasswordLength = data.passwordRules.minimumPasswordLength;
+      }
+
+      $("#passwordRulesUL").append("<li> ".concat(MapasCulturais.labels.multiplelocal.minimumPasswordLength, " ").concat(minimumPasswordLength, " </li>"));
+      console.log("get passwordvalidationinfos OK");
+    });
+    password.addEventListener('keyup', function () {
+      var pwd = password.value; // Reset if password length is zero
+
+      if (pwd.length === 0) {
+        document.getElementById("progresslabel").innerHTML = "";
+        document.getElementById("progress").value = "0";
+        return;
+      }
+
+      var rulesLength = rules.length;
+      var prog = rules.reduce(function (memo, test) {
+        return memo + test.test(pwd);
+      }, 0);
+      var percentToAdd = 100 / (rulesLength + 1);
+      var currentPercentPasswordCorrect = prog * 100 / (rulesLength + 1);
+
+      if (pwd.length > minimumPasswordLength - 1) {
+        currentPercentPasswordCorrect = currentPercentPasswordCorrect + percentToAdd;
+      }
+
+      document.getElementById("progresslabel").innerHTML = "".concat(currentPercentPasswordCorrect.toFixed(0), "%");
+      document.getElementById("progress").value = "".concat(currentPercentPasswordCorrect.toFixed(2));
+    });
+  }
+
+  $('#multiple-login-recover').click(function () {
+    $('#multiple-login').hide();
+    $('#multiple-recover').show();
+  });
+  $('#multiple-login-recover-cancel').click(function () {
+    $('#multiple-login').show();
+    $('#multiple-recover').hide();
+  });
+});
 
 /***/ }),
 

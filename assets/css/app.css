@@ -850,6 +850,27 @@ fieldset input {
   border-radius: 2px;
 }
 
+progress {
+  border: none;
+  width: 181px;
+  height: 7px;
+  background: #FFC100;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+progress::-moz-progress-bar {
+  background: #EAEAEA;
+}
+
+progress::-webkit-progress-value {
+  background: #FFC100;
+}
+
+progress::-webkit-progress-bar {
+  background: #EAEAEA;
+}
+
 /* ----- 4: COMPONENTS ------- */
 
 .btn,
@@ -898,7 +919,7 @@ fieldset input {
 }
 
 .card,
-.section-login-wrapper .section-register > form,
+.section-login-wrapper .section-register > .register-options,
 .section-login-wrapper .section-login .options #multiple-login .login-options {
   border-radius: 10px;
   background-color: #FFFFFF;
@@ -918,10 +939,30 @@ fieldset input {
 
 /* ----- 4: AREAS ------- */
 
+.section-login-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 30px;
+  max-width: 730px;
+  margin: 0 auto;
+}
+
+@media (min-width: 1600px) {
+  .section-login-wrapper {
+    max-width: 730px;
+  }
+}
+
 .section-login-wrapper h5 {
   font-size: 1.75rem;
   font-family: "aleo", serif;
   font-weight: bold;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.section-login-wrapper form {
+  padding-top: 30px;
 }
 
 .section-login-wrapper form fieldset {
@@ -930,7 +971,19 @@ fieldset input {
 }
 
 .section-login-wrapper form fieldset:not(:last-of-type) {
-  margin-bottom: 25px;
+  margin-bottom: 5px;
+}
+
+@media (min-width: 1600px) {
+  .section-login-wrapper form fieldset:not(:last-of-type) {
+    margin-bottom: 25px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .section-login-wrapper form fieldset:not(:last-of-type) {
+    margin-bottom: 25px;
+  }
 }
 
 .section-login-wrapper form fieldset:last-of-type {
@@ -944,10 +997,33 @@ fieldset input {
   letter-spacing: 0;
   line-height: 1.375rem;
   margin-bottom: 0.875rem;
+  display: flex;
+  justify-content: space-between;
 }
 
 .section-login-wrapper form fieldset input {
   width: 100%;
+}
+
+.section-login-wrapper form .progressbar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.section-login-wrapper form .progressbar span {
+  font-size: 11px;
+  font-family: "Open Sans", "Arial", sans-serif;
+  font-weight: bold;
+  color: #666666;
+}
+
+.section-login-wrapper form .progressbar span:first-of-type {
+  margin-right: 15px;
+}
+
+.section-login-wrapper form .progressbar span:last-of-type {
+  margin-left: 15px;
 }
 
 .section-login-wrapper form .submit-options {
@@ -991,7 +1067,7 @@ fieldset input {
   align-items: center;
   flex: 1 1 0;
   color: white;
-  padding: 19px 17px;
+  padding: 19px 8px;
   text-decoration: none;
   border-radius: 10px;
   font-size: 0.6875rem;
@@ -1005,7 +1081,7 @@ fieldset input {
   width: 26px;
   -webkit-filter: brightness(0) invert(1);
           filter: brightness(0) invert(1);
-  margin-right: 10px;
+  margin-right: 6px;
 }
 
 .section-login-wrapper .section-login .options #multiple-login .login-options .social-login--content > a.facebook {
@@ -1026,6 +1102,58 @@ fieldset input {
 
 .section-login-wrapper .section-login .options #multiple-login .login-options .social-login--content > a.linkedin img {
   margin-top: -7px;
+}
+
+.section-login-wrapper .section-register > .register-options form fieldset label[for=pwd-progress-bar-validation] .hoverable-options {
+  position: relative;
+}
+
+.section-login-wrapper .section-register > .register-options form fieldset label[for=pwd-progress-bar-validation] .hoverable-options i {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  text-align: center;
+  color: white;
+  font-style: normal;
+  font-weight: bolder;
+  background: #666666;
+  font-size: 16px;
+  letter-spacing: 0;
+  line-height: 16px;
+}
+
+.section-login-wrapper .section-register > .register-options form fieldset label[for=pwd-progress-bar-validation] .hoverable-options:hover #passwordRulesUL {
+  transform: scale(1);
+  z-index: 1;
+  transition: all 0.2s ease-in-out;
+}
+
+.section-login-wrapper .section-register > .register-options form fieldset label[for=pwd-progress-bar-validation] .hoverable-options #passwordRulesUL {
+  transform: scale(0);
+  position: absolute;
+  z-index: -1;
+  transition: all 0.2s ease-in-out;
+  bottom: 40px;
+  left: -280px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 280px;
+  border: 1px solid #F5F5F5;
+  border-radius: 10px;
+  background: #FFFFFF;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+  padding: 16px 20px;
+  font-size: 0.6875rem;
+}
+
+.section-login-wrapper .section-register > .register-options form fieldset label[for=pwd-progress-bar-validation] .hoverable-options #passwordRulesUL:after {
+  position: absolute;
+  bottom: -10px;
+  right: 27px;
 }
 
 /* ----- 5: PAGES ------- */
