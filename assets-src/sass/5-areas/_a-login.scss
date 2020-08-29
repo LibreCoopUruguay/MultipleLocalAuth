@@ -4,6 +4,10 @@
     max-width: 730px;
     margin: 0 auto;
 
+    &.recover {
+        padding-top: 60px;
+    }
+
     h6 {
         color: $brand-secondary;
         font-family: $f-title;
@@ -19,6 +23,10 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-gap: 30px;
+
+        &.single-item {
+            grid-template-columns: auto;
+        }
 
         @include tablet {
             grid-template-columns: auto;
@@ -340,7 +348,7 @@
     }
 
     .alerta {
-        @extend .status-card--quaternary;
+        @extend .status-card--tertiary;
         margin-bottom: 35px;
         flex-direction: row-reverse;
         justify-content: space-between;

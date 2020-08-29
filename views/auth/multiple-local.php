@@ -27,7 +27,6 @@ function showStrategy($name, $config) {
 <div class="login-area">
     <h6 class="text-center introduction">
         <?php \MapasCulturais\i::_e('Boas vindas! Faça login para acessar a plataforma', 'multipleLocal'); ?>
-
     </h6>
 
     <?php if ($feedback_msg) : ?>
