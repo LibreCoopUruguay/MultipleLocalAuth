@@ -29,8 +29,6 @@ $this->jsObject['labels']['multiplelocal'] = $jsLabelsInternationalization;
 <?php endif; ?>
 
 <form action="<?php echo $form_action; ?>" method="POST">
-
-    
     <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
     <input type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
     <br/><br/>

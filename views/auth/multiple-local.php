@@ -30,15 +30,15 @@ function showStrategy($name, $config) {
 
     </h6>
 
+    <?php if ($feedback_msg) : ?>
+        <div class="alerta <?php echo $feedback_success ? 'sucesso' : 'erro'; ?>">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            <?php echo htmlentities($feedback_msg); ?>
+        </div>
+    <?php endif; ?>
+
     <div class="section-login-wrapper">
         <div class="section-login">
-            <?php if ($feedback_msg) : ?>
-                <div class="alert <?php echo $feedback_success ? 'success' : 'error'; ?>">
-                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                    <?php echo htmlentities($feedback_msg); ?>
-                </div>
-            <?php endif; ?>
-
             <div class="options">
                 <div id="multiple-login">
                     <h5><?php \MapasCulturais\i::_e('Entrar', 'multipleLocal'); ?></h5>

@@ -1,4 +1,9 @@
 .login-area {
+    display: flex;
+    flex-direction: column;
+    max-width: 730px;
+    margin: 0 auto;
+
     h6 {
         color: $brand-secondary;
         font-family: $f-title;
@@ -14,16 +19,10 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-gap: 30px;
-        max-width: 730px;
-        margin: 0 auto;
 
         @include tablet {
             grid-template-columns: auto;
             padding: 0 .625rem;
-        }
-
-        @include large {
-            max-width: 730px;
         }
 
         h5 {
@@ -337,6 +336,29 @@
                     }
                 }
             }
+        }
+    }
+
+    .alerta {
+        @extend .status-card--quaternary;
+        margin-bottom: 35px;
+        flex-direction: row-reverse;
+        justify-content: space-between;
+        display: flex;
+        
+        @include tablet {
+            margin-left: 15px;
+            margin-right: 15px;
+        }
+
+        &.sucesso {
+            @extend .status-card--secondary;
+            display: flex;
+            margin-bottom: 35px;
+        }
+        
+        span  {
+            cursor: pointer;
         }
     }
 }
