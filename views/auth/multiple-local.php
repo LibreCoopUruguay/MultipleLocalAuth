@@ -104,25 +104,41 @@ function showStrategy($name, $config) {
                             <?php $app->applyHook('multipleLocalAuth.loginPage:end'); ?>
                         </div>
                     <?php endif; ?>
+                    
+                    <div class="account-link">
+                        Ainda não possui uma conta? 
+                        <button>
+                            Crie uma conta agora
+                        </button>
+                    </div>
+
                 </div>
 
             </div>
 
             <div id="multiple-recover" style="display:none;">
                 <h5><?php \MapasCulturais\i::_e('Esqueci minha senha', 'multipleLocal'); ?></h5>
-                <form action="<?php echo $recover_form_action; ?>" method="POST">
-                    <p><?php \MapasCulturais\i::_e('Para recuperar sua senha, informe o e-mail utilizado no cadastro.', 'multipleLocal'); ?></p>
-                    <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
-                    <input type="text" name="email" value="" />
-                    <br /><br />
+                <div class="recover-options">
+                    <form action="<?php echo $recover_form_action; ?>" method="POST">
+                        <!-- <p><?php \MapasCulturais\i::_e('Para recuperar sua senha, informe o e-mail utilizado no cadastro.', 'multipleLocal'); ?></p> -->
+                        
+                        <fieldset>
+                            <label for="re-email">
+                                <?php \MapasCulturais\i::_e('Email', 'multipleLocal'); ?>
+                            </label>
 
-                    <?php if (isset($config['google-recaptcha-sitekey'])) : ?>
-                        <div class="g-recaptcha" data-sitekey="<?php echo $config['google-recaptcha-sitekey']; ?>"></div>
-                    <?php endif; ?>
+                            <input type="text" id="re-email" name="email" value="" />
+                        </fieldset>
+                        
 
-                    <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Recuperar senha', 'multipleLocal'); ?>" />
-                    <a id="multiple-login-recover-cancel" class="multiple-recover-link"><?php \MapasCulturais\i::_e('Cancelar', 'multipleLocal'); ?></a>
-                </form>
+                        <?php if (isset($config['google-recaptcha-sitekey'])) : ?>
+                            <div class="g-recaptcha" data-sitekey="<?php echo $config['google-recaptcha-sitekey']; ?>"></div>
+                        <?php endif; ?>
+
+                        <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Recuperar senha', 'multipleLocal'); ?>" />
+                        <a id="multiple-login-recover-cancel" class="multiple-recover-link secondary"><?php \MapasCulturais\i::_e('Cancelar', 'multipleLocal'); ?></a>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -143,7 +159,7 @@ function showStrategy($name, $config) {
 
                 <fieldset>
                     <label for="in-email">
-                        <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
+                        <?php \MapasCulturais\i::_e('Email', 'multipleLocal'); ?>
                     </label>
                     <input id="in-email" type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
                 </fieldset>

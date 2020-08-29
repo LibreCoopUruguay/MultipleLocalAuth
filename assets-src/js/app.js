@@ -118,6 +118,12 @@ $(function() {
         $('#multiple-recover').hide();
     });
 
+    $('#multiple-login .account-link > button').click(function() {
+        // $('#multiple-login').hide();
+        $('.section-register').addClass('active').focus();
+        $([document.documentElement, document.body]).animate({
+            scrollTop: $(".section-register").offset().top - 30
+        }, 200);
+    });
     
-
 });

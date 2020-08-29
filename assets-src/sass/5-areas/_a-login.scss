@@ -5,6 +5,11 @@
     max-width: 730px;
     margin: 0 auto;
 
+    @include tablet {
+        grid-template-columns: auto;
+        padding: 0 .625rem;
+    }
+
     @include large {
         max-width: 730px;
     }
@@ -123,15 +128,19 @@
                             &--content {
                                 display: flex;
 
-                                &>a {
+                                & > a {
                                     display: flex;
                                     align-items: center;
                                     flex: 1 1 0;
                                     color: white;
-                                    padding: 19px 8px;
+                                    padding: 12px 8px;
                                     text-decoration: none;
                                     border-radius: 10px;
                                     font-size: 0.6875rem;
+
+                                    @include tablet {
+                                        padding: 5px 8px;
+                                    }
 
                                     &:not(:first-child):not(:last-child) {
                                         margin: 0 10px;
@@ -139,9 +148,12 @@
 
                                     img {
                                         width: 26px;
-
                                         filter: brightness(0) invert(1);
                                         margin-right: 6px;
+
+                                        @include tablet {
+                                            margin-right: 3px;
+                                        }
                                     }
 
                                     &.facebook {
@@ -167,15 +179,56 @@
                                 }
                             }
                         }
+
+                        .account-link {
+                            display: none;
+
+                            @include tablet {
+                                display: block;
+                            }
+
+                            button, & {
+                                border: none;
+                                text-align: center;
+                                color: #111111;
+                                font-family: $f-body;
+                                font-size: 1rem;
+                                letter-spacing: 0;
+                                line-height: 1.375rem;
+                                text-align: center;
+                            }
+
+                            button {
+                                text-decoration: underline;
+                                font-weight: bold;
+                            }
+                        }
                     }
                 }
 
-                &-recover {}
+                &-recover {
+                    .recover-options {
+                        @extend .card;
+
+                        input[type=submit], a {
+                            width: 100%;
+                            @extend .btn;
+                        }
+                    }
+                }
             }
         }
     }
 
     .section-register {
+        @include tablet {
+            display: none;
+
+            &.active {
+                display: block;
+            }
+        }
+
         &>.register-options {
             @extend .card;
             margin-bottom: 10px;
