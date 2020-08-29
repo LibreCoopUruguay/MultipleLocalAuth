@@ -37,8 +37,7 @@ class Plugin extends \MapasCulturais\Plugin {
         $this->registerUserMetadata(Provider::$loginAttempMetadata, ['label' => i::__('Número de tentativas de login')]);
         $this->registerUserMetadata(Provider::$timeBlockedloginAttempMetadata, ['label' => i::__('Tempo de bloquei por excesso de tentativas')]);
 
-        // @todo usar o campo do agente
-        $this->registerUserMetadata(Provider::$cpfMetadata, ['label' => i::__('CPF')]);
+        
     }
     
 }
