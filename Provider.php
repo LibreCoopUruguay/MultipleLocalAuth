@@ -822,12 +822,17 @@ class Provider extends \MapasCulturais\AuthProvider {
         }
         
         $accountIsActive = $user->getMetadata(self::$accountIsActiveMetadata);
+
+        $userMustConfirmEmailToUseTheSystem = $config['userMustConfirmEmailToUseTheSystem'] ? $config['userMustConfirmEmailToUseTheSystem'] : false;
         
-        if(isset($user) && $accountIsActive === '0' ) {
-            return $this->setFeedback(i::__('Verifique seu email para validar a sua conta', 'multipleLocal'));
+        if($userMustConfirmEmailToUseTheSystem) {
+
+            if(isset($user) && $accountIsActive === '0' ) {
+                return $this->setFeedback(i::__('Verifique seu email para validar a sua conta', 'multipleLocal'));
+            }
+
         }
         
-
         $config = $this->_config;
         $timeBlockedloginAttemp = isset($config['timeBlockedloginAttemp']) ? $config['timeBlockedloginAttemp'] : 900;
         //verifica se o metadata 'timeBlockedloginAttempMetadata' existe e é maior que o tempo de agora, se for, então o usuario ta bloqueado te tentar fazer login
