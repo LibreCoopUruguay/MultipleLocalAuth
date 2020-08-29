@@ -132,33 +132,57 @@ function showStrategy($name, $config) {
         <h5><?php \MapasCulturais\i::_e('Criar cadastro', 'multipleLocal'); ?></h5>
 
         <form action="<?php echo $register_form_action; ?>" method="POST">
-            <?php \MapasCulturais\i::_e('Nome', 'multipleLocal'); ?>
-            <input type="text" name="name" value="<?php echo htmlentities($triedName); ?>" />
+            <fieldset>
+                <label for="in-name">
+                    <?php \MapasCulturais\i::_e('Nome', 'multipleLocal'); ?>
+                </label>
 
-            <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
-            <input type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
+                <input type="text" id="in-name" name="name" value="<?php echo htmlentities($triedName); ?>" />
+            </fieldset>
+
+            <fieldset>
+                <label for="in-email">
+                    <?php \MapasCulturais\i::_e('E-mail', 'multipleLocal'); ?>
+                </label>
+                <input id="in-email" type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
+            </fieldset>
 
 
             <!-- somente mostre o CPF se tiver ativado nas config -->
             <?php if (isset($config['enableLoginByCPF']) && $config['enableLoginByCPF']) { ?>
-                <?php \MapasCulturais\i::_e('CPF', 'multipleLocal'); ?>
-                <input type="text" id="RegraValida" value="" name="cpf" maxlength="14">
+                <fieldset>
+                    <label for="RegraValida">
+                        <?php \MapasCulturais\i::_e('CPF', 'multipleLocal'); ?>
+                    </label>
+
+                    <input type="text" id="RegraValida" value="" name="cpf" maxlength="14">
+                </fieldset>
             <?php } ?>
 
-
-            <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
-            <input id="pwd-progress-bar-validation" type="password" name="password" value="" />
+            <fieldset>
+                <label for="pwd-progress-bar-validation">
+                    <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
+                </label>
+                <input id="pwd-progress-bar-validation" type="password" name="password" value="" />
+            </fieldset>
 
             <small><?php \MapasCulturais\i::_e('Medidor de força da senha', 'multipleLocal'); ?></small>
 
-            <ul id="passwordRulesUL"> </ul>
+            <ul id="passwordRulesUL">
+
+            </ul>
 
             <progress id="progress" value="0" max="100">70</progress>
 
             <span id="progresslabel"></span>
+            
+            <fieldset>
+                <label for="in-repassword">
+                    <?php \MapasCulturais\i::_e('Confirmar senha', 'multipleLocal'); ?>
+                </label>
 
-            <?php \MapasCulturais\i::_e('Confirmar senha', 'multipleLocal'); ?>
-            <input type="password" name="confirm_password" value="" />
+                <input id="in-repassword" type="password" name="confirm_password" value="" />
+            </fieldset>
 
             <div class="registro__container__form__field" name="terminos" style="min-height: 0px;">
                 <div class="render-field checkbox-field">

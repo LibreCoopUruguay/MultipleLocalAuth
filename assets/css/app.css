@@ -853,7 +853,7 @@ fieldset input {
 /* ----- 4: COMPONENTS ------- */
 
 .btn,
-.section-login-wrapper .section-login .options #multiple-login .login-options > form .submit-options input[type=submit] {
+.section-login-wrapper form .submit-options input[type=submit] {
   border-radius: 10px;
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
@@ -878,17 +878,17 @@ fieldset input {
 }
 
 .btn.secondary,
-.section-login-wrapper .section-login .options #multiple-login .login-options > form .submit-options input.secondary[type=submit] {
+.section-login-wrapper form .submit-options input.secondary[type=submit] {
   background-color: #666666;
 }
 
 .btn.tertiary,
-.section-login-wrapper .section-login .options #multiple-login .login-options > form .submit-options input.tertiary[type=submit] {
+.section-login-wrapper form .submit-options input.tertiary[type=submit] {
   background-color: #cc0033;
 }
 
 .btn:hover,
-.section-login-wrapper .section-login .options #multiple-login .login-options > form .submit-options input[type=submit]:hover {
+.section-login-wrapper form .submit-options input[type=submit]:hover {
   border: 0;
   color: #fff;
   text-decoration: none;
@@ -898,6 +898,7 @@ fieldset input {
 }
 
 .card,
+.section-login-wrapper .section-register > form,
 .section-login-wrapper .section-login .options #multiple-login .login-options {
   border-radius: 10px;
   background-color: #FFFFFF;
@@ -923,20 +924,20 @@ fieldset input {
   font-weight: bold;
 }
 
-.section-login-wrapper .section-login .options #multiple-login .login-options > form fieldset {
+.section-login-wrapper form fieldset {
   display: flex;
   flex-flow: column;
 }
 
-.section-login-wrapper .section-login .options #multiple-login .login-options > form fieldset:not(:last-of-type) {
+.section-login-wrapper form fieldset:not(:last-of-type) {
   margin-bottom: 25px;
 }
 
-.section-login-wrapper .section-login .options #multiple-login .login-options > form fieldset:last-of-type {
+.section-login-wrapper form fieldset:last-of-type {
   margin: 0 0 0.875rem;
 }
 
-.section-login-wrapper .section-login .options #multiple-login .login-options > form fieldset label {
+.section-login-wrapper form fieldset label {
   color: #111111;
   font-family: "Open Sans", "Arial", sans-serif;
   font-size: 1rem;
@@ -945,18 +946,18 @@ fieldset input {
   margin-bottom: 0.875rem;
 }
 
-.section-login-wrapper .section-login .options #multiple-login .login-options > form fieldset input {
+.section-login-wrapper form fieldset input {
   width: 100%;
 }
 
-.section-login-wrapper .section-login .options #multiple-login .login-options > form .submit-options {
+.section-login-wrapper form .submit-options {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   margin-bottom: 60px;
 }
 
-.section-login-wrapper .section-login .options #multiple-login .login-options > form .submit-options a {
+.section-login-wrapper form .submit-options a {
   text-align: right;
   color: #666666;
   font-family: "Open Sans", "Arial", sans-serif;
