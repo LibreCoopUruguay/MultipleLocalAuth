@@ -1,0 +1,44 @@
+header {
+    position: relative;
+    .logo-state {
+        display: none;
+        height: auto;
+        margin: 0 auto;
+        padding: 10px;
+        @include transition(all, 0.3s, ease-in-out);
+        width: 200px;
+        @include desktop {
+            display: block;
+            left: 0;
+            position: absolute;
+        }
+    }
+    .logo {
+        height: auto;
+        margin: 0 auto;
+        padding-top: 5px;
+        width: 200px;
+    }
+    .logout {
+        height: 100%;
+        padding: 0 15px;
+        position: absolute;
+        right: 0;
+        top: 0;
+        i {
+            width: 100%;
+        }
+        a {
+            color: $theme-color-quaternary;
+            display: block;
+            margin-top: 15px;
+            text-align: center;
+            @include transition(all, 0.3s, ease-in-out);
+            width: 100%;
+            &:hover {
+                text-decoration: none;
+                @include opacity(0.85);
+            }
+        }
+    }
+}

@@ -20,11 +20,14 @@ class Plugin extends \MapasCulturais\Plugin {
         // Load JS & CSS
         $app->hook('<<GET|POST>>(auth.<<*>>)', function() use ($app) {
             $app->view->enqueueScript('app', 'multipleLocal', 'js/multipleLocal.js');
+            $app->view->enqueueScript('app', 'multipleLocal', 'js/app.js');
             $app->view->enqueueStyle('app', 'multipleLocal', 'css/multipleLocal.css');
+            $app->view->enqueueStyle('app', 'multipleLocal', 'css/app.css');
         });
         
         $app->hook('<<GET|POST|ALL>>(panel.<<*>>):before', function() use ($app) {
             $app->view->enqueueStyle('app', 'multipleLocal', 'css/multipleLocal.css');
+            $app->view->enqueueStyle('app', 'multipleLocal', 'css/app.css');
         });
         
     }

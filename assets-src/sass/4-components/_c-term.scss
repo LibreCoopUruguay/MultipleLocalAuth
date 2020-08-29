@@ -1,0 +1,53 @@
+// Component schema
+//<element class="term">
+//  <element class="term--box"></element>
+//  <label for="one" class="term--label">
+//    <input type="checkbox" class="term--input" id="one" />
+//    <element>
+//      <?php \MapasCulturais\i::_e("");?>
+//    </element>
+//  </label>
+//</element>
+
+.term{
+  @extend .card;
+  font-family: $headings-font-family;
+  display: flex;
+  margin: 15px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding-left: 44px;
+  cursor: pointer;
+
+  &--box{
+    display: flex;
+    align-items: center;
+    position: absolute;
+    height: 100%;
+    left: -1px;
+    width: 40px;
+    background-color: $brand-primary;
+  }
+
+  &--input{
+    position: absolute;
+    left: 10px;
+    min-width: 18px;
+    min-height: 18px;
+    &:checked+span {
+      font-weight: 400;
+      color:$brand-primary ;
+    }
+  }
+
+  &--label{
+    display: flex;
+    align-items: center;
+    background:white;
+    cursor: pointer;
+    &:active{
+      color:$brand-primary;
+    }
+  }
+}
