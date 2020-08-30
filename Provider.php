@@ -451,7 +451,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
 
-            if(count($foundAgent) > 1) {
+            if(count($foundAgent) > 0) {
                 return $this->setFeedback(i::__('Este CPF já esta em uso. Tente recuperar a sua senha.', 'multipleLocal'));
             }
 
