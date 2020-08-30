@@ -221,6 +221,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             $app->auth->processResponse();
             if($app->auth->isUserAuthenticated()){
+                unset($_SESSION['mapasculturais.auth.redirect_path']);
                 $app->redirect($app->auth->getRedirectPath());
             }else{
                 $app->redirect($this->createUrl(''));
@@ -242,7 +243,9 @@ class Provider extends \MapasCulturais\AuthProvider {
             $redirectUrl = $app->request->post('redirectUrl');
             $email = $app->request->post('email');
             $redirectUrl = (empty($redirectUrl)) ? $app->auth->getRedirectPath() : $redirectUrl;
+            
             if ($app->auth->verifyLogin()) {
+                unset($_SESSION['mapasculturais.auth.redirect_path']);
                 $app->redirect($redirectUrl);
             } else {
                 $app->auth->renderForm($this);
@@ -994,7 +997,6 @@ class Provider extends \MapasCulturais\AuthProvider {
     public function getRedirectPath(){
         $path = key_exists('mapasculturais.auth.redirect_path', $_SESSION) ?
                     $_SESSION['mapasculturais.auth.redirect_path'] : App::i()->createUrl('site','');
-        unset($_SESSION['mapasculturais.auth.redirect_path']);
         return $path;
     }
     /**
