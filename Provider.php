@@ -439,20 +439,23 @@ class Provider extends \MapasCulturais\AuthProvider {
             if(empty($cpf) || !$this->validateCPF($cpf)) {
                 return $this->setFeedback(i::__('Por favor, informe um cpf válido', 'multipleLocal'));
             }
-                
+
+            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig(); 
+
+            $findUserByCpfMetadata1 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
             // cpf exists? 
             //retira ". e -" do $request->post('cpf')
             $cpf = str_replace("-","",$cpf);
             $cpf = str_replace(".","",$cpf);
+            $findUserByCpfMetadata2 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
 
-            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();  
-            $userExists = $app->repo("UserMeta")->findOneBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
+            $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
 
-            if (!empty($userExists)) {
-                return $this->setFeedback(i::__('Este CPF já está em uso', 'multipleLocal'));
+            if(count($foundAgent) > 0) {
+                return $this->setFeedback(i::__('Este CPF já esta em uso. Tente recuperar a sua senha.', 'multipleLocal'));
             }
+
         }
-        
         
         // email exists? (case insensitive)
         $checkEmailExistsQuery = $app->em->createQuery("SELECT u FROM \MapasCulturais\Entities\User u WHERE LOWER(u.email) = :email");
