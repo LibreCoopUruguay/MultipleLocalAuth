@@ -275,7 +275,7 @@ class Provider extends \MapasCulturais\AuthProvider {
         
         });
         
-        $app->hook('POST(auth.dorecover)', function () use($app){
+        $app->hook('POST(auth.recover-resetform)', function () use($app){
         
             if ($app->auth->dorecover()) {
                 $this->error_msg = i::__('Senha alterada com sucesso. Agora você pode fazer login', 'multipleLocal');
