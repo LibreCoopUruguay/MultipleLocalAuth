@@ -955,12 +955,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             ]);
             
             $user->setMetadata(self::$passMetaName, $app->auth->hashPassword( $pass ));
-
-            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig(); 
-            $user->setMetadata($metadataFieldCpf, $response['auth']['info']['cpf']);
-
             $user->setMetadata(self::$tokenVerifyAccountMetadata, $token);
-
             $user->setMetadata(self::$accountIsActiveMetadata, '0');
             
             // save
