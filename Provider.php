@@ -842,7 +842,7 @@ class Provider extends \MapasCulturais\AuthProvider {
         
         $accountIsActive = $user->getMetadata(self::$accountIsActiveMetadata);
 
-        $userMustConfirmEmailToUseTheSystem = $config['userMustConfirmEmailToUseTheSystem'] ? $config['userMustConfirmEmailToUseTheSystem'] : false;
+        $userMustConfirmEmailToUseTheSystem = isset($config['userMustConfirmEmailToUseTheSystem']) ? $config['userMustConfirmEmailToUseTheSystem'] : false;
         
         if($userMustConfirmEmailToUseTheSystem) {
 
