@@ -108,6 +108,11 @@ class Provider extends \MapasCulturais\AuthProvider {
         });
 
         $app->hook('adminchangeuserpassword', function ($userEmail) use($app){
+
+            if(!$app->user->is('admin')) {
+                return;
+            }
+
             echo
             '
             <a class="btn btn-primary js-open-dialog" data-dialog="#admin-change-user-password" data-dialog-block="true">
@@ -158,6 +163,11 @@ class Provider extends \MapasCulturais\AuthProvider {
         });
 
         $app->hook('adminchangeuseremail', function ($userEmail) use($app){
+
+            if(!$app->user->is('admin')) {
+                return;
+            }
+
             echo
             '
             <a class="btn btn-primary js-open-dialog" data-dialog="#admin-change-user-email" data-dialog-block="true">
