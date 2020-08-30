@@ -1,0 +1,29 @@
+fieldset {
+    input {
+        height: 51px;
+        border: 1px solid #979797;
+        border-radius: 2px;
+    }
+}
+
+progress {
+    border: none;
+    width: 181px;
+    height: 7px;
+    background: #FFC100;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+
+progress::-moz-progress-bar {
+    background: #EAEAEA;
+}
+  
+progress::-webkit-progress-value {
+    background: #FFC100;
+}
+
+progress::-webkit-progress-bar {
+    background: #EAEAEA;
+}

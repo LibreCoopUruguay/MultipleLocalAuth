@@ -1,0 +1,24 @@
+// Component schema
+// <element class="card"> 
+//      <element class="card--title"> This is the opcional title </element>
+// </element>
+
+$card-box-shadow: $default-box-shadow;
+
+.card {
+    border-radius: 10px;
+    background-color: #FFFFFF;
+    box-shadow: $card-box-shadow;
+    padding: 20px 10px;
+
+    &--title {
+        color: #111111;
+        font-family: $f_title;
+        font-size: $font-size-base;
+        font-weight: bold;
+        letter-spacing: 0;
+        line-height: 1.375rem;
+        margin-bottom: 0.5rem;
+    }
+}
+

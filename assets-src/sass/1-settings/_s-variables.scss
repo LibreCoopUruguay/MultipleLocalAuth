@@ -1,0 +1,102 @@
+$dir_assets : '/assets/';
+
+
+//
+// Variables
+// --------------------------------------------------
+
+// Colors
+// include sass color module
+@use 'sass:color';
+
+$light: #fff !default;
+
+$gray-darker: #333  !default;
+$gray-dark: #666 !default;
+$gray: #ccc !default;
+$gray-light: #e2e2e2 !default;
+$gray-lighter: #eee !default;
+
+$brand-primary: #31AAC9 !default;
+$brand-primary-light: color.scale($brand-primary, $lightness: 20%) !default;
+$brand-accent: #000000 !default;
+
+$brand-secondary: #666666 !default;
+$brand-secondary-light: color.scale($brand-secondary, $lightness: 20%) !default;
+
+$brand-tertiary: #cc0033 !default;
+$brand-tertiary-light: color.scale($brand-tertiary, $lightness: 20%) !default;
+
+$theme-color-primary: #9565D2 !default;
+$theme-color-secondary: #B4BA00 !default;
+$theme-color-tertiary: #C60931 !default;
+$theme-color-quaternary: #666666 !default;
+
+$brand-event: #b3b921 !default;
+$brand-agent: #1dabc6 !default;
+$brand-space: #e83f96 !default;
+$brand-project: #cc0033 !default;
+$brand-opportunity: #ED2CD4 !default;
+$brand-subsite: #cc0033 !default;
+$brand-seal: #cc0033 !default;
+$brand-developer: #9966cc !default;
+
+$brand-info: #40b4b4 !default;
+$brand-warning: #cc9933 !default;
+$brand-warning-light: color.scale($brand-warning, $lightness: 50%) !default;
+$brand-danger: #cc3333 !default;
+$brand-danger-light: color.scale($brand-danger, $lightness: 50%) !default;
+$brand-success: #66cc66 !default;
+$brand-success-light: color.scale($brand-success, $lightness: 50%) !default;
+$brand-draft: #0d9ecc !default;
+$brand-default: $gray-light !default;
+
+$green-dark: #003c46;
+
+
+// Typography
+$font-path: '/assets/fonts/' !default;
+$font-family-base: 'Open Sans' !default;
+$font-regular-name: 'OpenSans-Regular-webfont' !default;
+$font-regular-svg-id: 'open_sansregular' !default;
+$font-italic-name: 'OpenSans-Italic-webfont' !default;
+$font-italic-svg-id: 'open_sansitalic' !default;
+$font-bold-name: 'OpenSans-Bold-webfont' !default;
+$font-bold-svg-id: 'open_sansbold' !default;
+$font-bolditalic-name: 'OpenSans-BoldItalic-webfont' !default;
+$font-bolditalic-svg-id: 'open_sansbold_italic' !default;
+$font-stack-monospace: 'Courier New', monospace !default;
+$font-stack-base: $font-family-base, Helvetica, Arial, sans-serif !default;
+
+$font-size-base: 1rem !default; // 16px
+$font-size-small: .875rem !default; // 14px
+$font-size-smaller: .75rem !default; // 12px
+
+$font-size-h1: 2.25rem !default; // 36px
+$font-size-h2: 2rem !default; // 32px
+$font-size-h3: 1.75rem !default; // 28px
+$font-size-h4: 1.5rem !default; // 24px
+$font-size-h5: 1.25rem !default; // 20px
+$font-size-h6: $font-size-base !default; // 16px
+
+$line-height-base: 1.5rem !default; // 24px
+$line-height-half: $line-height-base/2 !default; // 12px
+
+$line-height-h1: 3rem !default; // 48px
+$line-height-h2: 3rem !default; // 48px
+$line-height-h3: 2rem !default; // 32px
+$line-height-h4: $line-height-base !default; // 24px
+$line-height-h5: $line-height-base !default; // 24px
+$line-height-h6: $line-height-base !default; // 24px
+
+$headings-font-family: 'aleo' !default;
+$headings-font-name: 'aleo-regular-webfont' !default;
+$headings-font-svg-id: 'aleoregular' !default;
+$headings-font-stack: $headings-font-family, serif !default;
+$headings-font-weight: normal !default;
+$headings-color: $brand-accent !default;
+
+$f-body: $font-family-base, "Arial", sans-serif;
+$f-title: $headings-font-stack;
+
+$default-box-shadow: 0 2px 6px 0 rgba(0,0,0,0.3); 
