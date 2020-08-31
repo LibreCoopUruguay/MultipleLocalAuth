@@ -401,7 +401,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             }
             if(isset($config['passwordMustHaveSpecialCharacters']) && 
                 $config['passwordMustHaveSpecialCharacters'] &&
-                !preg_match('/[\'^£$%&*()}{@#~?><>,|=_"]/', $pass)) {
+                !preg_match('/[\'^£$%&*()}{@#~?><>,|=_"!¨+`´\[\].;:\/-]/', $pass)) {
                 $err .= i::__(" Sua senha deve conter pelo menos 1 caractere especial !", 'multipleLocal');
             }
         }else{
