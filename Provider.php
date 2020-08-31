@@ -224,9 +224,13 @@ class Provider extends \MapasCulturais\AuthProvider {
             $providers = implode('|', array_keys($config['strategies']));
         }        
 
-        $app->hook("<<GET|POST>>(auth.<<{$providers}>>)", function () use($opauth, $config){
-            $opauth->run();
-        });
+
+        if(isset($config['strategies']) && count($config['strategies']) > 0 ){
+            $app->hook("<<GET|POST>>(auth.<<{$providers}>>)", function () use($opauth, $config){
+                $opauth->run();
+            });
+        }
+        
         $app->hook('GET(auth.response)', function () use($app){
 
             $app->auth->processResponse();
