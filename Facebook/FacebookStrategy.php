@@ -60,7 +60,8 @@ class FacebookStrategy extends OpauthStrategy{
 			);
 			$response = $this->serverGet($url, $params, null, $headers);
 
-			parse_str($response, $results);
+			//response json to array
+			$results = json_decode($response, true);
 
 			if (!empty($results) && !empty($results['access_token'])){
 				$me = $this->me($results['access_token']);
