@@ -191,7 +191,7 @@ class Provider extends \MapasCulturais\AuthProvider {
         
         /****** INIT OPAUTH ******/
         
-        if (isset($config['strategies'])){
+        if (isset($config['strategies']) && count($config['strategies']) > 0 ){
             $opauth_config = [
                 'strategy_dir' => PROTECTED_PATH . '/vendor/opauth/',
                 'Strategy' => $config['strategies'],
@@ -220,7 +220,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         $providers = [];
 
-        if(isset($config['strategies'])){
+        if(isset($config['strategies']) && count($config['strategies']) > 0 ){
             $providers = implode('|', array_keys($config['strategies']));
         }        
 
