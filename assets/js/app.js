@@ -137,7 +137,7 @@ $(function () {
     // verifica a força da senha
     var passwordMustHaveCapitalLetters = /[A-Z]/;
     var passwordMustHaveLowercaseLetters = /[a-z]/;
-    var passwordMustHaveSpecialCharacters = /[$@$!%*#?&\.\,\:<>+\_\-\"\'()]/;
+    var passwordMustHaveSpecialCharacters = /[$@$!%*#?&\,\:<>+\_\-\"\'()¨;/\[\].;:]/;
     var passwordMustHaveNumbers = /[0-9]/;
     var minimumPasswordLength = 8;
     var rules = []; //faz uma requisição para pegar as configs de força de senha
