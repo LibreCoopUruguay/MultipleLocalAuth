@@ -26,7 +26,7 @@ function showStrategy($name, $config) {
 
 <div class="login-area">
     <h6 class="text-center introduction">
-        <?php \MapasCulturais\i::_e('Boas vindas! Faça login para acessar a plataforma', 'multipleLocal'); ?>
+        <?php \MapasCulturais\i::_e('Boas vindas!', 'multipleLocal'); ?>
     </h6>
 
     <?php if ($feedback_msg) : ?>
@@ -41,6 +41,9 @@ function showStrategy($name, $config) {
             <div class="options">
                 <div id="multiple-login">
                     <h5><?php \MapasCulturais\i::_e('Entrar', 'multipleLocal'); ?></h5>
+                    <h6 class="text-center introduction">
+                        <?php \MapasCulturais\i::_e('Se já possui uma conta, comece fazendo seu login. Se você ainda não possui uma conta, crie uma conta para acessar o formulário de solicitação do benefício', 'multipleLocal'); ?>
+                    </h6>
                     <div class="login-options">
                         <form action="<?php echo $login_form_action; ?>" method="POST">
                             <input type="hidden" name="redirectUrl" value="<?php echo isset($redirectUrl) ? $redirectUrl : ''; ?>" />
@@ -150,6 +153,9 @@ function showStrategy($name, $config) {
 
         <div class="section-register">
             <h5><?php \MapasCulturais\i::_e('Criar cadastro', 'multipleLocal'); ?></h5>
+            <h6 class="text-center introduction">
+                <?php \MapasCulturais\i::_e('Depois de criar sua conta, você receberá um email de confirmação e, após a confirmação, você terá acesso ao formulário para a solicitação', 'multipleLocal'); ?>
+            </h6>
 
             <div class="register-options">
                 <form action="<?php echo $register_form_action; ?>" method="POST">

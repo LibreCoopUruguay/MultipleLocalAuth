@@ -377,7 +377,7 @@ class Provider extends \MapasCulturais\AuthProvider {
     function verifyPassowrds($pass, $verify) {
         $config = $this->_config;
 
-        $passwordLength = isset($config['auth.config']['minimumPasswordLength']) ? $config['auth.config']['minimumPasswordLength'] : 8;
+        $passwordLength = isset($config['minimumPasswordLength']) ? $config['minimumPasswordLength'] : 8;
 
         $err = "";
         if(!empty($pass) && $pass != "" ){
@@ -401,7 +401,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             }
             if(isset($config['passwordMustHaveSpecialCharacters']) && 
                 $config['passwordMustHaveSpecialCharacters'] &&
-                !preg_match('/[\'^£$%&*()}{@#~?><>,|=_"]/', $pass)) {
+                !preg_match('/[\'^£$%&*()}{@#~?><>,|=_"!¨+`´\[\].;:\/-]/', $pass)) {
                 $err .= i::__(" Sua senha deve conter pelo menos 1 caractere especial !", 'multipleLocal');
             }
         }else{
