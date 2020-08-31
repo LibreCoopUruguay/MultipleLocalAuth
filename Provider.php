@@ -377,7 +377,7 @@ class Provider extends \MapasCulturais\AuthProvider {
     function verifyPassowrds($pass, $verify) {
         $config = $this->_config;
 
-        $passwordLength = isset($config['auth.config']['minimumPasswordLength']) ? $config['auth.config']['minimumPasswordLength'] : 8;
+        $passwordLength = isset($config['minimumPasswordLength']) ? $config['minimumPasswordLength'] : 8;
 
         $err = "";
         if(!empty($pass) && $pass != "" ){
