@@ -108,6 +108,11 @@ class Provider extends \MapasCulturais\AuthProvider {
         });
 
         $app->hook('adminchangeuserpassword', function ($userEmail) use($app){
+
+            if(!$app->user->is('admin')) {
+                return;
+            }
+
             echo
             '
             <a class="btn btn-primary js-open-dialog" data-dialog="#admin-change-user-password" data-dialog-block="true">
@@ -158,6 +163,11 @@ class Provider extends \MapasCulturais\AuthProvider {
         });
 
         $app->hook('adminchangeuseremail', function ($userEmail) use($app){
+
+            if(!$app->user->is('admin')) {
+                return;
+            }
+
             echo
             '
             <a class="btn btn-primary js-open-dialog" data-dialog="#admin-change-user-email" data-dialog-block="true">
@@ -181,7 +191,7 @@ class Provider extends \MapasCulturais\AuthProvider {
         
         /****** INIT OPAUTH ******/
         
-        if (isset($config['strategies'])){
+        if (isset($config['strategies']) && count($config['strategies']) > 0 ){
             $opauth_config = [
                 'strategy_dir' => PROTECTED_PATH . '/vendor/opauth/',
                 'Strategy' => $config['strategies'],
@@ -210,13 +220,17 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         $providers = [];
 
-        if(isset($config['strategies'])){
+        if(isset($config['strategies']) && count($config['strategies']) > 0 ){
             $providers = implode('|', array_keys($config['strategies']));
         }        
 
-        $app->hook("<<GET|POST>>(auth.<<{$providers}>>)", function () use($opauth, $config){
-            $opauth->run();
-        });
+
+        if(isset($config['strategies']) && count($config['strategies']) > 0 ){
+            $app->hook("<<GET|POST>>(auth.<<{$providers}>>)", function () use($opauth, $config){
+                $opauth->run();
+            });
+        }
+        
         $app->hook('GET(auth.response)', function () use($app){
 
             $app->auth->processResponse();
@@ -265,7 +279,7 @@ class Provider extends \MapasCulturais\AuthProvider {
         
         });
         
-        $app->hook('POST(auth.dorecover)', function () use($app){
+        $app->hook('POST(auth.recover-resetform)', function () use($app){
         
             if ($app->auth->dorecover()) {
                 $this->error_msg = i::__('Senha alterada com sucesso. Agora você pode fazer login', 'multipleLocal');
@@ -429,20 +443,23 @@ class Provider extends \MapasCulturais\AuthProvider {
             if(empty($cpf) || !$this->validateCPF($cpf)) {
                 return $this->setFeedback(i::__('Por favor, informe um cpf válido', 'multipleLocal'));
             }
-                
+
+            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig(); 
+
+            $findUserByCpfMetadata1 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
             // cpf exists? 
             //retira ". e -" do $request->post('cpf')
             $cpf = str_replace("-","",$cpf);
             $cpf = str_replace(".","",$cpf);
+            $findUserByCpfMetadata2 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
 
-            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();  
-            $userExists = $app->repo("UserMeta")->findOneBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
+            $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
 
-            if (!empty($userExists)) {
-                return $this->setFeedback(i::__('Este CPF já está em uso', 'multipleLocal'));
+            if(count($foundAgent) > 0) {
+                return $this->setFeedback(i::__('Este CPF já esta em uso. Tente recuperar a sua senha.', 'multipleLocal'));
             }
+
         }
-        
         
         // email exists? (case insensitive)
         $checkEmailExistsQuery = $app->em->createQuery("SELECT u FROM \MapasCulturais\Entities\User u WHERE LOWER(u.email) = :email");
@@ -828,12 +845,17 @@ class Provider extends \MapasCulturais\AuthProvider {
         }
         
         $accountIsActive = $user->getMetadata(self::$accountIsActiveMetadata);
+
+        $userMustConfirmEmailToUseTheSystem = isset($config['userMustConfirmEmailToUseTheSystem']) ? $config['userMustConfirmEmailToUseTheSystem'] : false;
         
-        if(isset($user) && $accountIsActive === '0' ) {
-            return $this->setFeedback(i::__('Verifique seu email para validar a sua conta', 'multipleLocal'));
+        if($userMustConfirmEmailToUseTheSystem) {
+
+            if(isset($user) && $accountIsActive === '0' ) {
+                return $this->setFeedback(i::__('Verifique seu email para validar a sua conta', 'multipleLocal'));
+            }
+
         }
         
-
         $config = $this->_config;
         $timeBlockedloginAttemp = isset($config['timeBlockedloginAttemp']) ? $config['timeBlockedloginAttemp'] : 900;
         //verifica se o metadata 'timeBlockedloginAttempMetadata' existe e é maior que o tempo de agora, se for, então o usuario ta bloqueado te tentar fazer login
@@ -937,12 +959,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             ]);
             
             $user->setMetadata(self::$passMetaName, $app->auth->hashPassword( $pass ));
-
-            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig(); 
-            $user->setMetadata($metadataFieldCpf, $response['auth']['info']['cpf']);
-
             $user->setMetadata(self::$tokenVerifyAccountMetadata, $token);
-
             $user->setMetadata(self::$accountIsActiveMetadata, '0');
             
             // save
@@ -1004,6 +1021,8 @@ class Provider extends \MapasCulturais\AuthProvider {
         * Fetch auth response, based on transport configuration for callback
         */
         $response = null;
+
+        if (empty($this->opauth)) return $response;
 
         switch($this->opauth->env['callback_transport']) {
             case 'session':
