@@ -1022,6 +1022,8 @@ class Provider extends \MapasCulturais\AuthProvider {
         */
         $response = null;
 
+        if (empty($this->opauth)) return $response;
+
         switch($this->opauth->env['callback_transport']) {
             case 'session':
                 $response = key_exists('opauth', $_SESSION) ? $_SESSION['opauth'] : null;
