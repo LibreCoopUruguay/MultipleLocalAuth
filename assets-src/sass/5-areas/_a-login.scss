@@ -370,3 +370,13 @@
         }
     }
 }
+
+.action-register {
+    .login-area   {
+        .section-register {
+            @include tablet {
+                display: block;
+            }
+        }
+    }
+}

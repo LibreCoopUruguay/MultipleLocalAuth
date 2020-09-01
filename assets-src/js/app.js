@@ -125,5 +125,11 @@ $(function() {
             scrollTop: $(".section-register").offset().top - 30
         }, 200);
     });
+
+    if($('body').hasClass('action-register')) {
+        $([document.documentElement, document.body]).animate({
+            scrollTop: $(".section-register").offset().top - 30
+        }, 200);
+    }
     
 });
