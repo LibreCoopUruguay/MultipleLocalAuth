@@ -401,7 +401,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             }
             if(isset($config['passwordMustHaveSpecialCharacters']) && 
                 $config['passwordMustHaveSpecialCharacters'] &&
-                !preg_match('/[\'^£$%&*()}{@#~?><>,|=_"]/', $pass)) {
+                !preg_match('/[\'^£$%&*()}{@#~?><>,|=_"!¨+`´\[\].;:\/-]/', $pass)) {
                 $err .= i::__(" Sua senha deve conter pelo menos 1 caractere especial !", 'multipleLocal');
             }
         }else{
@@ -675,10 +675,10 @@ class Provider extends \MapasCulturais\AuthProvider {
         $config = $this->_config;
 
         $jsLabelsInternationalization = [
-            'passwordMustHaveCapitalLetters'=> i::__('A senha deve conter uma letra maiúsculas', 'multipleLocal'),
-            'passwordMustHaveLowercaseLetters'=> i::__('A senha deve conter uma letra minúsculas', 'multipleLocal'),
+            'passwordMustHaveCapitalLetters'=> i::__('A senha deve conter uma letra maiúscula', 'multipleLocal'),
+            'passwordMustHaveLowercaseLetters'=> i::__('A senha deve conter uma letra minúscula', 'multipleLocal'),
             'passwordMustHaveSpecialCharacters'=> i::__('A senha deve conter um caractere especial', 'multipleLocal'),
-            'passwordMustHaveNumbers'=> i::__('A senha deve conter um numero ', 'multipleLocal'),
+            'passwordMustHaveNumbers'=> i::__('A senha deve conter um número ', 'multipleLocal'),
             'minimumPasswordLength'=> i::__('O tamanho mínimo da senha é de: ', 'multipleLocal'),
         ];
 

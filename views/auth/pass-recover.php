@@ -5,10 +5,10 @@
 use MapasCulturais\i;
 
 $jsLabelsInternationalization = [
-    'passwordMustHaveCapitalLetters'=> i::__('A senha deve conter uma letra maiúsculas', 'multipleLocal'),
-    'passwordMustHaveLowercaseLetters'=> i::__('A senha deve conter uma letra minúsculas', 'multipleLocal'),
+    'passwordMustHaveCapitalLetters'=> i::__('A senha deve conter uma letra maiúscula', 'multipleLocal'),
+    'passwordMustHaveLowercaseLetters'=> i::__('A senha deve conter uma letra minúscula', 'multipleLocal'),
     'passwordMustHaveSpecialCharacters'=> i::__('A senha deve conter um caractere especial', 'multipleLocal'),
-    'passwordMustHaveNumbers'=> i::__('A senha deve conter um numero ', 'multipleLocal'),
+    'passwordMustHaveNumbers'=> i::__('A senha deve conter um número ', 'multipleLocal'),
     'minimumPasswordLength'=> i::__('O tamanho mínimo da senha é de: ', 'multipleLocal'),
 ];
 $this->jsObject['labels']['multiplelocal'] = $jsLabelsInternationalization;
