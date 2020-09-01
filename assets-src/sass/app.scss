@@ -1,0 +1,33 @@
+
+
+/* ----- 1: SETTINGS ------- */
+@import '1-settings/s-variables';
+@import '1-settings/s-typography';
+@import '1-settings/s-globals';
+
+
+/* ----- 2: ATOMS ------- */
+@import '2-atoms/a-mixins';
+@import '2-atoms/a-spacing';
+@import '2-atoms/a-typography';
+
+
+/* ----- 3: LAYOUT ------- */
+@import '3-layout/l-form';
+
+/* ----- 4: COMPONENTS ------- */
+@import '4-components/c-button';
+@import '4-components/c-card';
+@import '4-components/c-status-card';
+
+
+/* ----- 4: AREAS ------- */
+@import '5-areas/a-login';
+
+
+/* ----- 5: PAGES ------- */
+//@import '5-pages/p-cadastro';
+
+/* ----- 6: VENDORS ------- */
+// @import './../example-vendor/sss.css';
+

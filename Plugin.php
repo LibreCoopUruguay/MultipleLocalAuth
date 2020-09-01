@@ -19,12 +19,16 @@ class Plugin extends \MapasCulturais\Plugin {
         
         // Load JS & CSS
         $app->hook('<<GET|POST>>(auth.<<*>>)', function() use ($app) {
-            $app->view->enqueueScript('app', 'multipleLocal', 'js/multipleLocal.js');
-            $app->view->enqueueStyle('app', 'multipleLocal', 'css/multipleLocal.css');
+            //$app->view->enqueueScript('app', 'multipleLocal', 'js/multipleLocal.js');
+            //s$app->view->enqueueStyle('app', 'multipleLocal', 'css/multipleLocal.css');
+            
+            $app->view->enqueueScript('app', 'multipleLocal', 'js/app.js');
+            $app->view->enqueueStyle('app', 'multipleLocal', 'css/app.css');
         });
         
         $app->hook('<<GET|POST|ALL>>(panel.<<*>>):before', function() use ($app) {
             $app->view->enqueueStyle('app', 'multipleLocal', 'css/multipleLocal.css');
+            $app->view->enqueueStyle('app', 'multipleLocal', 'css/app.css');
         });
         
     }
@@ -32,6 +36,8 @@ class Plugin extends \MapasCulturais\Plugin {
     public function register() {
         $this->registerUserMetadata(Provider::$passMetaName, ['label' => i::__('Senha')]);
         
+        $this->registerUserMetadata(Provider::$recoverTokenMetadata, ['label' => i::__('Token para recuperação de senha')]);
+        $this->registerUserMetadata(Provider::$recoverTokenTimeMetadata, ['label' => i::__('Timestamp do token para recuperação de senha')]);
         $this->registerUserMetadata(Provider::$accountIsActiveMetadata, ['label' => i::__('Conta ativa?')]);
         $this->registerUserMetadata(Provider::$tokenVerifyAccountMetadata, ['label' => i::__('Token de verificação')]);
         $this->registerUserMetadata(Provider::$loginAttempMetadata, ['label' => i::__('Número de tentativas de login')]);

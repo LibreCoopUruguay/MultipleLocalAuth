@@ -1,0 +1,18 @@
+.inactive {
+    display: none;
+}
+
+.info-message {
+    max-width: 730px;
+    margin: 0 auto;
+    padding-top: 30px;
+    display: flex;
+
+    @media (max-width: 760px) {
+        padding: 0 15px;
+    }
+
+    .status-card {
+        width: 100%;
+    }
+}
