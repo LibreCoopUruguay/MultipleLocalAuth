@@ -42,7 +42,7 @@ function showStrategy($name, $config) {
                 <div id="multiple-login">
                     <h5><?php \MapasCulturais\i::_e('Entrar', 'multipleLocal'); ?></h5>
                     <h6 class="text-center introduction">
-                        <?php \MapasCulturais\i::_e('Se já possui uma conta, comece fazendo seu login. Se você ainda não possui uma conta, crie uma conta para acessar o formulário de solicitação do benefício', 'multipleLocal'); ?>
+                        <?php \MapasCulturais\i::_e('Se você já possui uma conta. Comece pelo login. Caso tenha esquecido a senha é só clicar em "recuperar senha"', 'multipleLocal'); ?>
                     </h6>
                     <div class="login-options">
                         <form action="<?php echo $login_form_action; ?>" method="POST">
@@ -152,9 +152,9 @@ function showStrategy($name, $config) {
 
 
         <div class="section-register">
-            <h5><?php \MapasCulturais\i::_e('Criar cadastro', 'multipleLocal'); ?></h5>
+            <h5><?php \MapasCulturais\i::_e('Criar conta', 'multipleLocal'); ?></h5>
             <h6 class="text-center introduction">
-                <?php \MapasCulturais\i::_e('Depois de criar sua conta, você receberá um email de confirmação e, após a confirmação, você terá acesso ao formulário para a solicitação', 'multipleLocal'); ?>
+                <?php \MapasCulturais\i::_e('Preencha os campos abaixo e confirme sua conta por email para ter acesso à solicitação dos benefícios.', 'multipleLocal'); ?>
             </h6>
 
             <div class="register-options">
