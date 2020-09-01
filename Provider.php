@@ -936,6 +936,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             //ATENÇÃO !! Se for necessario "padronizar" os emails com header/footers, é necessario adapatar o 'mustache', e criar uma mini estrutura de pasta de emails em 'MultipleLocalAuth\views'
             $mustache = new \Mustache_Engine();
+
             $content = $mustache->render(
                 file_get_contents(
                     __DIR__.
@@ -952,7 +953,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             $app->createAndSendMailMessage([
                 'from' => $app->config['mailer.from'],
                 'to' => $user->email,
-                'subject' => "Bem-vindo ao ".$config['app.siteName'],
+                'subject' => $config['app.siteName'].", confirme seu email para criar uma conta e solicitar o benefício",
                 'body' => $content
             ]);
             
