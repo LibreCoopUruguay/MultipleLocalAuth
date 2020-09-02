@@ -644,10 +644,12 @@ class Provider extends \MapasCulturais\AuthProvider {
         // build recover URL
         $url = $app->createUrl('auth', 'recover-resetform') . '?t=' . $token;
         
+        $site_name = $app->view->dict('site: name', false);
+        
         // send email
-        $email_subject = sprintf(i::__('Pedido de recuperação de senha para %s', 'multipleLocal'), $app->config['app.siteName']);
+        $email_subject = sprintf(i::__('Pedido de recuperação de senha para %s', 'multipleLocal'), $site_name);
         $email_text = sprintf(i::__("Alguém solicitou a recuperação da senha utilizada em %s por este email.<br><br>Para recuperá-la, acesse o link: %s.<br><br>Se você não pediu a recuperação desta senha, apenas ignore esta mensagem.", 'multipleLocal'),
-            $app->config['app.siteName'],
+            $site_name,
             "<a href='$url'>$url</a>"
         );
         
