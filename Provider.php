@@ -4,6 +4,7 @@ use MapasCulturais\App;
 use MapasCulturais\Entities;
 use MapasCulturais\i;
 use MapasCulturais\Validator;
+use Mustache\Mustache;
 
 
 class Provider extends \MapasCulturais\AuthProvider {
@@ -935,29 +936,27 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             $baseUrl = $app->getBaseUrl();
 
+            //ATENÇÃO !! Se for necessario "padronizar" os emails com header/footers, é necessario adapatar o 'mustache', e criar uma mini estrutura de pasta de emails em 'MultipleLocalAuth\views'
+            $mustache = new \Mustache_Engine();
+
+            $content = $mustache->render(
+                file_get_contents(
+                    __DIR__.
+                    DIRECTORY_SEPARATOR.'views'.
+                    DIRECTORY_SEPARATOR.'auth'.
+                    DIRECTORY_SEPARATOR.'email-to-validate-account.html'
+                ), array(
+                    "siteName" => $config['app.siteName'],
+                    "user" => $response['auth']['info']['name'],
+                    "urlToValidateAccount" =>  $baseUrl.'auth/confirma-email?token='.$token,
+                    "baseUrl" => $baseUrl
+                ));
+
             $app->createAndSendMailMessage([
                 'from' => $app->config['mailer.from'],
                 'to' => $user->email,
-                'subject' => "Mapas Culturais - Valide a sua conta",
-                'body' => '
-                <html>
-                    <head>
-                    </head>
-                    <body>
-                        <div>
-                            <font face="tahoma, sans-serif" color="#666666">Benvind@ a plataforma '.$config['app.siteName'].' <b>'.$response['auth']['info']['name'].'</b>!<br><br></font>
-                        </div>
-                        <div>
-                            <font face="tahoma, sans-serif" color="#666666">Comece a cadastrar seus agentes, espaços e eventos para construir seu mapa cultural.<br><br></font>
-                        </div>
-                        <div>
-                            <font face="tahoma, sans-serif" color="#666666"> Para validar seu email, <a href="'.$baseUrl.'auth/confirma-email?token='.$token.'" target="_blank"> Clique Aqui ! </a><br> <br><br></font>
-                        </div>
-                        <div>
-                            <font face="tahoma, sans-serif" color="#666666">Até +! =]<br><br></font>
-                        </div>
-                    </body>
-                </html>'
+                'subject' => $config['app.siteName'].", confirme seu email para criar uma conta e solicitar o benefício",
+                'body' => $content
             ]);
             
             $user->setMetadata(self::$passMetaName, $app->auth->hashPassword( $pass ));
