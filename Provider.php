@@ -650,10 +650,6 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         // send email
         $email_subject = sprintf(i::__('Pedido de recuperação de senha para %s', 'multipleLocal'), $site_name);
-        // $email_text = sprintf(i::__("Alguém solicitou a recuperação da senha utilizada em %s por este email.<br><br>Para recuperá-la, acesse o link: %s.<br><br>Se você não pediu a recuperação desta senha, apenas ignore esta mensagem.", 'multipleLocal'),
-        //     $site_name,
-        //     "<a href='$url'>$url</a>"
-        // );
         $mustache = new \Mustache_Engine();
 
         $content = $mustache->render(
@@ -668,7 +664,6 @@ class Provider extends \MapasCulturais\AuthProvider {
             ));
         
         $app->applyHook('multipleLocalAuth.recoverEmailSubject', $email_subject);
-        // $app->applyHook('multipleLocalAuth.recoverEmailBody', $email_text);
         $app->applyHook('multipleLocalAuth.recoverEmailBody', $content);
         
         if ($app->createAndSendMailMessage([
@@ -676,7 +671,6 @@ class Provider extends \MapasCulturais\AuthProvider {
                 'to' => $user->email,
                 'subject' => $email_subject,
                 'body' => $content
-                // 'body' => $email_text
             ])) {
         
             // set feedback
