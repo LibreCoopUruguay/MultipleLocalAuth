@@ -647,21 +647,36 @@ class Provider extends \MapasCulturais\AuthProvider {
         
         $site_name = $app->view->dict('site: name', false);
         
+
         // send email
         $email_subject = sprintf(i::__('Pedido de recuperação de senha para %s', 'multipleLocal'), $site_name);
-        $email_text = sprintf(i::__("Alguém solicitou a recuperação da senha utilizada em %s por este email.<br><br>Para recuperá-la, acesse o link: %s.<br><br>Se você não pediu a recuperação desta senha, apenas ignore esta mensagem.", 'multipleLocal'),
-            $site_name,
-            "<a href='$url'>$url</a>"
-        );
+        // $email_text = sprintf(i::__("Alguém solicitou a recuperação da senha utilizada em %s por este email.<br><br>Para recuperá-la, acesse o link: %s.<br><br>Se você não pediu a recuperação desta senha, apenas ignore esta mensagem.", 'multipleLocal'),
+        //     $site_name,
+        //     "<a href='$url'>$url</a>"
+        // );
+        $mustache = new \Mustache_Engine();
+
+        $content = $mustache->render(
+            file_get_contents(
+                __DIR__.
+                DIRECTORY_SEPARATOR.'views'.
+                DIRECTORY_SEPARATOR.'auth'.
+                DIRECTORY_SEPARATOR.'email-resert-password.html'
+            ), array(
+                "url" => $url,
+                "user" => $user->email,
+            ));
         
         $app->applyHook('multipleLocalAuth.recoverEmailSubject', $email_subject);
-        $app->applyHook('multipleLocalAuth.recoverEmailBody', $email_text);
+        // $app->applyHook('multipleLocalAuth.recoverEmailBody', $email_text);
+        $app->applyHook('multipleLocalAuth.recoverEmailBody', $content);
         
         if ($app->createAndSendMailMessage([
                 'from' => $app->config['mailer.from'],
                 'to' => $user->email,
                 'subject' => $email_subject,
-                'body' => $email_text
+                'body' => $content
+                // 'body' => $email_text
             ])) {
         
             // set feedback
