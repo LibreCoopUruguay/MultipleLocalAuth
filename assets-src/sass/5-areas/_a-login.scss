@@ -19,6 +19,7 @@
         padding-top: 30px;
     }
 
+
     .section-login-wrapper {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -253,6 +254,21 @@
 
                 &.active {
                     display: block;
+                }
+            }
+
+            .invalidField {
+                border: 1px solid #C60931;
+                border-radius: 2px;
+                background-color: rgba(198,9,49,0.15);
+            }
+
+            .error-msg{
+                color: #c33;
+                &:before {
+                    content: "\F071";
+                    font-weight: 600;
+                    font-family: Font Awesome\ 5 Free;
                 }
             }
 
