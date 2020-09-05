@@ -3,6 +3,9 @@
 $this->jsObject['labels']['multiplelocal'] = $jsLabelsInternationalization;
 
 function showStrategy($name, $config) {
+
+    
+    
     if (!isset($config['strategies'])) {
         return false;
     }
@@ -11,12 +14,15 @@ function showStrategy($name, $config) {
         return false;
     }
 
-    //Default Visible TRUE
-    if (!isset($config['strategies'][$name]['visible'])) {
-        return true;
+    if (isset($config['strategies'][$name]['visible'])) {
+        if(!$config['strategies'][$name]['visible'] || $config['strategies'][$name]['visible'] === 'false') {
+            return false;
+        } else {
+            return true;
+        }
     }
 
-    return $config['strategies'][$name]['visible'] === true;
+    return false;
 }
 ?>
 
