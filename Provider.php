@@ -794,6 +794,35 @@ class Provider extends \MapasCulturais\AuthProvider {
         return true;
     
     }
+
+    function validaCPF($cpf) {
+ 
+        // Extrai somente os números
+        $cpf = preg_replace( '/[^0-9]/is', '', $cpf );
+         
+        // Verifica se foi informado todos os digitos corretamente
+        if (strlen($cpf) != 11) {
+            return false;
+        }
+    
+        // Verifica se foi informada uma sequência de digitos repetidos. Ex: 111.111.111-11
+        if (preg_match('/(\d)\1{10}/', $cpf)) {
+            return false;
+        }
+    
+        // Faz o calculo para validar o CPF
+        for ($t = 9; $t < 11; $t++) {
+            for ($d = 0, $c = 0; $c < $t; $c++) {
+                $d += $cpf[$c] * (($t + 1) - $c);
+            }
+            $d = ((10 * $d) % 11) % 10;
+            if ($cpf[$c] != $d) {
+                return false;
+            }
+        }
+        return true;
+    
+    }
     
     function verifyLogin() {
         $app = App::i();
@@ -816,21 +845,19 @@ class Provider extends \MapasCulturais\AuthProvider {
         
         $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
 
-
         // verifica se esta habilitado 'enableLoginByCPF' em conf.php && esta tentando fazer login com CPF
-        if (isset($config['enableLoginByCPF']) && $config['enableLoginByCPF'] && preg_match("/^(([0-9]{3}.[0-9]{3}.[0-9]{3}-[0-9]{2})|([0-9]{11}))$/", $email ) || strpos($email, '@') !== true ) {
+        if ($this->validaCPF($email) && isset($config['enableLoginByCPF']) && $config['enableLoginByCPF'] === true) {
             // LOGIN COM CPF
             $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig(); 
 
             $cpf = $email;
 
-            $cpf = preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "\$1.\$2.\$3-\$4", $cpf);
+            $cpf = preg_replace("/(\d{3}).?(\d{3}).?(\d{3})-?(\d{2})/", "$1.$2.$3-$4", $cpf);
 
             $findUserByCpfMetadata1 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
 
             //retira ". e -" do $request->post('cpf')
-            $cpf = str_replace("-","",$cpf);
-            $cpf = str_replace(".","",$cpf);
+            $cpf = preg_replace( '/[^0-9]/is', '', $cpf );
             $findUserByCpfMetadata2 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
 
             $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
