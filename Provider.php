@@ -31,7 +31,7 @@ class Provider extends \MapasCulturais\AuthProvider {
     
     function __construct ($config) {
         $app = App::i();
-
+        
         $config += [
             'salt' => env('AUTH_SALT', null),
             'timeout' => env('AUTH_TIMEOUT', '24 hours'),
@@ -52,6 +52,11 @@ class Provider extends \MapasCulturais\AuthProvider {
             'timeBlockedloginAttemp' => env('AUTH_BLOCK_TIME', 900), // tempo de bloqueio do usuario em segundos
     
             'metadataFieldCPF' => env('AUTH_METADATA_FIELD_DOCUMENT', 'documento'),
+
+            'urlSupportChat' => env('AUTH_SUPPORT_CHAT', ''),
+            'urlSupportEmail' => env('AUTH_SUPPORT_EMAIL', ''),
+            'urlSupportSite' => env('AUTH_SUPPORT_SITE', ''),
+            'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE' ,'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRqLRsBSuwp4VBxBlIAqytRgieI_7nHjrDxyQ&usqp=CAU'),
 
             'strategies' => [
                 'Facebook' => [
@@ -711,6 +716,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         $content = $mustache->render(
             file_get_contents(
+                // @todo: usar a $app->view->getTemplatePathname()
                 __DIR__.
                 DIRECTORY_SEPARATOR.'views'.
                 DIRECTORY_SEPARATOR.'auth'.
@@ -718,11 +724,11 @@ class Provider extends \MapasCulturais\AuthProvider {
             ), array(
                 "url" => $url,
                 "user" => $user->email,
-                "siteName" => $config['app.siteName'],
-                "urlSupportChat" => isset($config['auth.config']['urlSupportChat']) ? $config['auth.config']['urlSupportChat'] : false,
-                "urlSupportEmail" => isset($config['auth.config']['urlSupportEmail']) ? $config['auth.config']['urlSupportEmail'] : false,
-                "urlSupportSite" => isset($config['auth.config']['urlSupportSite']) ? $config['auth.config']['urlSupportSite'] : false,
-                "urlImageToUseInEmails" => isset($config['auth.config']['urlImageToUseInEmails']) ? $config['auth.config']['urlImageToUseInEmails'] : 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRqLRsBSuwp4VBxBlIAqytRgieI_7nHjrDxyQ&usqp=CAU',
+                "siteName" => $site_name,
+                "urlSupportChat" => $this->_config['urlSupportChat'],
+                "urlSupportEmail" => $this->_config['urlSupportEmail'],
+                "urlSupportSite" => $this->_config['urlSupportSite'],
+                "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
             ));
         
         $app->applyHook('multipleLocalAuth.recoverEmailSubject', $email_subject);
@@ -903,7 +909,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         // verifica se esta habilitado 'enableLoginByCPF' em conf.php && esta tentando fazer login com CPF
 
-        if ($this->validaCPF($email) && isset($config['enableLoginByCPF']) && $config['enableLoginByCPF'] === true) {
+        if ($this->validaCPF($email) && $config['enableLoginByCPF']) {
 
             // LOGIN COM CPF
             $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig(); 
@@ -1040,6 +1046,8 @@ class Provider extends \MapasCulturais\AuthProvider {
             //ATENÇÃO !! Se for necessario "padronizar" os emails com header/footers, é necessario adapatar o 'mustache', e criar uma mini estrutura de pasta de emails em 'MultipleLocalAuth\views'
             $mustache = new \Mustache_Engine();
 
+            $site_name = $app->view->dict('site: name', false);
+
             $content = $mustache->render(
                 file_get_contents(
                     __DIR__.
@@ -1047,20 +1055,21 @@ class Provider extends \MapasCulturais\AuthProvider {
                     DIRECTORY_SEPARATOR.'auth'.
                     DIRECTORY_SEPARATOR.'email-to-validate-account.html'
                 ), array(
-                    "siteName" => $config['app.siteName'],
+                    "siteName" => $site_name,
+                    // @todo não é melhor pegar o $user->profile->name ???
                     "user" => $response['auth']['info']['name'],
                     "urlToValidateAccount" =>  $baseUrl.'auth/confirma-email?token='.$token,
                     "baseUrl" => $baseUrl,
-                    "urlSupportChat" => isset($config['auth.config']['urlSupportChat']) ? $config['auth.config']['urlSupportChat'] : false,
-                    "urlSupportEmail" => isset($config['auth.config']['urlSupportEmail']) ? $config['auth.config']['urlSupportEmail'] : false,
-                    "urlSupportSite" => isset($config['auth.config']['urlSupportSite']) ? $config['auth.config']['urlSupportSite'] : false,
-                    "urlImageToUseInEmails" => isset($config['auth.config']['urlImageToUseInEmails']) ? $config['auth.config']['urlImageToUseInEmails'] : 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRqLRsBSuwp4VBxBlIAqytRgieI_7nHjrDxyQ&usqp=CAU',
+                    "urlSupportChat" => $this->_config['urlSupportChat'],
+                    "urlSupportEmail" => $this->_config['urlSupportEmail'],
+                    "urlSupportSite" => $this->_config['urlSupportSite'],
+                    "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
                 ));
 
             $app->createAndSendMailMessage([
                 'from' => $app->config['mailer.from'],
                 'to' => $user->email,
-                'subject' => "Bem-vindo ao ".$config['app.siteName'],
+                'subject' => "Bem-vindo ao ".$site_name,
                 'body' => $content
             ]);
             
