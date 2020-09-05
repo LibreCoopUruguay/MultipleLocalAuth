@@ -15,8 +15,6 @@ $this->jsObject['labels']['multiplelocal'] = $jsLabelsInternationalization;
 
 ?>
 
-<h2><?php \MapasCulturais\i::_e('Recuperar senha', 'multipleLocal'); ?></h2>
-
 <div class="login-area recover">
     <?php if ($feedback_msg) : ?>
         <div class="alerta <?php echo $feedback_success ? 'sucesso' : 'erro'; ?>">
