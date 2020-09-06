@@ -24,7 +24,7 @@ $this->jsObject['labels']['multiplelocal'] = $jsLabelsInternationalization;
     <?php endif; ?>
 
     <div class="section-login-wrapper single-item">
-        <div class="section-register">
+        <div class="section-register active">
             <h5 class="text-center"><?php \MapasCulturais\i::_e('Recuperar senha', 'multipleLocal'); ?></h5>
             <div class="register-options">
             <form action="" method="POST">
