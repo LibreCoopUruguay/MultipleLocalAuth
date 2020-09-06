@@ -942,7 +942,10 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         } else {
             // LOGIN COM EMAIL
-            $user = $app->repo("User")->findOneBy(array('email' => $emailToCheck));
+            $query = new \MapasCulturais\ApiQuery ('MapasCulturais\Entities\User', ['@select' => 'id', 'email' => 'ILIKE(' . $emailToCheck . ')']);
+            if($user = $query->findOne()){
+                $user = $app->repo("User")->findOneBy($user);
+            }
         }
 
 

@@ -37,8 +37,29 @@ Finalmente, defina a configuração *auth.config* para definir as estratégias u
             
             'timeout' => '24 hours',
             
+            //url de suporte por chat para ser enviado nos emails
+            'urlSupportChat' => 'https://www.google.com',
+            
+            //url de suporte por email para ser enviado nos emails
+            'urlSupportEmail' => 'https://www.google.com',
+            
+            //url do site de suporte para ser enviado nos emails
+            'urlSupportSite' => 'https://www.google.com',
+            
+            //url dos termos de uso para utilizar a plataforma
+            'urlTermsOfUse' => 'https://www.google.com',
+            
+            //url de uma imagem para ser enviado como plano de fundo nos emails
+            'urlImageToUseInEmails' => 'https://mapacultural.juazeiro.ce.gov.br/files/project/1561/file/963893/blob-3d922310b0a1eb1c16791a06023f56df.png',
+            
             //Habilita registro e login através do CPF
             'enableLoginByCPF' => true,
+            
+            //apelido do metadata que será salvo o campo CPF
+            'metadataFieldCPF' => 'documento',
+            
+            //Regra para saber se o usuario deve ou não confiar o email para poder utilizar o sistema
+            'userMustConfirmEmailToUseTheSystem' => false,
 
             //Regra de força de senha - Ter no mínimo 1 letra maiúscula
             'passwordMustHaveCapitalLetters' => true,
