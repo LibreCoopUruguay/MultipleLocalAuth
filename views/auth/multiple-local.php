@@ -132,7 +132,7 @@ function showStrategy($name, $config) {
                 <div id="multiple-recover" style="display:none;">
                     <h5><?php \MapasCulturais\i::_e('Esqueci minha senha', 'multipleLocal'); ?></h5>
                     <div class="recover-options">
-                        <form action="<?php echo $recover_form_action; ?>" method="POST">
+                        <form autocomplete="off" action="<?php echo $recover_form_action; ?>" method="POST">
                             <!-- <p><?php \MapasCulturais\i::_e('Para recuperar sua senha, informe o e-mail utilizado no cadastro.', 'multipleLocal'); ?></p> -->
 
                             <fieldset>
@@ -140,7 +140,7 @@ function showStrategy($name, $config) {
                                     <?php \MapasCulturais\i::_e('Email', 'multipleLocal'); ?>
                                 </label>
 
-                                <input type="text" id="re-email" name="email" value="" />
+                                <input autocomplete="off" type="text" id="re-email" name="email" value="" />
                             </fieldset>
 
 
@@ -164,20 +164,20 @@ function showStrategy($name, $config) {
             </h6>
 
             <div class="register-options">
-                <form action="<?php echo $register_form_action; ?>" method="POST">
+                <form autocomplete="off" action="<?php echo $register_form_action; ?>" method="POST">
                     <fieldset>
                         <label for="in-name">
                             <?php \MapasCulturais\i::_e('Nome', 'multipleLocal'); ?>
                         </label>
 
-                        <input type="text" id="in-name" name="name" value="<?php echo htmlentities($triedName); ?>" />
+                        <input autocomplete="off" type="text" id="in-name" name="name" value="<?php echo htmlentities($triedName); ?>" />
                     </fieldset>
 
                     <fieldset>
                         <label for="in-email">
                             <?php \MapasCulturais\i::_e('Email', 'multipleLocal'); ?>
                         </label>
-                        <input id="in-email" type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
+                        <input autocomplete="off" id="in-email" type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
                     </fieldset>
 
 
@@ -188,7 +188,7 @@ function showStrategy($name, $config) {
                                 <?php \MapasCulturais\i::_e('CPF', 'multipleLocal'); ?>
                             </label>
 
-                            <input type="text" id="RegraValida" value="" name="cpf" maxlength="14">
+                            <input autocomplete="off" type="text" id="RegraValida" value="" name="cpf" maxlength="14">
                         </fieldset>
                     <?php } ?>
 
@@ -203,7 +203,7 @@ function showStrategy($name, $config) {
                             </div>
 
                         </label>
-                        <input id="pwd-progress-bar-validation" type="password" name="password" value="" />
+                        <input autocomplete="off" id="pwd-progress-bar-validation" type="password" name="password" value="" />
                     </fieldset>
 
 
@@ -219,7 +219,7 @@ function showStrategy($name, $config) {
                             <?php \MapasCulturais\i::_e('Confirmar senha', 'multipleLocal'); ?>
                         </label>
 
-                        <input id="in-repassword" type="password" name="confirm_password" value="" />
+                        <input autocomplete="off" id="in-repassword" type="password" name="confirm_password" value="" />
                     </fieldset>
 
                     <div class="registro__container__form__field" name="terminos" style="min-height: 0px;">
