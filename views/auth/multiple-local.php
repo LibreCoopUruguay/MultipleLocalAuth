@@ -252,7 +252,7 @@ function showStrategy($name, $config) {
                     <?php endif; ?>
 
                     <div class="submit-options">
-                        <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Cadastrar', 'multipleLocal'); ?>" />
+                        <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Criar Conta', 'multipleLocal'); ?>" />
                     </div>
                 </form>
             </div>
