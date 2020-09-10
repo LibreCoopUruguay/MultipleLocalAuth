@@ -1087,7 +1087,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
 
             $this->feedback_success = true;
-            $this->feedback_msg = i::__('Sucesso: Um e-mail lhe foi enviado com detalhes sobre a plataforma '.$config['app.siteName'] , 'multipleLocal');
+            $this->feedback_msg = i::__('Sucesso: Um e-mail lhe foi enviado com detalhes sobre a plataforma '.$config['app.siteName'] . '. Verifique sua caixa de email e clique em “Validar conta” para continuar.' , 'multipleLocal');
             
         
         } 
