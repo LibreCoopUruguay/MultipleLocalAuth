@@ -127,8 +127,12 @@ $(function() {
     });
 
     if($('body').hasClass('action-register')) {
+        if($('.alerta.erro').length) {
+            $($('.alerta.erro')).insertBefore('.section-register');
+        }
+
         $([document.documentElement, document.body]).animate({
-            scrollTop: $(".section-register").offset().top - 30
+            scrollTop: $(".section-register").offset().top - 80
         }, 200);
     }
     
