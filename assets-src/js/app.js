@@ -127,13 +127,17 @@ $(function() {
     });
 
     if($('body').hasClass('action-register')) {
-        if($('.alerta.erro').length) {
-            $($('.alerta.erro')).insertBefore('.section-register');
+        if($(window).width() < 1025) {
+            if($('.alerta.erro').length) {
+                $($('.alerta.erro')).insertBefore('.section-register');
+            }
+
+            $([document.documentElement, document.body]).animate({
+                scrollTop: $(".section-register").offset().top - 80
+            }, 200);
         }
 
-        $([document.documentElement, document.body]).animate({
-            scrollTop: $(".section-register").offset().top - 80
-        }, 200);
+        
     }
     
 });
