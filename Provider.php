@@ -543,15 +543,6 @@ class Provider extends \MapasCulturais\AuthProvider {
         if (empty($email) || Validator::email()->validate($email) !== true)
             return $this->setFeedback(i::__('Por favor, informe um email válido', 'multipleLocal'));
 
-        // // email exists? (case insensitive)
-        // $checkEmailExistsQuery = $app->em->createQuery("SELECT u FROM \MapasCulturais\Entities\User u WHERE LOWER(u.email) = :email");
-        // $checkEmailExistsQuery->setParameter('email', strtolower($email));
-        // $checkEmailExists = $checkEmailExistsQuery->getResult();
-        
-        // if (!empty($checkEmailExists)) {
-        //     return $this->setFeedback(i::__('Este endereço de email já está em uso', 'multipleLocal'));
-        // }
-
         // validate password
         return $this->verifyPassowrds($pass, $pass_v);
 
@@ -1106,9 +1097,13 @@ class Provider extends \MapasCulturais\AuthProvider {
 
 
             $this->feedback_success = true;
-            $this->feedback_msg = i::__('Sucesso: Um e-mail lhe foi enviado com detalhes sobre a plataforma '.$config['app.siteName'] . '. Verifique sua caixa de email e clique em “Validar conta” para continuar.' , 'multipleLocal');
-            
-        
+
+            if(isset($config['auth.config']) && isset($config['auth.config']['userMustConfirmEmailToUseTheSystem']) && $config['auth.config']['userMustConfirmEmailToUseTheSystem']) {
+                $this->feedback_msg = i::__('Sucesso: Um e-mail lhe foi enviado com detalhes sobre a plataforma '.$config['app.siteName'] . '. Verifique sua caixa de email e clique em “Validar conta” para continuar.' , 'multipleLocal');
+            } else {
+                $this->feedback_msg = i::__('Sucesso: Conta criada com sucesso.' , 'multipleLocal');
+            }
+
         } 
         
     }
