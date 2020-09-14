@@ -517,7 +517,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
 
-            if(count($foundAgent) > 0) {
+            if(count($foundAgent) > 0 && $foundAgent[0]->owner->status === 1) {
                 return $this->setFeedback(i::__('Este CPF já esta em uso. Tente recuperar a sua senha.', 'multipleLocal'));
             }
 
@@ -929,6 +929,17 @@ class Provider extends \MapasCulturais\AuthProvider {
             if(!$foundAgent) {
                 return $this->setFeedback(i::__('CPF ou senha incorreta', 'multipleLocal'));
             }
+
+            //cria um array com os agentes que estão com status == 1, pois o usuario pode ter, por exemplo, 3 agentes, mas 2 estão com status == 0
+            $activeAgents  = [];
+            foreach ($foundAgent as $agentMeta) {
+                if($agentMeta->owner->status === 1) {
+                    $activeAgents[] = $agentMeta;
+                }
+            }
+
+            //aqui foi feito um "jogo de atribuição" de variaveis para que o restando do fluxo do codigo continue funcionando normalmente
+            $foundAgent = $activeAgents;
 
             if(count($foundAgent) > 1) {
                 return $this->setFeedback(i::__('Somente é necessario que UM AGENTE tenha cpf UNICO, por favor exluca os demais agentes que tem CPF duplicado', 'multipleLocal'));
