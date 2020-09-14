@@ -517,7 +517,15 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
 
-            if(count($foundAgent) > 0) {
+            //cria um array com os agentes que estão com status == 1, pois o usuario pode ter, por exemplo, 3 agentes, mas 2 estão com status == 0
+            $activeAgents  = [];
+            foreach ($foundAgent as $agentMeta) {
+                if($agentMeta->owner->status === 1) {
+                    $activeAgents[] = $agentMeta;
+                }
+            }
+
+            if(count($activeAgents) > 0) {
                 return $this->setFeedback(i::__('Este CPF já esta em uso. Tente recuperar a sua senha.', 'multipleLocal'));
             }
 
@@ -534,15 +542,6 @@ class Provider extends \MapasCulturais\AuthProvider {
         // validate email
         if (empty($email) || Validator::email()->validate($email) !== true)
             return $this->setFeedback(i::__('Por favor, informe um email válido', 'multipleLocal'));
-
-        // // email exists? (case insensitive)
-        // $checkEmailExistsQuery = $app->em->createQuery("SELECT u FROM \MapasCulturais\Entities\User u WHERE LOWER(u.email) = :email");
-        // $checkEmailExistsQuery->setParameter('email', strtolower($email));
-        // $checkEmailExists = $checkEmailExistsQuery->getResult();
-        
-        // if (!empty($checkEmailExists)) {
-        //     return $this->setFeedback(i::__('Este endereço de email já está em uso', 'multipleLocal'));
-        // }
 
         // validate password
         return $this->verifyPassowrds($pass, $pass_v);
@@ -930,8 +929,19 @@ class Provider extends \MapasCulturais\AuthProvider {
                 return $this->setFeedback(i::__('CPF ou senha incorreta', 'multipleLocal'));
             }
 
+            //cria um array com os agentes que estão com status == 1, pois o usuario pode ter, por exemplo, 3 agentes, mas 2 estão com status == 0
+            $activeAgents  = [];
+            foreach ($foundAgent as $agentMeta) {
+                if($agentMeta->owner->status === 1) {
+                    $activeAgents[] = $agentMeta;
+                }
+            }
+
+            //aqui foi feito um "jogo de atribuição" de variaveis para que o restando do fluxo do codigo continue funcionando normalmente
+            $foundAgent = $activeAgents;
+
             if(count($foundAgent) > 1) {
-                return $this->setFeedback(i::__('Somente é necessario que UM AGENTE tenha cpf UNICO, por favor exluca os demais agentes que tem CPF duplicado', 'multipleLocal'));
+                return $this->setFeedback(i::__('Você possui 2 ou mais agente com o mesmo CPF ! Por favor entre em contato com o suporte.', 'multipleLocal'));
             }
             
             $user = $app->repo("User")->findOneBy(array('id' => $foundAgent[0]->owner->user->id));
@@ -1087,9 +1097,13 @@ class Provider extends \MapasCulturais\AuthProvider {
 
 
             $this->feedback_success = true;
-            $this->feedback_msg = i::__('Sucesso: Um e-mail lhe foi enviado com detalhes sobre a plataforma '.$config['app.siteName'] . '. Verifique sua caixa de email e clique em “Validar conta” para continuar.' , 'multipleLocal');
-            
-        
+
+            if(isset($config['auth.config']) && isset($config['auth.config']['userMustConfirmEmailToUseTheSystem']) && $config['auth.config']['userMustConfirmEmailToUseTheSystem']) {
+                $this->feedback_msg = i::__('Sucesso: Um e-mail lhe foi enviado com detalhes sobre a plataforma '.$config['app.siteName'] . '. Verifique sua caixa de email e clique em “Validar conta” para continuar.' , 'multipleLocal');
+            } else {
+                $this->feedback_msg = i::__('Sucesso: Conta criada com sucesso.' , 'multipleLocal');
+            }
+
         } 
         
     }
