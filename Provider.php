@@ -517,7 +517,15 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
 
-            if(count($foundAgent) > 0 && $foundAgent[0]->owner->status === 1) {
+            //cria um array com os agentes que estão com status == 1, pois o usuario pode ter, por exemplo, 3 agentes, mas 2 estão com status == 0
+            $activeAgents  = [];
+            foreach ($foundAgent as $agentMeta) {
+                if($agentMeta->owner->status === 1) {
+                    $activeAgents[] = $agentMeta;
+                }
+            }
+
+            if(count($activeAgents) > 0) {
                 return $this->setFeedback(i::__('Este CPF já esta em uso. Tente recuperar a sua senha.', 'multipleLocal'));
             }
 
@@ -942,7 +950,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             $foundAgent = $activeAgents;
 
             if(count($foundAgent) > 1) {
-                return $this->setFeedback(i::__('Somente é necessario que UM AGENTE tenha cpf UNICO, por favor exluca os demais agentes que tem CPF duplicado', 'multipleLocal'));
+                return $this->setFeedback(i::__('Você possui 2 ou mais agente com o mesmo CPF ! Por favor entre em contato com o suporte.', 'multipleLocal'));
             }
             
             $user = $app->repo("User")->findOneBy(array('id' => $foundAgent[0]->owner->user->id));
