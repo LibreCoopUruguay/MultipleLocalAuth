@@ -7,7 +7,7 @@
             <div class="content">
                 <?= $msg ?>
             </div>
-            <a href="/autenticacao" class="btn">
+            <a href="/" class="btn">
                 <?php \MapasCulturais\i::_e('Clique aqui para entrar no sistema', 'multipleLocal'); ?>
             </a>
         </div>
