@@ -127,9 +127,27 @@ $(function() {
     });
 
     if($('body').hasClass('action-register')) {
-        $([document.documentElement, document.body]).animate({
-            scrollTop: $(".section-register").offset().top - 30
-        }, 200);
+        if($(window).width() < 1025) {
+            $([document.documentElement, document.body]).animate({
+                scrollTop: $(".section-register").offset().top - 80
+            }, 200);
+
+            if($('.alerta.erro').length) {
+                $($('.alerta.erro')).insertBefore('.section-register');
+            }
+
+            if($('.alerta.sucesso').length) {
+                $($('.alerta.sucesso')).insertBefore('.section-register');
+
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: $(".section-register").offset().top - 200
+                }, 200);
+            }
+
+            
+        }
+
+        
     }
     
 });

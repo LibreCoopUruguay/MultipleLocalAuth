@@ -137,7 +137,7 @@ $(function () {
     // verifica a força da senha
     var passwordMustHaveCapitalLetters = /[A-Z]/;
     var passwordMustHaveLowercaseLetters = /[a-z]/;
-    var passwordMustHaveSpecialCharacters = /[$@$!%*#?&\,\:<>+\_\-\"\'()¨;/\[\].;:]/;
+    var passwordMustHaveSpecialCharacters = /[$@$!%*#?&\.\,\:<>+\_\-\"\'()]/;
     var passwordMustHaveNumbers = /[0-9]/;
     var minimumPasswordLength = 8;
     var rules = []; //faz uma requisição para pegar as configs de força de senha
@@ -210,6 +210,25 @@ $(function () {
       scrollTop: $(".section-register").offset().top - 30
     }, 200);
   });
+
+  if ($('body').hasClass('action-register')) {
+    if ($(window).width() < 1025) {
+      $([document.documentElement, document.body]).animate({
+        scrollTop: $(".section-register").offset().top - 80
+      }, 200);
+
+      if ($('.alerta.erro').length) {
+        $($('.alerta.erro')).insertBefore('.section-register');
+      }
+
+      if ($('.alerta.sucesso').length) {
+        $($('.alerta.sucesso')).insertBefore('.section-register');
+        $([document.documentElement, document.body]).animate({
+          scrollTop: $(".section-register").offset().top - 200
+        }, 200);
+      }
+    }
+  }
 });
 
 /***/ }),

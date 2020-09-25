@@ -31,7 +31,7 @@ class Provider extends \MapasCulturais\AuthProvider {
     
     function __construct ($config) {
         $app = App::i();
-
+        
         $config += [
             'salt' => env('AUTH_SALT', null),
             'timeout' => env('AUTH_TIMEOUT', '24 hours'),
@@ -52,6 +52,11 @@ class Provider extends \MapasCulturais\AuthProvider {
             'timeBlockedloginAttemp' => env('AUTH_BLOCK_TIME', 900), // tempo de bloqueio do usuario em segundos
     
             'metadataFieldCPF' => env('AUTH_METADATA_FIELD_DOCUMENT', 'documento'),
+
+            'urlSupportChat' => env('AUTH_SUPPORT_CHAT', ''),
+            'urlSupportEmail' => env('AUTH_SUPPORT_EMAIL', ''),
+            'urlSupportSite' => env('AUTH_SUPPORT_SITE', ''),
+            'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE' ,'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRqLRsBSuwp4VBxBlIAqytRgieI_7nHjrDxyQ&usqp=CAU'),
 
             'strategies' => [
                 'Facebook' => [
@@ -512,7 +517,15 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
 
-            if(count($foundAgent) > 0) {
+            //cria um array com os agentes que estão com status == 1, pois o usuario pode ter, por exemplo, 3 agentes, mas 2 estão com status == 0
+            $activeAgents  = [];
+            foreach ($foundAgent as $agentMeta) {
+                if($agentMeta->owner->status === 1) {
+                    $activeAgents[] = $agentMeta;
+                }
+            }
+
+            if(count($activeAgents) > 0) {
                 return $this->setFeedback(i::__('Este CPF já esta em uso. Tente recuperar a sua senha.', 'multipleLocal'));
             }
 
@@ -529,15 +542,6 @@ class Provider extends \MapasCulturais\AuthProvider {
         // validate email
         if (empty($email) || Validator::email()->validate($email) !== true)
             return $this->setFeedback(i::__('Por favor, informe um email válido', 'multipleLocal'));
-
-        // // email exists? (case insensitive)
-        // $checkEmailExistsQuery = $app->em->createQuery("SELECT u FROM \MapasCulturais\Entities\User u WHERE LOWER(u.email) = :email");
-        // $checkEmailExistsQuery->setParameter('email', strtolower($email));
-        // $checkEmailExists = $checkEmailExistsQuery->getResult();
-        
-        // if (!empty($checkEmailExists)) {
-        //     return $this->setFeedback(i::__('Este endereço de email já está em uso', 'multipleLocal'));
-        // }
 
         // validate password
         return $this->verifyPassowrds($pass, $pass_v);
@@ -670,6 +674,7 @@ class Provider extends \MapasCulturais\AuthProvider {
     
     function recover() {
         $app = App::i();
+        $config = $app->_config;
         $email = filter_var($app->request->post('email'), FILTER_SANITIZE_STRING);
         $user = $app->repo("User")->findOneBy(array('email' => $email));
         
@@ -710,6 +715,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         $content = $mustache->render(
             file_get_contents(
+                // @todo: usar a $app->view->getTemplatePathname()
                 __DIR__.
                 DIRECTORY_SEPARATOR.'views'.
                 DIRECTORY_SEPARATOR.'auth'.
@@ -717,6 +723,11 @@ class Provider extends \MapasCulturais\AuthProvider {
             ), array(
                 "url" => $url,
                 "user" => $user->email,
+                "siteName" => $site_name,
+                "urlSupportChat" => $this->_config['urlSupportChat'],
+                "urlSupportEmail" => $this->_config['urlSupportEmail'],
+                "urlSupportSite" => $this->_config['urlSupportSite'],
+                "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
             ));
         
         $app->applyHook('multipleLocalAuth.recoverEmailSubject', $email_subject);
@@ -844,6 +855,35 @@ class Provider extends \MapasCulturais\AuthProvider {
         return true;
     
     }
+
+    function validaCPF($cpf) {
+ 
+        // Extrai somente os números
+        $cpf = preg_replace( '/[^0-9]/is', '', $cpf );
+         
+        // Verifica se foi informado todos os digitos corretamente
+        if (strlen($cpf) != 11) {
+            return false;
+        }
+    
+        // Verifica se foi informada uma sequência de digitos repetidos. Ex: 111.111.111-11
+        if (preg_match('/(\d)\1{10}/', $cpf)) {
+            return false;
+        }
+    
+        // Faz o calculo para validar o CPF
+        for ($t = 9; $t < 11; $t++) {
+            for ($d = 0, $c = 0; $c < $t; $c++) {
+                $d += $cpf[$c] * (($t + 1) - $c);
+            }
+            $d = ((10 * $d) % 11) % 10;
+            if ($cpf[$c] != $d) {
+                return false;
+            }
+        }
+        return true;
+    
+    }
     
     function verifyLogin() {
         $app = App::i();
@@ -867,17 +907,20 @@ class Provider extends \MapasCulturais\AuthProvider {
         $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
 
         // verifica se esta habilitado 'enableLoginByCPF' em conf.php && esta tentando fazer login com CPF
-        if ($config['enableLoginByCPF'] && preg_match("/^(([0-9]{3}.[0-9]{3}.[0-9]{3}-[0-9]{2})|([0-9]{11}))$/", $email ) ) {
+
+        if ($this->validaCPF($email) && $config['enableLoginByCPF']) {
+
             // LOGIN COM CPF
             $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig(); 
 
             $cpf = $email;
 
+            $cpf = preg_replace("/(\d{3}).?(\d{3}).?(\d{3})-?(\d{2})/", "$1.$2.$3-$4", $cpf);
+
             $findUserByCpfMetadata1 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
 
             //retira ". e -" do $request->post('cpf')
-            $cpf = str_replace("-","",$cpf);
-            $cpf = str_replace(".","",$cpf);
+            $cpf = preg_replace( '/[^0-9]/is', '', $cpf );
             $findUserByCpfMetadata2 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
 
             $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
@@ -886,8 +929,19 @@ class Provider extends \MapasCulturais\AuthProvider {
                 return $this->setFeedback(i::__('CPF ou senha incorreta', 'multipleLocal'));
             }
 
+            //cria um array com os agentes que estão com status == 1, pois o usuario pode ter, por exemplo, 3 agentes, mas 2 estão com status == 0
+            $activeAgents  = [];
+            foreach ($foundAgent as $agentMeta) {
+                if($agentMeta->owner->status === 1) {
+                    $activeAgents[] = $agentMeta;
+                }
+            }
+
+            //aqui foi feito um "jogo de atribuição" de variaveis para que o restando do fluxo do codigo continue funcionando normalmente
+            $foundAgent = $activeAgents;
+
             if(count($foundAgent) > 1) {
-                return $this->setFeedback(i::__('Somente é necessario que UM AGENTE tenha cpf UNICO, por favor exluca os demais agentes que tem CPF duplicado', 'multipleLocal'));
+                return $this->setFeedback(i::__('Você possui 2 ou mais agente com o mesmo CPF ! Por favor entre em contato com o suporte.', 'multipleLocal'));
             }
             
             $user = $app->repo("User")->findOneBy(array('id' => $foundAgent[0]->owner->user->id));
@@ -898,7 +952,10 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         } else {
             // LOGIN COM EMAIL
-            $user = $app->repo("User")->findOneBy(array('email' => $emailToCheck));
+            $query = new \MapasCulturais\ApiQuery ('MapasCulturais\Entities\User', ['@select' => 'id', 'email' => 'ILIKE(' . $emailToCheck . ')']);
+            if($user = $query->findOne()){
+                $user = $app->repo("User")->findOneBy($user);
+            }
         }
 
 
@@ -992,15 +1049,19 @@ class Provider extends \MapasCulturais\AuthProvider {
             //Removendo email em maiusculo
             $response['auth']['uid'] = strtolower($response['auth']['uid']);
             $response['auth']['info']['email'] = strtolower($response['auth']['info']['email']);
+
+            $url = $_SESSION['mapasculturais.auth.redirect_path'];
             
             $app->applyHookBoundTo($this, 'auth.createUser:before', [$response]);
             $user = $this->_createUser($response);
-            $app->applyHookBoundTo($this, 'auth.createUser:after', [$user, $response]);
+            $app->applyHookBoundTo($this, 'auth.createUser:after', [$user, $response,$url]);
 
             $baseUrl = $app->getBaseUrl();
 
             //ATENÇÃO !! Se for necessario "padronizar" os emails com header/footers, é necessario adapatar o 'mustache', e criar uma mini estrutura de pasta de emails em 'MultipleLocalAuth\views'
             $mustache = new \Mustache_Engine();
+
+            $site_name = $app->view->dict('site: name', false);
 
             $content = $mustache->render(
                 file_get_contents(
@@ -1009,16 +1070,21 @@ class Provider extends \MapasCulturais\AuthProvider {
                     DIRECTORY_SEPARATOR.'auth'.
                     DIRECTORY_SEPARATOR.'email-to-validate-account.html'
                 ), array(
-                    "siteName" => $config['app.siteName'],
+                    "siteName" => $site_name,
+                    // @todo não é melhor pegar o $user->profile->name ???
                     "user" => $response['auth']['info']['name'],
                     "urlToValidateAccount" =>  $baseUrl.'auth/confirma-email?token='.$token,
-                    "baseUrl" => $baseUrl
+                    "baseUrl" => $baseUrl,
+                    "urlSupportChat" => $this->_config['urlSupportChat'],
+                    "urlSupportEmail" => $this->_config['urlSupportEmail'],
+                    "urlSupportSite" => $this->_config['urlSupportSite'],
+                    "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
                 ));
 
             $app->createAndSendMailMessage([
                 'from' => $app->config['mailer.from'],
                 'to' => $user->email,
-                'subject' => $config['app.siteName'].", confirme seu email para criar uma conta e solicitar o benefício",
+                'subject' => "Bem-vindo ao ".$site_name,
                 'body' => $content
             ]);
             
@@ -1033,21 +1099,13 @@ class Provider extends \MapasCulturais\AuthProvider {
 
 
             $this->feedback_success = true;
-            $this->feedback_msg = i::__('Sucesso: Um e-mail foi enviado com instruções para validar sua conta.', 'multipleLocal');
-            
-            
-            //NAO POSSO DEIXA O CARA LOGAR, TEM QUE CONFIRMAR EMAIL <<<<<<
 
-            // success, redirect
-            // $profile = $user->profile;
-            // $this->_setRedirectPath($profile->editUrl);
+            if(isset($config['auth.config']) && isset($config['auth.config']['userMustConfirmEmailToUseTheSystem']) && $config['auth.config']['userMustConfirmEmailToUseTheSystem']) {
+                $this->feedback_msg = i::__('Sucesso: Um e-mail lhe foi enviado com detalhes sobre a plataforma '.$config['app.siteName'] . '. Verifique sua caixa de email e clique em “Validar conta” para continuar.' , 'multipleLocal');
+            } else {
+                $this->feedback_msg = i::__('Sucesso: Conta criada com sucesso.' , 'multipleLocal');
+            }
 
-            // $this->authenticateUser($user);
-            
-            // $app->applyHook('auth.successful');
-            // $app->redirect($profile->editUrl);
-            
-        
         } 
         
     }

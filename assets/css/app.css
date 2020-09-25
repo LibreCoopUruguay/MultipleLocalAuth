@@ -1384,6 +1384,18 @@ progress::-webkit-progress-bar {
   cursor: pointer;
 }
 
+@media (max-width: 1024px) {
+  .action-register .login-area .section-register {
+    display: block;
+  }
+}
+
+.help-section {
+  margin-top: 80px;
+  margin-bottom: 60px;
+  text-align: center;
+}
+
 /* ----- 5: PAGES ------- */
 
 /* ----- 6: VENDORS ------- */
