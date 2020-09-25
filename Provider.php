@@ -107,19 +107,19 @@ class Provider extends \MapasCulturais\AuthProvider {
             $this->render('termos-e-condicoes');
         });
 
-        $app->hook('GET(auth.passwordvalidationinfos)', function () use($app){
-            $app = App::i();
-            $config = $app->config;
+        $config = $this->_config;
 
+        $app->hook('GET(auth.passwordvalidationinfos)', function () use($config){
+            
             $passwordRules = array(
-                "passwordMustHaveCapitalLetters" => $config['auth.config']['passwordMustHaveCapitalLetters'],
-                "passwordMustHaveLowercaseLetters" => $config['auth.config']['passwordMustHaveLowercaseLetters'],
-                "passwordMustHaveSpecialCharacters" => $config['auth.config']['passwordMustHaveSpecialCharacters'],
-                "passwordMustHaveNumbers" => $config['auth.config']['passwordMustHaveNumbers'],
-                "minimumPasswordLength" => $config['auth.config']['minimumPasswordLength'],
+                "passwordMustHaveCapitalLetters" => $config['passwordMustHaveCapitalLetters'],
+                "passwordMustHaveLowercaseLetters" => $config['passwordMustHaveLowercaseLetters'],
+                "passwordMustHaveSpecialCharacters" => $config['passwordMustHaveSpecialCharacters'],
+                "passwordMustHaveNumbers" => $config['passwordMustHaveNumbers'],
+                "minimumPasswordLength" => $config['minimumPasswordLength'],
             );
 
-            $this->json (array("passwordRules"=>$passwordRules));
+            $this->json(array("passwordRules"=>$passwordRules));
         });
 
         $app->hook('GET(auth.confirma-email)', function () use($app){
