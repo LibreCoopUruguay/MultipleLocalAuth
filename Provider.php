@@ -298,9 +298,14 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             $app->auth->processResponse();
             if($app->auth->isUserAuthenticated()){
+                $app->applyHook('auth.successful');
+
+                $redirect_url = $app->auth->getRedirectPath();
                 unset($_SESSION['mapasculturais.auth.redirect_path']);
-                $app->redirect($app->auth->getRedirectPath());
+                
+                $app->redirect($redirect_url);
             }else{
+                $app->applyHook('auth.failed');
                 $app->redirect($this->createUrl(''));
             }
         });
@@ -317,14 +322,15 @@ class Provider extends \MapasCulturais\AuthProvider {
         });
         
         $app->hook('POST(auth.login)', function () use($app){
-            $redirectUrl = $app->request->post('redirectUrl');
-            $email = $app->request->post('email');
-            $redirectUrl = (empty($redirectUrl)) ? $app->auth->getRedirectPath() : $redirectUrl;
-            
             if ($app->auth->verifyLogin()) {
+                $app->applyHook('auth.successful');
+                
+                $redirectUrl = $app->request->post('redirectUrl') ?: $app->auth->getRedirectPath();
                 unset($_SESSION['mapasculturais.auth.redirect_path']);
+                
                 $app->redirect($redirectUrl);
             } else {
+                $app->applyHook('auth.failed');
                 $app->auth->renderForm($this);
             }
         });
@@ -1257,11 +1263,9 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $this->_setRedirectPath($profile->editUrl);
             }
             $this->_setAuthenticatedUser($user);
-            App::i()->applyHook('auth.successful');
             return true;
         } else {
             $this->_setAuthenticatedUser();
-            App::i()->applyHook('auth.failed');
             return false;
         }
     }
