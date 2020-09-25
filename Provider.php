@@ -288,10 +288,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         if($this->usingSocialLogin()){
             $providers = implode('|', array_keys($config['strategies']));
-        }        
 
-
-        if($this->usingSocialLogin()){
             $app->hook("<<GET|POST>>(auth.<<{$providers}>>)", function () use($opauth, $config){
                 $opauth->run();
             });
