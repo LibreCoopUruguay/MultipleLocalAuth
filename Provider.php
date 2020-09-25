@@ -1057,7 +1057,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             
             $app->applyHookBoundTo($this, 'auth.createUser:before', [$response]);
             $user = $this->_createUser($response);
-            $app->applyHookBoundTo($this, 'auth.createUser:after', [$user, $response,$url]);
+            $app->applyHookBoundTo($this, 'auth.createUser:after', [$user, $response]);
 
             $baseUrl = $app->getBaseUrl();
 
@@ -1339,8 +1339,9 @@ class Provider extends \MapasCulturais\AuthProvider {
         $user->save(true);
         
         $app->enableAccessControl();
-
-        $this->_setRedirectPath($agent->editUrl);
+        $redirectUrl = $agent->editUrl;
+        $app->applyHookBoundTo($this, 'auth.createUser:redirectUrl', [&$redirectUrl]);
+        $this->_setRedirectPath($redirectUrl);
         
         return $user;
     }
