@@ -24,6 +24,7 @@ class Plugin extends \MapasCulturais\Plugin {
             
             $app->view->enqueueScript('app', 'multipleLocal', 'js/app.js');
             $app->view->enqueueStyle('app', 'multipleLocal', 'css/app.css');
+            $app->view->enqueueStyle('app', 'fontawesome', 'https://use.fontawesome.com/releases/v5.8.2/css/all.css');
         });
         
         $app->hook('<<GET|POST|ALL>>(panel.<<*>>):before', function() use ($app) {
