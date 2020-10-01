@@ -934,16 +934,20 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             //cria um array com os agentes que estão com status == 1, pois o usuario pode ter, por exemplo, 3 agentes, mas 2 estão com status == 0
             $activeAgents  = [];
+            $active_agent_users = [];
             foreach ($foundAgent as $agentMeta) {
                 if($agentMeta->owner->status === 1) {
                     $activeAgents[] = $agentMeta;
+                    if (!in_array($agentMeta->owner->user->id, $active_agent_users)) {
+                        $active_agent_users[] = $agentMeta->owner->user->id;
+                    }
                 }
             }
 
             //aqui foi feito um "jogo de atribuição" de variaveis para que o restando do fluxo do codigo continue funcionando normalmente
             $foundAgent = $activeAgents;
 
-            if(count($foundAgent) > 1) {
+            if(count($active_agent_users) > 1) {
                 return $this->setFeedback(i::__('Você possui 2 ou mais agente com o mesmo CPF ! Por favor entre em contato com o suporte.', 'multipleLocal'));
             }
             
