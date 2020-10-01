@@ -919,14 +919,9 @@ class Provider extends \MapasCulturais\AuthProvider {
             $cpf = $email;
 
             $cpf = preg_replace("/(\d{3}).?(\d{3}).?(\d{3})-?(\d{2})/", "$1.$2.$3-$4", $cpf);
+            $cpf2 = preg_replace( '/[^0-9]/is', '', $cpf );
 
-            $findUserByCpfMetadata1 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
-
-            //retira ". e -" do $request->post('cpf')
-            $cpf = preg_replace( '/[^0-9]/is', '', $cpf );
-            $findUserByCpfMetadata2 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
-
-            $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
+            $foundAgent = $app->repo("AgentMeta")->findBy(['key' => $metadataFieldCpf, 'value' => [$cpf,$cpf2]]);
 
             if(!$foundAgent) {
                 return $this->setFeedback(i::__('CPF ou senha incorreta', 'multipleLocal'));
