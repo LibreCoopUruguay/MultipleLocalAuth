@@ -1056,12 +1056,10 @@ class Provider extends \MapasCulturais\AuthProvider {
             //Removendo email em maiusculo
             $response['auth']['uid'] = strtolower($response['auth']['uid']);
             $response['auth']['info']['email'] = strtolower($response['auth']['info']['email']);
-
-            $url = $_SESSION['mapasculturais.auth.redirect_path'];
-            
+          
             $app->applyHookBoundTo($this, 'auth.createUser:before', [$response]);
             $user = $this->_createUser($response);
-            $app->applyHookBoundTo($this, 'auth.createUser:after', [$user, $response,$url]);
+            $app->applyHookBoundTo($this, 'auth.createUser:after', [$user, $response]);
 
             $baseUrl = $app->getBaseUrl();
 
@@ -1343,8 +1341,9 @@ class Provider extends \MapasCulturais\AuthProvider {
         $user->save(true);
         
         $app->enableAccessControl();
-
-        $this->_setRedirectPath($agent->editUrl);
+        $redirectUrl = $agent->editUrl;
+        $app->applyHookBoundTo($this, 'auth.createUser:redirectUrl', [&$redirectUrl]);
+        $this->_setRedirectPath($redirectUrl);
         
         return $user;
     }
