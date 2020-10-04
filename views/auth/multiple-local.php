@@ -1,4 +1,5 @@
 <?php
+use MapasCulturais\i;
 
 $this->jsObject['labels']['multiplelocal'] = $jsLabelsInternationalization;
 
@@ -32,7 +33,7 @@ function showStrategy($name, $config) {
 
 <div class="login-area">
     <h6 class="text-center introduction">
-        <?php \MapasCulturais\i::_e('Boas vindas!', 'multipleLocal'); ?>
+        <?php i::_e('Boas vindas!', 'multipleLocal'); ?>
     </h6>
 
     <?php if ($feedback_msg) : ?>
@@ -46,9 +47,9 @@ function showStrategy($name, $config) {
         <div class="section-login">
             <div class="options">
                 <div id="multiple-login">
-                    <h5><?php \MapasCulturais\i::_e('Entrar', 'multipleLocal'); ?></h5>
+                    <h5><?php i::_e('Entrar', 'multipleLocal'); ?></h5>
                     <h6 class="text-center introduction">
-                    <?php \MapasCulturais\i::_e('Se você já possui uma conta no ' .$app->view->dict('site: name', false). ', comece pelo login. Caso tenha esquecido sua senha, clique em "esqueci a senha".', 'multipleLocal'); ?>
+                    <?php i::_e('Se você já possui uma conta no ' .$app->view->dict('site: name', false). ', comece pelo login. Caso tenha esquecido sua senha, clique em "esqueci a senha".', 'multipleLocal'); ?>
                     </h6>
                     <div class="login-options">
                         <form action="<?php echo $login_form_action; ?>" method="POST">
@@ -56,10 +57,10 @@ function showStrategy($name, $config) {
 
                             <fieldset>
                                 <label for="email">
-                                    <?php \MapasCulturais\i::_e('Email', 'multipleLocal'); ?>
+                                    <?php i::_e('Email', 'multipleLocal'); ?>
                                     <!-- somente mostre o CPF se tiver ativado nas config -->
                                     <?php if (isset($config['enableLoginByCPF']) && $config['enableLoginByCPF']) { ?>
-                                        <?php \MapasCulturais\i::_e('ou CPF', 'multipleLocal'); ?>
+                                        <?php i::_e('ou CPF', 'multipleLocal'); ?>
                                     <?php } ?>
                                 </label>
                                 <input type="text" name="email" id="email" value="<?php echo htmlentities($triedEmail); ?>" />
@@ -67,7 +68,7 @@ function showStrategy($name, $config) {
 
                             <fieldset>
                                 <label for="password">
-                                    <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
+                                    <?php i::_e('Senha', 'multipleLocal'); ?>
                                 </label>
                                 <input type="password" id="password" name="password" value="" />
                             </fieldset>
@@ -77,15 +78,15 @@ function showStrategy($name, $config) {
                             <?php endif; ?>
 
                             <div class="submit-options">
-                                <a id="multiple-login-recover" class="multiple-recover-link"><?php \MapasCulturais\i::_e('esqueci a senha', 'multipleLocal'); ?></a>
-                                <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Entrar', 'multipleLocal'); ?>" />
+                                <a id="multiple-login-recover" class="multiple-recover-link"><?php i::_e('esqueci a senha', 'multipleLocal'); ?></a>
+                                <input type="submit" value="<?php i::esc_attr_e('Entrar', 'multipleLocal'); ?>" />
                             </div>
                         </form>
 
                         <?php if (showStrategy('Facebook', $config) || showStrategy('Google', $config) || showStrategy('LinkedIn', $config) || showStrategy('LoginCidadao', $config)) : ?>
                             <div class="social-login">
                                 <div class="social-login--title">
-                                    <?php \MapasCulturais\i::_e('Ou conecte usando sua conta em', 'multipleLocal'); ?>
+                                    <?php i::_e('Ou conecte usando sua conta em', 'multipleLocal'); ?>
                                 </div>
 
                                 <div class="social-login--content">
@@ -119,10 +120,8 @@ function showStrategy($name, $config) {
                         <?php endif; ?>
 
                         <div class="account-link">
-                            Ainda não possui uma conta?
-                            <button>
-                                Crie uma conta agora
-                            </button>
+                            <?php i::_e('Ainda não possui uma conta?') ?>
+                            <button><?php i::_e('Crie uma conta agora') ?></button>
                         </div>
 
                     </div>
@@ -130,14 +129,14 @@ function showStrategy($name, $config) {
                 </div>
 
                 <div id="multiple-recover" style="display:none;">
-                    <h5><?php \MapasCulturais\i::_e('Esqueci minha senha', 'multipleLocal'); ?></h5>
+                    <h5><?php i::_e('Esqueci minha senha', 'multipleLocal'); ?></h5>
                     <div class="recover-options">
                         <form autocomplete="off" action="<?php echo $recover_form_action; ?>" method="POST">
-                            <!-- <p><?php \MapasCulturais\i::_e('Para recuperar sua senha, informe o e-mail utilizado no cadastro.', 'multipleLocal'); ?></p> -->
+                            <!-- <p><?php i::_e('Para recuperar sua senha, informe o e-mail utilizado no cadastro.', 'multipleLocal'); ?></p> -->
 
                             <fieldset>
                                 <label for="re-email">
-                                    <?php \MapasCulturais\i::_e('Email', 'multipleLocal'); ?>
+                                    <?php i::_e('Email', 'multipleLocal'); ?>
                                 </label>
 
                                 <input autocomplete="off" type="text" id="re-email" name="email" value="" />
@@ -148,8 +147,8 @@ function showStrategy($name, $config) {
                                 <div class="g-recaptcha" data-sitekey="<?php echo $config['google-recaptcha-sitekey']; ?>"></div>
                             <?php endif; ?>
 
-                            <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Recuperar senha', 'multipleLocal'); ?>" />
-                            <a id="multiple-login-recover-cancel" class="multiple-recover-link secondary"><?php \MapasCulturais\i::_e('Cancelar', 'multipleLocal'); ?></a>
+                            <input type="submit" value="<?php i::esc_attr_e('Recuperar senha', 'multipleLocal'); ?>" />
+                            <a id="multiple-login-recover-cancel" class="multiple-recover-link secondary"><?php i::_e('Cancelar', 'multipleLocal'); ?></a>
                         </form>
                     </div>
                 </div>
@@ -158,16 +157,16 @@ function showStrategy($name, $config) {
 
 
         <div class="section-register">
-            <h5><?php \MapasCulturais\i::_e('Criar conta', 'multipleLocal'); ?></h5>
+            <h5><?php i::_e('Criar conta', 'multipleLocal'); ?></h5>
             <h6 class="text-center introduction">
-            <?php \MapasCulturais\i::_e('Se ainda não possui conta no ' .$app->view->dict('site: name', false). ', preencha os campos abaixo.', 'multipleLocal'); ?>
+            <?php i::_e('Se ainda não possui conta no ' .$app->view->dict('site: name', false). ', preencha os campos abaixo.', 'multipleLocal'); ?>
             </h6>
 
             <div class="register-options">
                 <form autocomplete="off" action="<?php echo $register_form_action; ?>" method="POST">
                     <fieldset>
                         <label for="in-name">
-                            <?php \MapasCulturais\i::_e('Nome', 'multipleLocal'); ?>
+                            <?php i::_e('Nome', 'multipleLocal'); ?>
                         </label>
 
                         <input autocomplete="off" type="text" id="in-name" name="name" value="<?php echo htmlentities($triedName); ?>" />
@@ -175,7 +174,7 @@ function showStrategy($name, $config) {
 
                     <fieldset>
                         <label for="in-email">
-                            <?php \MapasCulturais\i::_e('Email', 'multipleLocal'); ?>
+                            <?php i::_e('Email', 'multipleLocal'); ?>
                         </label>
                         <input autocomplete="off" id="in-email" type="text" name="email" value="<?php echo htmlentities($triedEmail); ?>" />
                     </fieldset>
@@ -185,7 +184,7 @@ function showStrategy($name, $config) {
                     <?php if (isset($config['enableLoginByCPF']) && $config['enableLoginByCPF']) { ?>
                         <fieldset>
                             <label for="RegraValida">
-                                <?php \MapasCulturais\i::_e('CPF', 'multipleLocal'); ?>
+                                <?php i::_e('CPF', 'multipleLocal'); ?>
                             </label>
 
                             <input autocomplete="off" type="text" id="RegraValida" value="" name="cpf" maxlength="14">
@@ -194,7 +193,7 @@ function showStrategy($name, $config) {
 
                     <fieldset>
                         <label for="pwd-progress-bar-validation">
-                            <?php \MapasCulturais\i::_e('Senha', 'multipleLocal'); ?>
+                            <?php i::_e('Senha', 'multipleLocal'); ?>
                             <div class="hoverable-options">
                                 <i> ? </i>
                                 <ul id="passwordRulesUL">
@@ -209,14 +208,14 @@ function showStrategy($name, $config) {
 
 
                     <div class="progressbar">
-                        <span> <?php \MapasCulturais\i::_e('Força da senha', 'multipleLocal'); ?> </span>
+                        <span> <?php i::_e('Força da senha', 'multipleLocal'); ?> </span>
                         <progress id="progress" value="0" max="100">70</progress>
                         <span id="progresslabel"></span>
                     </div>
 
                     <fieldset>
                         <label for="in-repassword">
-                            <?php \MapasCulturais\i::_e('Confirmar senha', 'multipleLocal'); ?>
+                            <?php i::_e('Confirmar senha', 'multipleLocal'); ?>
                         </label>
 
                         <input autocomplete="off" id="in-repassword" type="password" name="confirm_password" value="" />
@@ -227,10 +226,10 @@ function showStrategy($name, $config) {
                             <p>
                                 <input onchange="this.setCustomValidity(validity.valueMissing ? 'Please indicate that you accept the Terms and Conditions' : '');" id="field_terms" type="checkbox" required name="terms">
                                 <label class="caption" for="field_terms">
-                                    <span> <?php \MapasCulturais\i::_e('Aceito a', 'multipleLocal'); ?>
+                                    <span> <?php i::_e('Aceito a', 'multipleLocal'); ?>
                                         <a aria-current="false" target="_blank" href="<?= $config['urlTermsOfUse'] ?>"> 
-                                        <?php \MapasCulturais\i::_e('Politica de Privacidade e termos de condições de uso', 'multipleLocal'); ?></a>
-                                        <?php \MapasCulturais\i::_e('do MapasCulturais', 'multipleLocal'); ?>
+                                        <?php i::_e('Politica de Privacidade e termos de condições de uso', 'multipleLocal'); ?></a>
+                                        <?php i::_e('do MapasCulturais', 'multipleLocal'); ?>
                                     </span>
                                 </label>
                             </p>
@@ -244,7 +243,7 @@ function showStrategy($name, $config) {
                     <?php endif; ?>
 
                     <div class="submit-options">
-                        <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Criar Conta', 'multipleLocal'); ?>" />
+                        <input type="submit" value="<?php i::esc_attr_e('Criar Conta', 'multipleLocal'); ?>" />
                     </div>
                 </form>
             </div>
