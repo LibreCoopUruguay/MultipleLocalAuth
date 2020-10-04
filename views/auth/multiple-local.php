@@ -228,15 +228,7 @@ function showStrategy($name, $config) {
                                 <input onchange="this.setCustomValidity(validity.valueMissing ? 'Please indicate that you accept the Terms and Conditions' : '');" id="field_terms" type="checkbox" required name="terms">
                                 <label class="caption" for="field_terms">
                                     <span> <?php \MapasCulturais\i::_e('Aceito a', 'multipleLocal'); ?>
-
-
-                                        <a aria-current="false" target="_blank" 
-                                            href="<?php 
-                                                echo isset($config['urlTermsOfUse']) && $config['urlTermsOfUse'] != '' ? 
-                                                    $config['urlTermsOfUse'] : 
-                                                    env('LINK_TERMOS', $app->createUrl('auth', '', array('termos-e-condicoes')))
-                                            ?>
-                                        "> 
+                                        <a aria-current="false" target="_blank" href="<?= $config['urlTermsOfUse'] ?>"> 
                                         <?php \MapasCulturais\i::_e('Politica de Privacidade e termos de condições de uso', 'multipleLocal'); ?></a>
                                         <?php \MapasCulturais\i::_e('do MapasCulturais', 'multipleLocal'); ?>
                                     </span>

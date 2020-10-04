@@ -58,6 +58,8 @@ class Provider extends \MapasCulturais\AuthProvider {
             'urlSupportSite' => env('AUTH_SUPPORT_SITE', ''),
             'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE' ,'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRqLRsBSuwp4VBxBlIAqytRgieI_7nHjrDxyQ&usqp=CAU'),
 
+            'urlTermsOfUse' => env('LINK_TERMOS', $app->createUrl('auth', 'termos-e-condicoes')),
+
             'strategies' => [
                 'Facebook' => [
                     'visible' => env('AUTH_FACEBOOK_CLIENT_ID', false),
