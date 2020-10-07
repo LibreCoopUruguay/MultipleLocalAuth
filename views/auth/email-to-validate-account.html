@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
 <head>
     <meta name="viewport" content="width=device-width" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -32,7 +33,9 @@
             border-collapse: separate;
             mso-table-lspace: 0pt;
             mso-table-rspace: 0pt;
-            width: 100%; }
+            width: 100%;
+        }
+
         table td {
             font-family: sans-serif;
             font-size: 14px;
@@ -92,6 +95,7 @@
             text-align: center;
             width: 100%;
         }
+
         .footer td,
         .footer p,
         .footer span,
@@ -132,6 +136,7 @@
             margin: 0;
             margin-bottom: 15px;
         }
+
         p li,
         ul li,
         ol li {
@@ -149,17 +154,23 @@
         ------------------------------------- */
         .btn {
             box-sizing: border-box;
-            width: 100%; }
-        .btn > tbody > tr > td {
-            padding-bottom: 15px; }
+            width: 100%;
+        }
+
+        .btn>tbody>tr>td {
+            padding-bottom: 15px;
+        }
+
         .btn table {
             width: auto;
         }
+
         .btn table td {
             background-color: #ffffff;
             border-radius: 5px;
             text-align: center;
         }
+
         .btn a {
             background-color: #ffffff;
             border: solid 1px #3498db;
@@ -181,8 +192,8 @@
         }
 
         .btn-primary a {
-            background-color:  #3275B6;
-            border-color:  #3275B6;
+            background-color: #3275B6;
+            border-color: #3275B6;
             color: #ffffff;
         }
 
@@ -252,6 +263,7 @@
                 font-size: 28px !important;
                 margin-bottom: 10px !important;
             }
+
             table[class=body] p,
             table[class=body] ul,
             table[class=body] ol,
@@ -260,28 +272,35 @@
             table[class=body] a {
                 font-size: 16px !important;
             }
+
             table[class=body] .wrapper,
             table[class=body] .article {
                 padding: 10px !important;
             }
+
             table[class=body] .content {
                 padding: 0 !important;
             }
+
             table[class=body] .container {
                 padding: 0 !important;
                 width: 100% !important;
             }
+
             table[class=body] .main {
                 border-left-width: 0 !important;
                 border-radius: 0 !important;
                 border-right-width: 0 !important;
             }
+
             table[class=body] .btn table {
                 width: 100% !important;
             }
+
             table[class=body] .btn a {
                 width: 100% !important;
             }
+
             table[class=body] .img-responsive {
                 height: auto !important;
                 max-width: 100% !important;
@@ -296,6 +315,7 @@
             .ExternalClass {
                 width: 100%;
             }
+
             .ExternalClass,
             .ExternalClass p,
             .ExternalClass span,
@@ -304,6 +324,7 @@
             .ExternalClass div {
                 line-height: 100%;
             }
+
             .apple-link a {
                 color: inherit !important;
                 font-family: inherit !important;
@@ -312,6 +333,7 @@
                 line-height: inherit !important;
                 text-decoration: none !important;
             }
+
             #MessageViewBody a {
                 color: inherit;
                 text-decoration: none;
@@ -320,112 +342,125 @@
                 font-weight: inherit;
                 line-height: inherit;
             }
+
             .btn-primary table td:hover {
                 background-color: #34495e !important;
             }
+
             .btn-primary a:hover {
                 background-color: #34495e !important;
                 border-color: #34495e !important;
             }
         }
-
     </style>
 </head>
+
 <body class="">
-<span class="preheader"></span>
-<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
-    <tr>
-        <td>&nbsp;</td>
-        <td class="container">
-            <div class="content">
+    <span class="preheader"></span>
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
+        <tr>
+            <td>&nbsp;</td>
+            <td class="container">
+                <div class="content">
 
-                <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                    <tr>
-                        <td align="center" class="wrapper">
-                            <img width="60%" src={{urlImageToUseInEmails}} alt="logo">
-                        </td>
-                    </tr>
-                </table>
-
-                <br>
-                <br>
-
-                <!-- START CENTERED WHITE CONTAINER -->
-                <table role="presentation" class="main">
-
-                    <!-- START MAIN CONTENT AREA -->
-                    <tr>
-                        <td class="wrapper">
-                            <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                                <tr>
-                                    <td>
-                                        <p>Hola, {{user}}</p>
-
-                                        <p>Bienvenido(a) a {{siteName}}!</p>
-
-                                        <p>Cliquee en link debajo para validar su email.</p><br>
-                                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
-                                            <tbody>
-                                            <tr>
-                                                <td align="center">
-                                                    <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                                                        <tbody>
-                                                        <tr>
-                                                            <td> <a href="{{urlToValidateAccount}}" target="_blank">Validar cuenta</a> </td>
-                                                        </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-
-                                        <p>
-                                            Luego de la validación, comienza a registrar tus agentes, espacios, proyectos y eventos para que podamos construir nuestro mapa. También podrás participar en diversas oportunidades y seguir la agenda artística y cultural de tu región, además de crear tu propio portafolio.
-                                        </p>
-
-                                        <br>
-                                        <p>Si tiene alguna pregunta, comuníquese con nosotros por correo electrónico o chat utilizando los enlaces de soporte a continuación:</p><br>
-
-                                        {{#urlSupportChat}}
-                                            <p>Soporte por chat: <a href={{urlSupportChat}} target="_blank"> {{urlSupportChat}} </a></p>
-                                        {{/urlSupportChat}}
-
-                                        {{#urlSupportEmail}}
-                                            <p>Soporte por email: <a href={{urlSupportEmail}} target="_blank">{{urlSupportEmail}}</a></p>
-                                        {{/urlSupportEmail}}
-
-                                        {{#urlSupportSite}}
-                                            <p>{{textSupportSite}} <a href={{urlSupportSite}} target="_blank"> {{urlSupportSite}} </a></p>
-                                        {{/urlSupportSite}}
-
-                                        <p>Hasta pronto!</p>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <!-- END MAIN CONTENT AREA -->
-                </table>
-                <!-- END CENTERED WHITE CONTAINER -->
-
-                <!-- START FOOTER -->
-                <div class="footer">
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                         <tr>
-                            <td class="content-block">
-                                <span class="apple-link"><span></span> {{siteName}} </span><br>
-                                <span class="apple-link"><span ></span> <a href="{{baseUrl}}">{{baseUrl}}</a></span>
+                            <td align="center" class="wrapper">
+                                <img width="60%" src={{urlImageToUseInEmails}} alt="logo">
                             </td>
                         </tr>
                     </table>
+
+                    <br>
+                    <br>
+
+                    <!-- START CENTERED WHITE CONTAINER -->
+                    <table role="presentation" class="main">
+
+                        <!-- START MAIN CONTENT AREA -->
+                        <tr>
+                            <td class="wrapper">
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td>
+                                            <p>Hola, {{user}}</p>
+
+                                            <p>Bienvenido(a) a {{siteName}}!</p>
+
+                                            <p>Cliquee en link debajo para validar su email.</p><br>
+                                            <table role="presentation" border="0" cellpadding="0" cellspacing="0"
+                                                class="btn btn-primary">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="center">
+                                                            <table role="presentation" border="0" cellpadding="0"
+                                                                cellspacing="0">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td> <a href="{{urlToValidateAccount}}"
+                                                                                target="_blank">Validar cuenta</a> </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+
+                                            <p>
+                                                Luego de la validación, comienza a registrar tus agentes, espacios,
+                                                proyectos y eventos para que podamos construir nuestro mapa. También
+                                                podrás participar en diversas oportunidades y seguir la agenda artística
+                                                y cultural de tu región, además de crear tu propio portafolio.
+                                            </p>
+
+                                            <br>
+                                            <p>Si tiene alguna pregunta, comuníquese con nosotros por correo electrónico
+                                                o chat utilizando los enlaces de soporte a continuación:</p><br>
+
+                                            {{#urlSupportChat}}
+                                            <p>Soporte por chat: <a href={{urlSupportChat}} target="_blank">
+                                                    {{urlSupportChat}} </a></p>
+                                            {{/urlSupportChat}}
+
+                                            {{#urlSupportEmail}}
+                                            <p>Soporte por email: <a href=mailto:{{urlSupportEmail}}
+                                                    target="_blank">{{urlSupportEmail}}</a></p>
+                                            {{/urlSupportEmail}}
+
+                                            {{#urlSupportSite}}
+                                            <p>{{textSupportSite}} <a href={{urlSupportSite}} target="_blank">
+                                                    {{urlSupportSite}} </a></p>
+                                            {{/urlSupportSite}}
+
+                                            <p>Hasta pronto!</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                        <!-- END MAIN CONTENT AREA -->
+                    </table>
+                    <!-- END CENTERED WHITE CONTAINER -->
+
+                    <!-- START FOOTER -->
+                    <div class="footer">
+                        <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td class="content-block">
+                                    <span class="apple-link"><span></span> {{siteName}} </span><br>
+                                    <span class="apple-link"><span></span> <a href="{{baseUrl}}">{{baseUrl}}</a></span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <!-- END FOOTER -->
                 </div>
-                <!-- END FOOTER -->
-            </div>
-        </td>
-        <td>&nbsp;</td>
-    </tr>
-</table>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
 </body>
+
 </html>
