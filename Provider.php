@@ -66,9 +66,9 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             'urlSupportChat' => env('AUTH_SUPPORT_CHAT', ''),
             'urlSupportEmail' => env('AUTH_SUPPORT_EMAIL', ''),
+            'urlSupportSite' => env('AUTH_SUPPORT_SITE', $app->baseUrl),
             'textSupportSite' => env('AUTH_SUPPORT_TEXT', ''),
-            'urlSupportSite' => env('AUTH_SUPPORT_SITE', ''),
-            'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE'),
+            'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE' ,'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRqLRsBSuwp4VBxBlIAqytRgieI_7nHjrDxyQ&usqp=CAU'),
 
             'urlTermsOfUse' => env('LINK_TERMOS', $app->createUrl('auth', 'termos-e-condicoes')),
             'statusCreateAgent' => env('STATUS_CREATE_AGENT', Agent::STATUS_ENABLED),
@@ -151,7 +151,12 @@ class Provider extends \MapasCulturais\AuthProvider {
     protected function _init() {
 
         $app = App::i();
+
         $config = $this->_config;
+
+        $app->hook('GET(auth.termos-e-condicoes)',function () use ($app, $config) {
+            $this->render('termos-e-condicoes', ['config' => $config]);
+        });
 
         $app->hook('GET(auth.passwordvalidationinfos)', function () use($config){
             
