@@ -2,6 +2,7 @@
 namespace MultipleLocalAuth;
 use MapasCulturais\App;
 use MapasCulturais\Entities;
+use MapasCulturais\Entities\Agent;
 use MapasCulturais\i;
 use MapasCulturais\Validator;
 use Mustache\Mustache;
@@ -59,7 +60,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE' ,'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRqLRsBSuwp4VBxBlIAqytRgieI_7nHjrDxyQ&usqp=CAU'),
 
             'urlTermsOfUse' => env('LINK_TERMOS', $app->createUrl('auth', 'termos-e-condicoes')),
-
+            'statusCreateAgent' => env('STATUS_CREATE_AGENT', Agent::STATUS_ENABLED),
             'strategies' => [
                 'Facebook' => [
                     'visible' => env('AUTH_FACEBOOK_CLIENT_ID', false),
@@ -1300,6 +1301,8 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         $app->disableAccessControl();
 
+        $config = $this->_config;
+
         // cria o usuário
         $user = new Entities\User;
         $user->authProvider = $response['auth']['provider'];
@@ -1326,10 +1329,11 @@ class Provider extends \MapasCulturais\AuthProvider {
             $agent->setMetadata($metadataFieldCpf, $cpf);
         }
 
+        $agent->status = $config['statusCreateAgent'];
         $agent->emailPrivado = $user->email;
         $agent->emailPublico = $user->email;
 
-        //$app->em->persist($agent);    
+        //$app->em->persist($agent);   
         $agent->save();
         $app->em->flush();
 
