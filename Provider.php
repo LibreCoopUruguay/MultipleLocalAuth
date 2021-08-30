@@ -329,6 +329,9 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $app->applyHook('auth.successful');
                 
                 $redirectUrl = $app->request->post('redirectUrl') ?: $app->auth->getRedirectPath();
+
+                $app->applyHookBoundTo($this, 'auth.successful:redirectUrl', [&$redirectUrl]);
+
                 unset($_SESSION['mapasculturais.auth.redirect_path']);
                 
                 $app->redirect($redirectUrl);
