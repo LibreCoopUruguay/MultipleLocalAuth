@@ -945,10 +945,11 @@ class Provider extends \MapasCulturais\AuthProvider {
                         }
                     }
                 }
+                
+                //aqui foi feito um "jogo de atribuição" de variaveis para que o restando do fluxo do codigo continue funcionando normalmente
+                $foundAgent = $activeAgents;
             }
 
-            //aqui foi feito um "jogo de atribuição" de variaveis para que o restando do fluxo do codigo continue funcionando normalmente
-            $foundAgent = $activeAgents;
 
             if(count($active_agent_users) > 1) {
                 return $this->setFeedback(i::__('Você possui 2 ou mais agente com o mesmo CPF ! Por favor entre em contato com o suporte.', 'multipleLocal'));
