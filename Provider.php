@@ -936,11 +936,13 @@ class Provider extends \MapasCulturais\AuthProvider {
             //cria um array com os agentes que estão com status == 1, pois o usuario pode ter, por exemplo, 3 agentes, mas 2 estão com status == 0
             $activeAgents  = [];
             $active_agent_users = [];
-            foreach ($foundAgent as $agentMeta) {
-                if($agentMeta->owner->status === 1) {
-                    $activeAgents[] = $agentMeta;
-                    if (!in_array($agentMeta->owner->user->id, $active_agent_users)) {
-                        $active_agent_users[] = $agentMeta->owner->user->id;
+            if(count($foundAgent) > 1){
+                foreach ($foundAgent as $agentMeta) {
+                    if($agentMeta->owner->status === 1) {
+                        $activeAgents[] = $agentMeta;
+                        if (!in_array($agentMeta->owner->user->id, $active_agent_users)) {
+                            $active_agent_users[] = $agentMeta->owner->user->id;
+                        }
                     }
                 }
             }
