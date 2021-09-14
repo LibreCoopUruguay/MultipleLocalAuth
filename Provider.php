@@ -56,7 +56,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             'urlSupportChat' => env('AUTH_SUPPORT_CHAT', ''),
             'urlSupportEmail' => env('AUTH_SUPPORT_EMAIL', ''),
-            'urlSupportSite' => env('AUTH_SUPPORT_SITE', ''),
+            'textSupportSite' => env('AUTH_SUPPORT_TEXT', ''),
             'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE' ,'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRqLRsBSuwp4VBxBlIAqytRgieI_7nHjrDxyQ&usqp=CAU'),
 
             'urlTermsOfUse' => env('LINK_TERMOS', $app->createUrl('auth', 'termos-e-condicoes')),
@@ -736,6 +736,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                 "urlSupportChat" => $this->_config['urlSupportChat'],
                 "urlSupportEmail" => $this->_config['urlSupportEmail'],
                 "urlSupportSite" => $this->_config['urlSupportSite'],
+                "textSupportSite" => $this->_config['textSupportSite'],
                 "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
             ));
         
@@ -1087,6 +1088,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     "urlSupportChat" => $this->_config['urlSupportChat'],
                     "urlSupportEmail" => $this->_config['urlSupportEmail'],
                     "urlSupportSite" => $this->_config['urlSupportSite'],
+                    "textSupportSite" => $this->_config['textSupportSite'],
                     "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
                 ));
 
