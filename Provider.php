@@ -1136,15 +1136,7 @@ class Provider extends \MapasCulturais\AuthProvider {
     protected function _setRedirectPath($redirect_path){
         parent::_setRedirectPath($redirect_path);
     }
-    /**
-     * Returns the URL to redirect after authentication
-     * @return string
-     */
-    public function getRedirectPath(){
-        $path = key_exists('mapasculturais.auth.redirect_path', $_SESSION) ?
-                    $_SESSION['mapasculturais.auth.redirect_path'] : App::i()->createUrl('site','');
-        return $path;
-    }
+    
     /**
      * Returns the Opauth authentication response or null if the user not tried to authenticate
      * @return array|null
