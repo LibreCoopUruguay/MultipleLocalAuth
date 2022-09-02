@@ -8,6 +8,7 @@ include('Facebook/FacebookStrategy.php');
 include('Google/GoogleStrategy.php');
 include('LinkedIn/LinkedInStrategy.php');
 include('LoginCidadao/LoginCidadaoStrategy.php');
+include('GovBr/GovBrStrategy.php');
 
 class Plugin extends \MapasCulturais\Plugin {
     
@@ -21,6 +22,7 @@ class Plugin extends \MapasCulturais\Plugin {
         $app->hook('<<GET|POST>>(auth.<<*>>)', function() use ($app) {
             //$app->view->enqueueScript('app', 'multipleLocal', 'js/multipleLocal.js');
             //s$app->view->enqueueStyle('app', 'multipleLocal', 'css/multipleLocal.css');
+            $app->view->enqueueStyle('app', 'multipleLocal', 'css/govbr.css');
             
             $app->view->enqueueScript('app', 'multipleLocal', 'js/app.js');
             $app->view->enqueueStyle('app', 'multipleLocal', 'css/app.css');

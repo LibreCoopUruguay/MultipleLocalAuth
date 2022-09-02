@@ -87,6 +87,18 @@ class Provider extends \MapasCulturais\AuthProvider {
                     'visible' => env('AUTH_TWITTER_CLIENT_ID', false),
                     'app_id' => env('AUTH_TWITTER_APP_ID', null),
                     'app_secret' => env('AUTH_TWITTER_APP_SECRET', null),
+                ],
+                'govbr' => [
+                    'visible' => env('AUTH_GOV_BR_ID', false),
+                    'response_type' => null,
+                    'client_id' => null,
+                    'scope' => null,
+                    'redirect_uri' => null, 
+                    'auth_endpoint' => null,
+                    'nonce' => null,
+                    'state' => null,
+                    'code_challenge' => null,
+                    'code_challenge_method' => null
                 ]
             ]
         ];
@@ -1230,9 +1242,10 @@ class Provider extends \MapasCulturais\AuthProvider {
             $cpf = (isset($response['auth']['raw']['cpf'])) ? $this->mask($response['auth']['raw']['cpf'],'###.###.###-##') : null;
             if (!empty($cpf)) {        
                 $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();       
-                $agent = $app->repo('Agent')->findByMetadata($metadataFieldCpf, $cpf);
-                if(!empty($agent)) {
-                    $user = $agent[0]->user;
+                $agent_meta = $app->repo('AgentMeta')->findOneBy(["key" => $metadataFieldCpf, "value" => $cpf]);
+                
+                if(!empty($agent_meta)) {
+                    $user = $agent_meta->owner->user;
                 }
             }
 

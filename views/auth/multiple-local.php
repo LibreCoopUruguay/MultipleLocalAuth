@@ -83,7 +83,7 @@ function showStrategy($name, $config) {
                             </div>
                         </form>
 
-                        <?php if (showStrategy('Facebook', $config) || showStrategy('Google', $config) || showStrategy('LinkedIn', $config) || showStrategy('LoginCidadao', $config)) : ?>
+                        <?php if (showStrategy('Facebook', $config) || showStrategy('Google', $config) || showStrategy('LinkedIn', $config) || showStrategy('LoginCidadao', $config) || showStrategy('govbr', $config)) : ?>
                             <div class="social-login">
                                 <div class="social-login--title">
                                     <?php i::_e('Ou conecte usando sua conta em', 'multipleLocal'); ?>
@@ -113,6 +113,13 @@ function showStrategy($name, $config) {
                                             <img src="<?php $this->asset('img/lc-login.png'); ?>" />
                                             Login Cidadão
                                         </a>
+                                    <?php endif; ?>
+                                    <?php if (showStrategy('govbr', $config)) : ?>
+                                        <a class="br-sign-in" href="<?php echo $app->createUrl('auth', 'govbr') ?>" style=" background-color: #b000ff">
+                                            Entrar com
+                                            <img src="<?php $this->asset('img/govbr-colorido-b.png'); ?>" style="margin-left: 6px;"/>
+                                        </a>
+
                                     <?php endif; ?>
                                 </div>
                                 <?php $app->applyHook('multipleLocalAuth.loginPage:end'); ?>
