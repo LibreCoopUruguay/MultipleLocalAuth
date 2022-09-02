@@ -228,23 +228,6 @@ function showStrategy($name, $config) {
                         <input autocomplete="off" id="in-repassword" type="password" name="confirm_password" value="" />
                     </fieldset>
 
-                    <div class="registro__container__form__field" name="terminos" style="min-height: 0px;">
-                        <div class="render-field checkbox-field">
-                            <p>
-                                <input onchange="this.setCustomValidity(validity.valueMissing ? 'Please indicate that you accept the Terms and Conditions' : '');" id="field_terms" type="checkbox" required name="terms">
-                                <label class="caption" for="field_terms">
-                                    <span> <?php i::_e('Aceito a', 'multipleLocal'); ?>
-                                        <a aria-current="false" target="_blank" href="<?= $config['urlTermsOfUse'] ?>"> 
-                                        <?php i::_e('Politica de Privacidade e termos de condições de uso', 'multipleLocal'); ?></a>
-                                        <?php i::_e('do MapasCulturais', 'multipleLocal'); ?>
-                                    </span>
-                                </label>
-                            </p>
-
-                        </div>
-
-                    </div>
-
                     <?php if (isset($config['google-recaptcha-sitekey'])) : ?>
                         <div class="g-recaptcha" data-sitekey="<?php echo $config['google-recaptcha-sitekey']; ?>"></div>
                     <?php endif; ?>
@@ -254,10 +237,6 @@ function showStrategy($name, $config) {
                     </div>
                 </form>
             </div>
-
-            <script type="text/javascript">
-                document.getElementById("field_terms").setCustomValidity("Por favor, indique que aceita os Termos e condições de uso");
-            </script>
         </div>
 
     </div>

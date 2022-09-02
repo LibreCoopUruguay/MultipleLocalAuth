@@ -56,6 +56,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             'urlSupportChat' => env('AUTH_SUPPORT_CHAT', ''),
             'urlSupportEmail' => env('AUTH_SUPPORT_EMAIL', ''),
+            'textSupportSite' => env('AUTH_SUPPORT_TEXT', ''),
             'urlSupportSite' => env('AUTH_SUPPORT_SITE', ''),
             'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE' ,'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRqLRsBSuwp4VBxBlIAqytRgieI_7nHjrDxyQ&usqp=CAU'),
 
@@ -341,6 +342,9 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $app->applyHook('auth.successful');
                 
                 $redirectUrl = $app->request->post('redirectUrl') ?: $app->auth->getRedirectPath();
+
+                $app->applyHookBoundTo($this, 'auth.successful:redirectUrl', [&$redirectUrl]);
+
                 unset($_SESSION['mapasculturais.auth.redirect_path']);
                 
                 $app->redirect($redirectUrl);
@@ -745,6 +749,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                 "urlSupportChat" => $this->_config['urlSupportChat'],
                 "urlSupportEmail" => $this->_config['urlSupportEmail'],
                 "urlSupportSite" => $this->_config['urlSupportSite'],
+                "textSupportSite" => $this->_config['textSupportSite'],
                 "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
             ));
         
@@ -945,17 +950,20 @@ class Provider extends \MapasCulturais\AuthProvider {
             //cria um array com os agentes que estão com status == 1, pois o usuario pode ter, por exemplo, 3 agentes, mas 2 estão com status == 0
             $activeAgents  = [];
             $active_agent_users = [];
-            foreach ($foundAgent as $agentMeta) {
-                if($agentMeta->owner->status === 1) {
-                    $activeAgents[] = $agentMeta;
-                    if (!in_array($agentMeta->owner->user->id, $active_agent_users)) {
-                        $active_agent_users[] = $agentMeta->owner->user->id;
+            if(count($foundAgent) > 1){
+                foreach ($foundAgent as $agentMeta) {
+                    if($agentMeta->owner->status === 1) {
+                        $activeAgents[] = $agentMeta;
+                        if (!in_array($agentMeta->owner->user->id, $active_agent_users)) {
+                            $active_agent_users[] = $agentMeta->owner->user->id;
+                        }
                     }
                 }
+                
+                //aqui foi feito um "jogo de atribuição" de variaveis para que o restando do fluxo do codigo continue funcionando normalmente
+                $foundAgent = $activeAgents;
             }
 
-            //aqui foi feito um "jogo de atribuição" de variaveis para que o restando do fluxo do codigo continue funcionando normalmente
-            $foundAgent = $activeAgents;
 
             if(count($active_agent_users) > 1) {
                 return $this->setFeedback(i::__('Você possui 2 ou mais agente com o mesmo CPF ! Por favor entre em contato com o suporte.', 'multipleLocal'));
@@ -1093,6 +1101,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     "urlSupportChat" => $this->_config['urlSupportChat'],
                     "urlSupportEmail" => $this->_config['urlSupportEmail'],
                     "urlSupportSite" => $this->_config['urlSupportSite'],
+                    "textSupportSite" => $this->_config['textSupportSite'],
                     "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
                 ));
 
@@ -1139,15 +1148,7 @@ class Provider extends \MapasCulturais\AuthProvider {
     protected function _setRedirectPath($redirect_path){
         parent::_setRedirectPath($redirect_path);
     }
-    /**
-     * Returns the URL to redirect after authentication
-     * @return string
-     */
-    public function getRedirectPath(){
-        $path = key_exists('mapasculturais.auth.redirect_path', $_SESSION) ?
-                    $_SESSION['mapasculturais.auth.redirect_path'] : App::i()->createUrl('site','');
-        return $path;
-    }
+    
     /**
      * Returns the Opauth authentication response or null if the user not tried to authenticate
      * @return array|null
@@ -1344,7 +1345,6 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         $agent->status = $config['statusCreateAgent'];
         $agent->emailPrivado = $user->email;
-        $agent->emailPublico = $user->email;
 
         //$app->em->persist($agent);   
         $agent->save();
