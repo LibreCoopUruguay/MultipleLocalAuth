@@ -1,6 +1,7 @@
 <?php
 
 use Curl\Curl;
+use MapasCulturais\App;
 
 class GovBrStrategy extends OpauthStrategy
 {
@@ -50,6 +51,7 @@ class GovBrStrategy extends OpauthStrategy
 	public function oauth2callback()
 	{
 		$app = App::i();
+		$self = $this;
 
 		if ((array_key_exists('code', $_GET) && !empty($_GET['code'])) && (array_key_exists("state", $_GET) && $_GET['state'] == $_SESSION['govbr-state'])) {
 			
@@ -78,12 +80,12 @@ class GovBrStrategy extends OpauthStrategy
 
 				/** @var stdClass $userinfo */
 				$userinfo = $this->userinfo($results->id_token);
+				$userinfo->access_token =  $results->access_token;
 
-        		//@TODO O nome deve ser o primeiro nome
-
-
+				$exp_name = explode(" ", $userinfo->name);
+			
 				$info = [
-					'name' => $userinfo->name,
+					'name' => $exp_name[0],
 					'cpf' => $userinfo->sub,
 					'email' => $userinfo->email_verified ? $userinfo->email : null,
 					'phone_number' => $userinfo->phone_number_verified ? $userinfo->phone_number : null,
@@ -95,23 +97,11 @@ class GovBrStrategy extends OpauthStrategy
 						'token' => $results->id_token,
 						'expires' => $userinfo->exp
 					),
-					'raw' => $info,
+					'raw' => $userinfo,
 					'info' => $info
 				);
-				
-				$app->hook("entity(Agent).insert:after", function() use ($userinfo, $token){
-					$this->nomeCompleto = $userinfo->name;
-					
-					// @TODO definir o avatar
-					// $curl = new Curl;
-					// $curl->setHeader('Content-Type', 'application/x-www-form-urlencoded');
-					// $curl->setHeader('Authorization', "Basic {$token}");
-
-					// $curl->post($url, $params);
-					// $curl->close();
-					// $response = $curl->response;
-				});
-
+		
+			
 				$this->callback();
 			} else {
 				$error = array(
@@ -119,7 +109,6 @@ class GovBrStrategy extends OpauthStrategy
 					'message' => 'Failed when attempting to obtain access token',
 					'raw' => array(
 						'response' => $response,
-						'headers' => $headers
 					)
 				);
 				$this->errorCallback($error);
@@ -142,5 +131,48 @@ class GovBrStrategy extends OpauthStrategy
 	{
 		$exp = explode(".", $id_token);
 		return json_decode(base64_decode($exp[1]));
+	}
+
+	public static function getFile($owner, $url, $token){
+
+		$curl = new Curl;
+		$curl->setHeader('Authorization', "Bearer {$token}");
+		$curl->get($url);
+		$curl->close();
+		$response = $curl->response;
+
+		$tmp = tempnam("/tmp", "");
+		$handle = fopen($tmp, "wb");
+		fwrite($handle,$response);
+		fclose($handle);
+
+		$class_name = $owner->fileClassName;
+
+		$basename = md5(time()).".jpg";
+
+		$file = new $class_name([
+			"name" => $basename,
+			"type" => mime_content_type($tmp),
+			"tmp_name" => $tmp,
+			"error" => 0,
+			"size" => filesize($tmp)
+		]);
+
+		$file->group = "avatar";
+		$file->owner = $owner;
+		$file->save(true);
+	}
+
+	public static function newUserProcessor($user, $response)
+	{
+		$app = App::i();
+		
+		$userinfo = (object) $response['auth']['raw'];
+		$app->disableAccessControl();
+		$user->profile->nomeCompleto = $userinfo->name;
+		$user->profile->save(true);
+		self::getFile($user->profile, $userinfo->picture, $userinfo->access_token);
+
+		$app->enableAccessControl();
 	}
 }

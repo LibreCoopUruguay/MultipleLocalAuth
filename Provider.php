@@ -53,6 +53,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             'timeBlockedloginAttemp' => env('AUTH_BLOCK_TIME', 900), // tempo de bloqueio do usuario em segundos
     
             'metadataFieldCPF' => env('AUTH_METADATA_FIELD_DOCUMENT', 'documento'),
+            'metadataFieldPhone' => env('AUTH_METADATA_FIELD_PHONE', 'telefone1'),
 
             'urlSupportChat' => env('AUTH_SUPPORT_CHAT', ''),
             'urlSupportEmail' => env('AUTH_SUPPORT_EMAIL', ''),
@@ -91,15 +92,19 @@ class Provider extends \MapasCulturais\AuthProvider {
                 ],
                 'govbr' => [
                     'visible' => env('AUTH_GOV_BR_ID', false),
-                    'response_type' => null,
+                    'response_type' => 'code',
                     'client_id' => null,
+                    'client_secret' => null,
                     'scope' => null,
                     'redirect_uri' => null, 
                     'auth_endpoint' => null,
+                    'token_endpoint' => null,
                     'nonce' => null,
-                    'state' => null,
+                    'code_verifier' => null,
                     'code_challenge' => null,
-                    'code_challenge_method' => null
+                    'code_challenge_method' => null,
+                    'userinfo_endpoint' => null,
+                    'state_salt' => null,
                 ]
             ]
         ];
@@ -1221,6 +1226,10 @@ class Provider extends \MapasCulturais\AuthProvider {
         return $this->_config['metadataFieldCPF'];
     }
 
+    public function getMetadataFieldPhone() {
+        return $this->_config['metadataFieldPhone'];
+    }
+
     public function _getAuthenticatedUser() {
         if (is_object($this->_authenticatedUser)) {
             return $this->_authenticatedUser;
@@ -1325,6 +1334,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         $app->em->persist($user);
 
+        
         // cria um agente do tipo user profile para o usuário criado acima
         $agent = new Entities\Agent($user);
 
@@ -1332,6 +1342,9 @@ class Provider extends \MapasCulturais\AuthProvider {
             $agent->name = $response['auth']['info']['name'];
         }elseif(isset($response['auth']['info']['first_name']) && isset($response['auth']['info']['last_name'])){
             $agent->name = $response['auth']['info']['first_name'] . ' ' . $response['auth']['info']['last_name'];
+        }if(isset($response['auth']['info']['phone_number'])){
+            $metadataFieldPhone = $this->getMetadataFieldPhone(); 
+            $agent->setMetadata($metadataFieldPhone, $response['auth']['info']['phone_number']);
         }else{
             $agent->name = '';
         }
@@ -1345,14 +1358,22 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         $agent->status = $config['statusCreateAgent'];
         $agent->emailPrivado = $user->email;
+        
 
         //$app->em->persist($agent);   
         $agent->save();
         $app->em->flush();
 
+
         $user->profile = $agent;
         
         $user->save(true);
+        
+        if($provider_class = $response['auth']['provider']."Strategy"){
+            if(method_exists($provider_class, "newUserProcessor")){
+                $provider_class::newUserProcessor($user, $response);
+            }
+        }
         
         $app->enableAccessControl();
         $redirectUrl = $agent->editUrl;

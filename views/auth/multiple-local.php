@@ -115,9 +115,9 @@ function showStrategy($name, $config) {
                                         </a>
                                     <?php endif; ?>
                                     <?php if (showStrategy('govbr', $config)) : ?>
-                                        <a class="br-sign-in" href="<?php echo $app->createUrl('auth', 'govbr') ?>" style=" background-color: #b000ff">
+                                        <a class="br-sign-in" href="<?php echo $app->createUrl('auth', 'govbr') ?>" style="background-color: #eee;color: black;">
                                             Entrar com
-                                            <img src="<?php $this->asset('img/govbr-colorido-b.png'); ?>" style="margin-left: 6px;"/>
+                                            <img class="br-sign-in-img" src="<?php $this->asset('img/gov.br_logo.svg'); ?>" style="margin-left: 6px;width: 23% !important;-webkit-filter: none !important;filter: none !important;color:#000;"/>
                                         </a>
 
                                     <?php endif; ?>

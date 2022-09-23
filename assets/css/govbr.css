@@ -1,3 +1,11 @@
 .br-sign-in{
-    background-color: #0000ff3d;
+    background-color: #eee;
+}
+
+.br-sign-in img {
+    margin-left: 6px;
+    width: 23% !important;
+    -webkit-filter: none !important;
+    filter: none !important;
+    color:#000;
 }
