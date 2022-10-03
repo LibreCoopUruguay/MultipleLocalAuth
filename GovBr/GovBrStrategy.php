@@ -2,6 +2,7 @@
 
 use Curl\Curl;
 use MapasCulturais\App;
+use MapasCulturais\Entities\User;
 
 class GovBrStrategy extends OpauthStrategy
 {
@@ -51,7 +52,6 @@ class GovBrStrategy extends OpauthStrategy
 	public function oauth2callback()
 	{
 		$app = App::i();
-		$self = $this;
 
 		if ((array_key_exists('code', $_GET) && !empty($_GET['code'])) && (array_key_exists("state", $_GET) && $_GET['state'] == $_SESSION['govbr-state'])) {
 			
@@ -88,7 +88,8 @@ class GovBrStrategy extends OpauthStrategy
 					'name' => $exp_name[0],
 					'cpf' => $userinfo->sub,
 					'email' => $userinfo->email_verified ? $userinfo->email : null,
-					'phone_number' => $userinfo->phone_number_verified ? $userinfo->phone_number : null,
+					'phone_number' => ($userinfo->phone_number_verified ?? false) ? $userinfo->phone_number : null,
+					'name_completo' => $userinfo->name,
 				];
 				
 				$this->auth = array(
@@ -98,7 +99,8 @@ class GovBrStrategy extends OpauthStrategy
 						'expires' => $userinfo->exp
 					),
 					'raw' => $userinfo,
-					'info' => $info
+					'info' => $info,
+					'applySeal' => $this->strategy['applySealId']
 				);
 		
 			
@@ -141,6 +143,10 @@ class GovBrStrategy extends OpauthStrategy
 		$curl->close();
 		$response = $curl->response;
 
+		if(mb_strpos($response, 'não encontrada')){
+			return;
+		}
+		
 		$tmp = tempnam("/tmp", "");
 		$handle = fopen($tmp, "wb");
 		fwrite($handle,$response);
@@ -161,6 +167,40 @@ class GovBrStrategy extends OpauthStrategy
 		$file->group = "avatar";
 		$file->owner = $owner;
 		$file->save(true);
+	}
+
+	public static function newAccountCheck($response)
+	{
+		$app = App::i();
+
+		$cpf = self::mask($response['auth']['raw']['sub'],'###.###.###-##');
+		$metadataFieldCpf = $app->config['auth.config']['metadataFieldCPF'];
+		
+		$user = null;
+        if($agent_meta = $app->repo('AgentMeta')->findOneBy(["key" => $metadataFieldCpf, "value" => $cpf])){
+
+			$agent = $agent_meta->owner;
+			$user = $agent->user;
+
+			if(!$agent->isUserProfile){
+				$user = new User();
+				$user->authProvider = $response['auth']['provider'];
+				$user->authUid = $response['auth']['uid'];
+				$user->email = $response['auth']['info']['email'];
+	
+				$app->em->persist($user);
+
+				$agent->userId = $user->id;
+				$agent->save(true);
+				$agent->refresh();
+
+				$user->profile = $agent;
+				$user->save(true);
+			}
+		}
+
+		return $user;
+
 	}
 
 	public static function applySeal($user, $response){
@@ -195,13 +235,41 @@ class GovBrStrategy extends OpauthStrategy
 	public static function verifyUpdateData($user, $response)
 	{
 		$app = App::i();
-		
-		$userinfo = (object) $response['auth']['raw'];
-		$app->disableAccessControl();
-		$user->profile->nomeCompleto = $userinfo->name;
-		$user->profile->save(true);
-		self::getFile($user->profile, $userinfo->picture, $userinfo->access_token);
 
-		$app->enableAccessControl();
+		$auth_data = $response['auth']['info'];
+		$userinfo = (object) $response['auth']['raw'];
+
+		$user->profile->nomeCompleto = $auth_data['name_completo'];
+		$user->profile->name = $auth_data['name'];
+		$user->profile->documento = self::mask($auth_data['cpf'], "###.###.###-##");
+		$user->profile->emailPrivado = $auth_data['email'];
+		$user->profile->telefone1 = $auth_data['phone_number'];
+		$user->profile->save(true);
+
+		if($allAgents = $app->repo("Agent")->findBy(['userId' => $user->id, '_type' => 1])){
+			
+			if(count($allAgents) == 1){
+				$_agent = $allAgents[0];
+				$_agent->setAsUserProfile();
+			}
+		}
+		
+		self::getFile($user->profile, $userinfo->picture, $userinfo->access_token);
 	}
+
+	public static function  mask($val, $mask) {
+        if (strlen($val) == strlen($mask)) return $val;
+        $maskared = '';
+        $k = 0;
+        for($i = 0; $i<=strlen($mask)-1; $i++) {
+            if($mask[$i] == '#') {
+                if(isset($val[$k]))
+                    $maskared .= $val[$k++];
+            } else {
+                if(isset($mask[$i]))
+                    $maskared .= $mask[$i];
+            }
+        }
+        return $maskared;
+    }
 }
