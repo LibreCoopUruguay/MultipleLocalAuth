@@ -163,7 +163,36 @@ class GovBrStrategy extends OpauthStrategy
 		$file->save(true);
 	}
 
-	public static function newUserProcessor($user, $response)
+	public static function applySeal($user, $response){
+		$app = App::i();
+
+		$agent = $user->profile;
+		$sealId = $response['auth']['applySeal'];
+
+		if($sealId){
+			$app->disableAccessControl();
+
+			$seal = $app->repo('Seal')->find($sealId);
+			$relations = $agent->getSealRelations();
+
+			$has_new_seal = false;
+			foreach($relations as $relation){
+				if($relation->seal->id == $seal->id){
+					$has_new_seal = true;
+					break;
+				}
+			}
+
+			if(!$has_new_seal){
+				$agent->createSealRelation($seal);
+			}
+			
+			$app->enableAccessControl();
+
+		}
+	}
+
+	public static function verifyUpdateData($user, $response)
 	{
 		$app = App::i();
 		

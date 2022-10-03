@@ -1278,14 +1278,20 @@ class Provider extends \MapasCulturais\AuthProvider {
         if($this->_validateResponse()){
             // e ainda não existe um usuário no sistema
             $user = $this->_getAuthenticatedUser();
+            $response = $this->_getResponse();
             if(!$user){
-                $response = $this->_getResponse();
                 $user = $this->createUser($response);
 
                 $profile = $user->profile;
                 $this->_setRedirectPath($profile->editUrl);
             }
             $this->_setAuthenticatedUser($user);
+        
+            if($provider_class = $response['auth']['provider']."Strategy"){
+                if(method_exists($provider_class, "applySeal")){
+                    $provider_class::applySeal($user, $response);
+                }
+            }
             return true;
         } else {
             $this->_setAuthenticatedUser();
