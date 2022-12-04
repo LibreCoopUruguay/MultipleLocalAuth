@@ -106,6 +106,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     'userinfo_endpoint' => env('AUTH_USERINFO_ENDPOINT', null),
                     'state_salt' => env('AUTH_STATE_SALT', null),
                     'applySealId' => env('AUTH_APPLY_SEAL_ID', null),
+                    'menssagem_authenticated' => env('AUTH_MENSSAGEM_AUTHENTICATED','Usuário já se autenticou pelo GovBr'),
                 ]
             ]
         ];
@@ -395,7 +396,7 @@ class Provider extends \MapasCulturais\AuthProvider {
         
         });
         
-        $app->hook('ALL(panel.my-account)', function () use($app){
+        $app->hook('ALL(panel.my-account)', function () use($app,$config){
         
             $email = filter_var($app->request->post('email'),FILTER_SANITIZE_EMAIL);
             if ($email) {
