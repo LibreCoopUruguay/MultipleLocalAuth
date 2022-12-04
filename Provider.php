@@ -402,7 +402,22 @@ class Provider extends \MapasCulturais\AuthProvider {
             if ($email) {
                 $app->auth->processMyAccount();
             }
+            
+            $has_seal_govbr = false;
+            if($config['strategies']['govbr']['visible']){
                 
+                $agent = $app->user->profile;
+                $relations = $agent->getSealRelations();
+                $sealId = $config['strategies']['govbr']['applySealId'];
+
+                foreach($relations as $relation){
+                    if($relation->seal->id == $sealId){
+                        $has_seal_govbr = true;
+                        break;
+                    }
+                }
+            }
+            
             $active = $this->template == 'panel/my-account' ? 'class="active"' : '';
             $user = $app->user;
             $email = $user->email ? $user->email : '';
