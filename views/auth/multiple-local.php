@@ -52,7 +52,10 @@ function showStrategy($name, $config) {
                     <?php i::_e('Se você já possui uma conta no ' .$app->view->dict('site: name', false). ', comece pelo login. Caso tenha esquecido sua senha, clique em "esqueci a senha".', 'multipleLocal'); ?>
                     </h6>
                     <div class="login-options">
+                        <?php $this->applyTemplateHook("form-login", "before");?>
                         <form action="<?php echo $login_form_action; ?>" method="POST">
+                            <?php $this->applyTemplateHook("form-login", "begin");?>
+
                             <input type="hidden" name="redirectUrl" value="<?php echo isset($redirectUrl) ? $redirectUrl : ''; ?>" />
 
                             <fieldset>
@@ -77,11 +80,17 @@ function showStrategy($name, $config) {
                                 <div class="g-recaptcha" data-sitekey="<?php echo $config['google-recaptcha-sitekey']; ?>"></div>
                             <?php endif; ?>
 
+                            <?php $this->applyTemplateHook("form-login-button", "before");?>
                             <div class="submit-options">
                                 <a id="multiple-login-recover" class="multiple-recover-link"><?php i::_e('esqueci a senha', 'multipleLocal'); ?></a>
                                 <input type="submit" value="<?php i::esc_attr_e('Entrar', 'multipleLocal'); ?>" />
                             </div>
+                            <?php $this->applyTemplateHook("form-login-button", "after");?>
+
+                            <?php $this->applyTemplateHook("form-login", "end");?>
                         </form>
+                        <?php $this->applyTemplateHook("form-login", "after");?>
+                        
 
                         <?php if (showStrategy('Facebook', $config) || showStrategy('Google', $config) || showStrategy('LinkedIn', $config) || showStrategy('LoginCidadao', $config) || showStrategy('govbr', $config)) : ?>
                             <div class="social-login">
