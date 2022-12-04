@@ -421,11 +421,15 @@ class Provider extends \MapasCulturais\AuthProvider {
             $active = $this->template == 'panel/my-account' ? 'class="active"' : '';
             $user = $app->user;
             $email = $user->email ? $user->email : '';
-            $this->render('my-account', [
+            $this->render('my-account',[
                 'email' => $email,
                 'form_action' => $app->createUrl('panel', 'my-account'),
                 'feedback_success'        => $app->auth->feedback_success,
-                'feedback_msg'    => $app->auth->feedback_msg,  
+                'feedback_msg'    => $app->auth->feedback_msg,
+                'config' => $config,
+                'has_seal_govbr' => $has_seal_govbr,
+                'menssagem_authenticated' => $config['strategies']['govbr']['menssagem_authenticated']
+
             ]);
         
         });
