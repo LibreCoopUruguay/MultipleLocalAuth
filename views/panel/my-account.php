@@ -51,10 +51,12 @@
                     <?php if($has_seal_govbr):?> 
                         <h1><?= $menssagem_authenticated ?></h1>
                     <?php else:?>
+                        <div class="social-login--content">
                         <a class="br-sign-in" href="http://localhost/autenticacao/govbr/" style="background-color: #eee;color: black;">
                                 Entrar com
-                            <img class="br-sign-in-img" src="<?=$this->asset("img/gov.br_logo.svg")?>" style="margin-left: 6px;width: 23% !important;-webkit-filter: none !important;filter: none !important;color:#000;">
+                            <img class="br-sign-in-img" src="<?=$this->asset("img/govbr-colorido.png", false)?>" style="margin-left: 6px;width: 23% !important;-webkit-filter: none !important;filter: none !important;color:#000;">
                         </a>
+                        </div>
                     <?php endif ?>
                 <?php endif ?>
             </div>
