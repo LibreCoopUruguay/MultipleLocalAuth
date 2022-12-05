@@ -1,4 +1,8 @@
-<?php $this->layout = 'panel'; ?>
+<?php 
+$this->layout = 'panel'; 
+$app->view->enqueueStyle('app', 'multipleLocal-govbr', 'css/govbr.css');
+
+?>
 
 <div class="panel-list panel-main-content">
     
@@ -45,25 +49,27 @@
                     <input type="password" name="confirm_new_pass" value="" />
                 </label>
             </div>
-
+            <div>
+                <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Guardar alteraçoes', 'multipleLocal'); ?>" />
+            </div>
+            <hr>
             <div>
                 <?php if($config['strategies']['govbr']['visible']): ?>
+                    <h5><?php \MapasCulturais\i::_e('Autententicação com GovBr', 'multipleLocal'); ?></h5>
                     <?php if($has_seal_govbr):?> 
-                        <h1><?= $menssagem_authenticated ?></h1>
+                        <div class="gov-br-auth">
+                            <img src="<?=$this->asset("img/govbr-auth.png", false)?>">
+                        </div>
                     <?php else:?>
-                        <div class="social-login--content">
-                        <a class="br-sign-in" href="http://localhost/autenticacao/govbr/" style="background-color: #eee;color: black;">
-                                Entrar com
-                            <img class="br-sign-in-img" src="<?=$this->asset("img/govbr-colorido.png", false)?>" style="margin-left: 6px;width: 23% !important;-webkit-filter: none !important;filter: none !important;color:#000;">
-                        </a>
+                        <div class="gov-br-sign-in">
+                            <a href="http://localhost/autenticacao/govbr/" style="background-color: #eee;color: black;">
+                                <img src="<?=$this->asset("img/sing-in-govbr.png", false)?>">
+                            </a>
                         </div>
                     <?php endif ?>
                 <?php endif ?>
             </div>
-
         </div>
-        
-        <input type="submit" value="<?php \MapasCulturais\i::esc_attr_e('Guardar alteraçoes', 'multipleLocal'); ?>" />
-        
     </form>
+    <br>
 </div>
