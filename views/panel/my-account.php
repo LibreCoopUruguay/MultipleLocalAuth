@@ -55,7 +55,6 @@ $app->view->enqueueStyle('app', 'multipleLocal-govbr', 'css/govbr.css');
             <hr>
             <div>
                 <?php if($config['strategies']['govbr']['visible']): ?>
-                    <h5><?php \MapasCulturais\i::_e('Autententicação com GovBr', 'multipleLocal'); ?></h5>
                     <?php if($has_seal_govbr):?> 
                         <div class="gov-br-auth">
                             <img src="<?=$this->asset("img/govbr-auth.png", false)?>">
