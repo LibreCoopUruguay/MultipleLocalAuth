@@ -53,7 +53,7 @@
                     <?php else:?>
                         <a class="br-sign-in" href="http://localhost/autenticacao/govbr/" style="background-color: #eee;color: black;">
                                 Entrar com
-                            <img class="br-sign-in-img" src="http://localhost/assets/svg/govbr_logo-1419657425-1669926186.svg" style="margin-left: 6px;width: 23% !important;-webkit-filter: none !important;filter: none !important;color:#000;">
+                            <img class="br-sign-in-img" src="<?=$this->asset("img/gov.br_logo.svg")?>" style="margin-left: 6px;width: 23% !important;-webkit-filter: none !important;filter: none !important;color:#000;">
                         </a>
                     <?php endif ?>
                 <?php endif ?>
