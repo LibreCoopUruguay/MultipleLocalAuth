@@ -81,6 +81,7 @@ class GovBrStrategy extends OpauthStrategy
 				/** @var stdClass $userinfo */
 				$userinfo = $this->userinfo($results->id_token);
 				$userinfo->access_token =  $results->access_token;
+				$userinfo->cpf =  $userinfo->sub;
 
 				$exp_name = explode(" ", $userinfo->name);
 			
