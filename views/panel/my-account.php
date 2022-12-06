@@ -62,6 +62,7 @@ $app->view->enqueueStyle('app', 'multipleLocal-govbr', 'css/govbr.css');
                     <?php else:?>
                         <div class="gov-br-sign-in">
                             <a href="http://localhost/autenticacao/govbr/" style="background-color: #eee;color: black;">
+                                <span><?php \MapasCulturais\i::esc_attr_e('Vincular conta com', 'multipleLocal'); ?></span>
                                 <img src="<?=$this->asset("img/sing-in-govbr.png", false)?>">
                             </a>
                         </div>
