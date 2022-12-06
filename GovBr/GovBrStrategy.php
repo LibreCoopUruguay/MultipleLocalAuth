@@ -240,7 +240,7 @@ class GovBrStrategy extends OpauthStrategy
 		$userinfo = (object) $response['auth']['raw'];
 
 		$user->profile->nomeCompleto = $auth_data['name_completo'];
-		$user->profile->name = $auth_data['name'];
+		$user->profile->name = ($user->profile->name == "") ? $auth_data['name'] : $user->profile->name;
 		$user->profile->documento = self::mask($auth_data['cpf'], "###.###.###-##");
 		$user->profile->emailPrivado = $auth_data['email'];
 		$user->profile->telefone1 = $auth_data['phone_number'];
