@@ -1307,16 +1307,16 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $this->_setRedirectPath($profile->editUrl);
             }
             $this->_setAuthenticatedUser($user);
-        
-            if($provider_class = $response['auth']['provider']."Strategy"){
-                if(method_exists($provider_class, "applySeal")){
-                    $provider_class::applySeal($user, $response);
-                }
-            }
 
             if($provider_class = $response['auth']['provider']."Strategy"){
                 if(method_exists($provider_class, "verifyUpdateData")){
                     $provider_class::verifyUpdateData($user, $response);
+                }
+            }
+
+            if($provider_class = $response['auth']['provider']."Strategy"){
+                if(method_exists($provider_class, "applySeal")){
+                    $provider_class::applySeal($user, $response);
                 }
             }
 
