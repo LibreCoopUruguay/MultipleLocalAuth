@@ -107,6 +107,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     'state_salt' => env('AUTH_STATE_SALT', null),
                     'applySealId' => env('AUTH_APPLY_SEAL_ID', null),
                     'menssagem_authenticated' => env('AUTH_MENSSAGEM_AUTHENTICATED','Usuário já se autenticou pelo GovBr'),
+                    'dic_agent_fields_update' => []
                 ]
             ]
         ];
