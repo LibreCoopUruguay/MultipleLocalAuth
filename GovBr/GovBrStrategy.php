@@ -10,7 +10,7 @@ class GovBrStrategy extends OpauthStrategy
 	/**
 	 * Compulsory config keys, listed as unassociative arrays
 	 */
-	public $expects = ['client_id',  'auth_endpoint', 'token_endpoint'];
+	public $expects = ['client_id',  'auth_endpoint', 'token_endpoint', 'dic_agent_fields_update'];
 	/**
 	 * Optional config keys, without predefining any default values.
 	 */
@@ -91,6 +91,7 @@ class GovBrStrategy extends OpauthStrategy
 					'email' => $userinfo->email_verified ? $userinfo->email : null,
 					'phone_number' => ($userinfo->phone_number_verified ?? false) ? $userinfo->phone_number : null,
 					'full_name' => $userinfo->name,
+					'dic_agent_fields_update' => $this->strategy['dic_agent_fields_update']
 				];
 				
 				$this->auth = array(
@@ -136,6 +137,19 @@ class GovBrStrategy extends OpauthStrategy
 		return json_decode(base64_decode($exp[1]));
 	}
 
+	public static function checkFileType($filename)
+	{
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$mimetype = finfo_file($finfo, $filename);
+		if ($mimetype == 'image/jpg' || $mimetype == 'image/jpeg' || $mimetype == 'image/gif' || $mimetype == 'image/png') {
+			$is_image = true;
+		} else {
+			$is_image = false;
+		}
+
+		return $is_image;
+	}
+
 	public static function getFile($owner, $url, $token){
 
 		$curl = new Curl;
@@ -152,6 +166,10 @@ class GovBrStrategy extends OpauthStrategy
 		$handle = fopen($tmp, "wb");
 		fwrite($handle,$response);
 		fclose($handle);
+
+		if(!self::checkFileType($tmp)){
+			return;
+		}
 
 		$class_name = $owner->fileClassName;
 
@@ -239,13 +257,19 @@ class GovBrStrategy extends OpauthStrategy
 
 		$auth_data = $response['auth']['info'];
 		$userinfo = (object) $response['auth']['raw'];
-
-		$user->profile->nomeCompleto = $auth_data['full_name'];
-		$user->profile->name = ($user->profile->name == "") ? $auth_data['name'] : $user->profile->name;
-		$user->profile->documento = self::mask($auth_data['cpf'], "###.###.###-##");
-		$user->profile->emailPrivado = $auth_data['email'];
-		$user->profile->telefone1 = $auth_data['phone_number'];
+		
+		$app->disableAccessControl();
+		foreach($auth_data['dic_agent_fields_update'] as $entity_key => $ref){
+			if($user->profile->$entity_key != $auth_data[$ref]){
+				if(($entity_key == "name") && ($user->profile->name == "" || $user->profile->name === "Meu Nome")){
+					$user->profile->$entity_key = $auth_data[$ref];
+				}else{
+					$user->profile->$entity_key = $auth_data[$ref];
+				}
+			}
+		}
 		$user->profile->save(true);
+		$app->enableAccessControl();
 
 		if($allAgents = $app->repo("Agent")->findBy(['userId' => $user->id, '_type' => 1])){
 			
