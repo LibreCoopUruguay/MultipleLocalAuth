@@ -139,7 +139,7 @@ class Provider extends \MapasCulturais\AuthProvider {
         $config = $this->_config;
 
         $app->hook("entity(Agent).get(lockedFields)", function(&$lockedFields) use($config){
-            if(in_array('govbr', $config['strategies'])){
+            if(in_array('govbr', array_keys($config['strategies']))){
                 if($config['strategies']['govbr']['visible'] && $config['strategies']['govbr']['applySealId']){
                     $fieladsUnlocked = array_keys($config['strategies']['govbr']['dic_agent_fields_update']);
                     $lockedFields = array_diff($lockedFields, $fieladsUnlocked);
