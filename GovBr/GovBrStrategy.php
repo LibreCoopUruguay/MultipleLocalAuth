@@ -192,11 +192,18 @@ class GovBrStrategy extends OpauthStrategy
 	{
 		$app = App::i();
 
+		$user = null;
 		$cpf = self::mask($response['auth']['raw']['sub'],'###.###.###-##');
 		$metadataFieldCpf = $app->config['auth.config']['metadataFieldCPF'];
 		
-		$user = null;
-        if($agent_meta = $app->repo('AgentMeta')->findOneBy(["key" => $metadataFieldCpf, "value" => $cpf])){
+		$agent_meta = null;
+		if($am = $app->repo('AgentMeta')->findOneBy(["key" => $metadataFieldCpf, "value" => $cpf])){
+			$agent_meta = $am;
+		}elseif($am = $app->repo('AgentMeta')->findOneBy(["key" => $metadataFieldCpf, "value" => $response['auth']['raw']['sub']])){
+			$agent_meta = $am;
+		}
+
+        if($agent_meta){
 
 			$agent = $agent_meta->owner;
 			$user = $agent->user;
@@ -257,6 +264,12 @@ class GovBrStrategy extends OpauthStrategy
 
 		$auth_data = $response['auth']['info'];
 		$userinfo = (object) $response['auth']['raw'];
+
+		$app->hook("entity(Agent).get(lockedFields)", function(&$lockedFields) use ($app){
+			$config = $app->config['auth.config']['strategies']['govbr'];
+			$fieladsUnlocked = array_keys($config['dic_agent_fields_update']);
+			$lockedFields = array_diff($lockedFields, $fieladsUnlocked);
+		});
 		
 		$app->disableAccessControl();
 		foreach($auth_data['dic_agent_fields_update'] as $entity_key => $ref){
