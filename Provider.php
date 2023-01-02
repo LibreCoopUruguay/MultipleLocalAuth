@@ -79,7 +79,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     'scope' => env('AUTH_LINKEDIN_SCOPE', 'r_emailaddress')
                 ],
                 'Google' => [
-                    'visible' => env('AUTH_GOOGLE_CLIENT_ID', false),
+                    'visible' => env('AUTH_GOOGLE_CLIENT_ID', true),
                     'client_id' => env('AUTH_GOOGLE_CLIENT_ID', null),
                     'client_secret' => env('AUTH_GOOGLE_CLIENT_SECRET', null),
                     'redirect_uri' => $app->getBaseUrl() . 'autenticacao/google/oauth2callback',
@@ -91,7 +91,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     'app_secret' => env('AUTH_TWITTER_APP_SECRET', null),
                 ],
                 'govbr' => [
-                    'visible' => env('AUTH_GOV_BR_ID', false),
+                    'visible' => env('AUTH_GOV_BR_ID', true),
                     'response_type' => 'code',
                     'client_id' => env('AUTH_CLIENT_ID', null),
                     'client_secret' => env('AUTH_SECRET', null),
@@ -811,18 +811,34 @@ class Provider extends \MapasCulturais\AuthProvider {
             'minimumPasswordLength'=> i::__('O tamanho mínimo da senha é de: ', 'multipleLocal'),
         ];
 
-        $theme->render('multiple-local', [
-            'jsLabelsInternationalization' => $jsLabelsInternationalization,
-            'config' => $config,
-            'register_form_action' => $app->auth->register_form_action,
-            'register_form_method' => $app->auth->register_form_method,
-            'login_form_action' => $app->createUrl('auth', 'login'),
-            'recover_form_action' => $app->createUrl('auth', 'recover'),
-            'feedback_success'        => $app->auth->feedback_success,
-            'feedback_msg'    => $app->auth->feedback_msg,   
-            'triedEmail' => $app->auth->triedEmail,
-            'triedName' => $app->auth->triedName,
-        ]);
+        if ($app->view instanceof \MapasCulturais\Themes\BaseV1\Theme) {
+            $theme->render('multiple-local', [
+                'jsLabelsInternationalization' => $jsLabelsInternationalization,
+                'config' => $config,
+                'register_form_action' => $app->auth->register_form_action,
+                'register_form_method' => $app->auth->register_form_method,
+                'login_form_action' => $app->createUrl('auth', 'login'),
+                'recover_form_action' => $app->createUrl('auth', 'recover'),
+                'feedback_success'        => $app->auth->feedback_success,
+                'feedback_msg'    => $app->auth->feedback_msg,   
+                'triedEmail' => $app->auth->triedEmail,
+                'triedName' => $app->auth->triedName,
+            ]);
+        } else {
+            $theme->render('multiple-local-basev2', [
+                'jsLabelsInternationalization' => $jsLabelsInternationalization,
+                'config' => $config,
+                'register_form_action' => $app->auth->register_form_action,
+                'register_form_method' => $app->auth->register_form_method,
+                'login_form_action' => $app->createUrl('auth', 'login'),
+                'recover_form_action' => $app->createUrl('auth', 'recover'),
+                'feedback_success'        => $app->auth->feedback_success,
+                'feedback_msg'    => $app->auth->feedback_msg,   
+                'triedEmail' => $app->auth->triedEmail,
+                'triedName' => $app->auth->triedName,
+            ]);
+        }
+
     }
 
     //cria um metadata que bloqueia o usuario por 'X minutos' se tentar se logar 'TENTATIVAS' e não conseguir
