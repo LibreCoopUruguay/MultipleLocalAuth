@@ -79,7 +79,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     'scope' => env('AUTH_LINKEDIN_SCOPE', 'r_emailaddress')
                 ],
                 'Google' => [
-                    'visible' => env('AUTH_GOOGLE_CLIENT_ID', true),
+                    'visible' => env('AUTH_GOOGLE_CLIENT_ID', false),
                     'client_id' => env('AUTH_GOOGLE_CLIENT_ID', null),
                     'client_secret' => env('AUTH_GOOGLE_CLIENT_SECRET', null),
                     'redirect_uri' => $app->getBaseUrl() . 'autenticacao/google/oauth2callback',
@@ -91,7 +91,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     'app_secret' => env('AUTH_TWITTER_APP_SECRET', null),
                 ],
                 'govbr' => [
-                    'visible' => env('AUTH_GOV_BR_ID', true),
+                    'visible' => env('AUTH_GOV_BR_ID', false),
                     'response_type' => 'code',
                     'client_id' => env('AUTH_CLIENT_ID', null),
                     'client_secret' => env('AUTH_SECRET', null),
@@ -299,13 +299,28 @@ class Provider extends \MapasCulturais\AuthProvider {
         //Register form config
         $this->register_form_action = $app->createUrl('auth', 'register');    
         if(isset($config['register_form'])){
-            $this->register_form_action= $config['register_form']['action'];
-            $this->register_form_method= $config['register_form']['method'];
+            $this->register_form_action = $config['register_form']['action'];
+            $this->register_form_method = $config['register_form']['method'];
         }
 
         // add actions to auth controller
         $app->hook('GET(auth.index)', function () use($app){
             $app->auth->renderForm($this);
+        });
+
+        $app->hook('GET(auth.register)', function () use($app){
+            $app->view->enqueueStyle('app', 'multipleLocal-2', 'css/app.css');
+
+            $this->render("register", [
+                'register_form_action' => $app->auth->register_form_action,
+                'register_form_method' => $app->auth->register_form_method,
+                'login_form_action' => $app->createUrl('auth', 'login'),
+                'recover_form_action' => $app->createUrl('auth', 'recover'),
+                'feedback_success'        => $app->auth->feedback_success,
+                'feedback_msg'    => $app->auth->feedback_msg,   
+                'triedEmail' => $app->auth->triedEmail,
+                'triedName' => $app->auth->triedName,
+            ]);
         });
 
         $providers = [];
