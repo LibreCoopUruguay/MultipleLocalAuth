@@ -6,10 +6,8 @@ use MapasCulturais\App;
 $app = App::i();
 
 $this->import('
+    create-account
     mapas-breadcrumb
-    mapas-card
-    mapas-container
-    mc-icon
 ');
 
 $this->breadcrumb = [
@@ -19,3 +17,4 @@ $this->breadcrumb = [
 
 <mapas-breadcrumb></mapas-breadcrumb>
 
+<create-account></create-account>
