@@ -308,10 +308,11 @@ class Provider extends \MapasCulturais\AuthProvider {
             $app->auth->renderForm($this);
         });
 
-        $app->hook('GET(auth.register)', function () use($app){
+        $app->hook('GET(auth.register)', function () use($app, $config){
             $app->view->enqueueStyle('app', 'multipleLocal-2', 'css/app.css');
 
             $this->render("register", [
+                'config' => $config,
                 'register_form_action' => $app->auth->register_form_action,
                 'register_form_method' => $app->auth->register_form_method,
                 'login_form_action' => $app->createUrl('auth', 'login'),
@@ -1037,6 +1038,8 @@ class Provider extends \MapasCulturais\AuthProvider {
             // LOGIN COM EMAIL
             $query = new \MapasCulturais\ApiQuery ('MapasCulturais\Entities\User', ['@select' => 'id', 'email' => 'ILIKE(' . $emailToCheck . ')']);
             if($user = $query->findOne()){
+                unset($user['@entityType']);
+                array_filter($user);
                 $user = $app->repo("User")->findOneBy($user);
             }
         }
