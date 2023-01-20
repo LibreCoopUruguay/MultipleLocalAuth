@@ -175,7 +175,14 @@
                 font-weight: 700;
                 font-size: 18px;
                 line-height: 25px;
-                margin: 8px 0 24px;
+                margin: 8px 0 4px;
+
+                .subtitle {
+                    font-weight: 400;
+                    font-size: 14px;
+                    line-height: 19px;
+                    margin-top: 16px;
+                }
             }
 
             .document-label {
@@ -246,16 +253,16 @@
                 padding-right: 20px;
 
                 &::-webkit-scrollbar {
-                    width: 6px;
+                    width: 6px;               /* width of the entire scrollbar */
                 }
                 
                 &::-webkit-scrollbar-track {
-                    background: unset;
+                    background: unset;        /* color of the tracking area */
                 }
                 
                 &::-webkit-scrollbar-thumb {
-                    background-color: #6C6C6C;
-                    border-radius: var(--mc-border-radius-pill);
+                    background-color: #6C6C6C;    /* color of the scroll thumb */
+                    border-radius: var(--mc-border-radius-pill);       /* roundness of the scroll thumb */
                 }
             }
 
