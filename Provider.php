@@ -355,12 +355,14 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         
         $app->hook('POST(auth.register)', function () use($app){
-            
-            $app->auth->doRegister();
-            $app->auth->renderForm($this);
-
+            if($app->view instanceof \MapasCulturais\Themes\BaseV1\Theme) {
+                $app->auth->doRegister();
+                $app->auth->renderForm($this);
+            } else {
+                $app->auth->doRegister();                
+            }
         });
-        
+
         $app->hook('POST(auth.login)', function () use($app){
             if ($app->auth->verifyLogin()) {
                 $app->applyHook('auth.successful');
@@ -556,8 +558,9 @@ class Provider extends \MapasCulturais\AuthProvider {
         $this->triedName = $name;
 
         // VALIDO CAPTCHA
-        if (!$this->verifyRecaptcha2())
+        if (!$this->verifyRecaptcha2()) {
            return $this->setFeedback(i::__('Captcha incorreto, tente novamente !', 'multipleLocal'));
+        }
 
         // validate name
         if (empty($name)){
@@ -601,12 +604,14 @@ class Provider extends \MapasCulturais\AuthProvider {
         $checkEmailExistsQuery->setParameter('email', strtolower($email));
         $checkEmailExists = $checkEmailExistsQuery->getResult();
 
-        if (!empty($checkEmailExists))
+        if (!empty($checkEmailExists)){
             return $this->setFeedback(i::__('Este endereço de email já está em uso', 'multipleLocal'));
+        }
         
         // validate email
-        if (empty($email) || Validator::email()->validate($email) !== true)
+        if (empty($email) || Validator::email()->validate($email) !== true){
             return $this->setFeedback(i::__('Por favor, informe um email válido', 'multipleLocal'));
+        }
 
         // validate password
         return $this->verifyPassowrds($pass, $pass_v);
@@ -1102,7 +1107,6 @@ class Provider extends \MapasCulturais\AuthProvider {
         $app = App::i();
         $config = $app->_config;
         
-
         if ($this->validateRegisterFields()) {
             
             $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
@@ -1180,8 +1184,10 @@ class Provider extends \MapasCulturais\AuthProvider {
             // save
             $app->disableAccessControl();
             $user->saveMetadata(true);
+            if($app->view instanceof \MapasCulturais\Themes\BaseV2\Theme) { 
+                echo json_encode($user);
+            }
             $app->enableAccessControl();
-
 
             $this->feedback_success = true;
 
@@ -1423,7 +1429,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $agent->name = $response['auth']['info']['first_name'] . ' ' . $response['auth']['info']['last_name'];
             }if(isset($response['auth']['info']['phone_number'])){
                 $metadataFieldPhone = $this->getMetadataFieldPhone(); 
-            $metadataFieldPhone = $this->getMetadataFieldPhone(); 
+                $metadataFieldPhone = $this->getMetadataFieldPhone();
                 $metadataFieldPhone = $this->getMetadataFieldPhone(); 
                 $agent->setMetadata($metadataFieldPhone, $response['auth']['info']['phone_number']);
             }else{
@@ -1434,7 +1440,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             $cpf = (isset($response['auth']['info']['cpf']) && $response['auth']['info']['cpf'] != "") ? $this->mask($response['auth']['info']['cpf'],'###.###.###-##') : null;
             if(!empty($cpf)){
                 $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();   
-            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();   
+                $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();
                 $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();   
                 $agent->setMetadata($metadataFieldCpf, $cpf);
             }
@@ -1444,7 +1450,6 @@ class Provider extends \MapasCulturais\AuthProvider {
             
             $agent->save();
             $app->em->flush();
-
 
             $user->profile = $agent;
             

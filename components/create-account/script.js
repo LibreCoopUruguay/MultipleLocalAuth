@@ -1,47 +1,26 @@
 app.component('create-account', {
     template: $TEMPLATES['create-account'],
-    
-    // define os eventos que este componente emite
-    emits: [],
 
-    setup() { 
-        // os textos estão localizados no arquivo texts.php deste componente 
+    setup() {
+        const messages = useMessages();
         const text = Utils.getTexts('create-account')
         return { text }
     },
 
-    
-    mounted() {
-        let api = new API();
-        api.GET($MAPAS.baseURL+"auth/passwordvalidationinfos").then(async response => response.json().then(validations => { 
-            this.passwordRules = validations.passwordRules; 
-        }));
-
-        Object.entries(this.terms).forEach(function(term, index) {
-            document.querySelector("#term"+index).addEventListener('scroll', function() {
-                if (Math.ceil(this.scrollTop+this.offsetHeight) == this.scrollHeight) {
-                    document.querySelector("#acceptTerm"+index).classList.remove('disabled');
-                }
-            });
-        });
-    },
-
-    destroyed () {
-        window.removeEventListener('scroll');
-    },
-
-    data() {        
+    data() {
         const terms = $MAPAS.config.LGPD;
         const termsQtd = Object.entries(terms).length;
 
         return {
             step: 1,
             totalSteps: termsQtd + 2,
-            terms: terms,
+            terms,
 
             passwordRules: {},
             strongness: 0,
             strongnessClass: 'fraco',
+
+            slugs: [],
 
             email: '',
             cpf: '',
@@ -51,7 +30,27 @@ app.component('create-account', {
         }
     },
 
+    mounted() {
+        let api = new API();
+        api.GET($MAPAS.baseURL + "auth/passwordvalidationinfos").then(async response => response.json().then(validations => {
+            this.passwordRules = validations.passwordRules;
+        }));
+
+        Object.entries(this.terms).forEach(function (term, index) {
+            document.querySelector("#term" + index).addEventListener('scroll', function () {
+                if (Math.ceil(this.scrollTop + this.offsetHeight) == this.scrollHeight) {
+                    document.querySelector("#acceptTerm" + index).classList.remove('disabled');
+                }
+            });
+        });
+    },
+
+    destroyed() {
+        window.removeEventListener('scroll');
+    },
+
     computed: {
+
         passwordStrongness() {
             if (this.password) {
                 let passwordMustHaveCapitalLetters = /[A-Z]/;
@@ -60,30 +59,30 @@ app.component('create-account', {
                 let passwordMustHaveNumbers = /[0-9]/;
                 let minimumPasswordLength = 8;
                 let pwd = this.password;
-                let rules = [];                  
+                let rules = [];
 
-                if(this.passwordRules.passwordMustHaveCapitalLetters) {
+                if (this.passwordRules.passwordMustHaveCapitalLetters) {
                     rules.push(passwordMustHaveCapitalLetters);
                 }
 
-                if(this.passwordRules.passwordMustHaveLowercaseLetters) {
+                if (this.passwordRules.passwordMustHaveLowercaseLetters) {
                     rules.push(passwordMustHaveLowercaseLetters);
                 }
 
-                if(this.passwordRules.passwordMustHaveSpecialCharacters) {
+                if (this.passwordRules.passwordMustHaveSpecialCharacters) {
                     rules.push(passwordMustHaveSpecialCharacters);
                 }
 
-                if(this.passwordRules.passwordMustHaveNumbers) {
+                if (this.passwordRules.passwordMustHaveNumbers) {
                     rules.push(passwordMustHaveNumbers);
                 }
 
-                if(this.passwordRules.minimumPasswordLength) {
+                if (this.passwordRules.minimumPasswordLength) {
                     minimumPasswordLength = this.passwordRules.minimumPasswordLength
                 }
 
                 let rulesLength = rules.length;
-                let prog = rules.reduce(function (accumulator, test) {                    
+                let prog = rules.reduce(function (accumulator, test) {
                     return accumulator + (test.test(pwd) ? 1 : 0);
                 }, 0);
 
@@ -94,67 +93,53 @@ app.component('create-account', {
                     currentPercent = currentPercent + percentToAdd;
                 }
 
-                this.strongness = currentPercent.toFixed(0);
+                let strongness = currentPercent.toFixed(0)
+                if (strongness >= 0 && strongness <= 40) {
+                    this.strongnessClass = 'fraco';
+                }
+                if (strongness >= 40 && strongness <= 90) {
+                    this.strongnessClass = 'medio';
+                }
+                if (strongness >= 90 && strongness <= 100) {
+                    this.strongnessClass = 'forte';
+                }   
+
+                return currentPercent.toFixed(0);
             } else {
-                this.strongness = 0;
+                return 0;
             }
 
-            if (this.strongness >= 0 && this.strongness <= 40) {
-                this.strongnessClass = 'fraco';
-            }
-            if (this.strongness >= 40 && this.strongness <= 90) {
-                this.strongnessClass = 'medio';
-            }
-            if (this.strongness >= 90 && this.strongness <= 100) {
-                this.strongnessClass = 'forte';
-            }
-        },
-        errosSenha() {
-            if (this.password.length == 0) {
-                return '';
-            }
-
-            if (this.strongness < 40) {
-                return __('Senha fraca', 'create-account')
-            }
-
-            if (this.password.length < this.passwordRules.minimumPasswordLength) {
-                return __('Senha pequena', 'create-account');
-            }
-
-            if (this.password !== this.confirmPassword) {
-                return __('Senhas diferentes', 'create-account');
-            }
-
-            return false
         }
     },
-    
-    methods: { 
+
+    methods: {
         startAgent() {
             this.agent = Vue.ref(new Entity('agent'));
             this.agent.type = 1;
-            this.agent.terms = {area: []}
+            this.agent.terms = { area: [] }
         },
 
         releaseAcceptButton() {
-            setTimeout(() => { 
-                let termArea = this.$refs.terms[this.step-2];
+            setTimeout(() => {
+                let termArea = this.$refs.terms[this.step - 2];
+                console.log(termArea);
                 /* Em caso do termo ser curto o suficiente para não aparecer o scroll */
-                if ( termArea && termArea.offsetHeight < 600 ) {
-                    document.querySelector("#acceptTerm"+(this.step-2)).classList.remove('disabled');
+                if (termArea && termArea.offsetHeight < 600) {
+                    document.querySelector("#acceptTerm" + (this.step - 2)).classList.remove('disabled');
                 }
             }, 1000);
         },
 
         nextStep() {
-            if (this.step <= this.totalSteps) {
-                if ((this.step == 1 && this.errosSenha != '')) {
+            if (this.step <= this.totalSteps) {            
+                if (this.step == 1 && (!this.validateEmail() || !this.validateCPF() || !this.validatePassword() || !this.validateConfirmPassword())) {
                     return false;
                 }
-                if (this.step == this.totalSteps-1) {
+
+                if (this.step == this.totalSteps - 1) {
                     this.startAgent();
                 }
+
                 ++this.step;
                 this.releaseAcceptButton();
             }
@@ -166,7 +151,30 @@ app.component('create-account', {
             }
         },
 
-        register() {
+        acceptTerm(slug) {
+            this.slugs.push(slug);
+        },
+
+        registerTerms(id) {
+            let url = Utils.createUrl('lgpd', 'accept');
+            let api = new API();
+            api.POST(url, [this.slugs, id]);
+        },
+
+        async registerAgent(agentId) {
+            let api = new API('agent');
+            let query = {
+                '@select': '*',
+                'id': `EQ(`+agentId+`)`
+            };    
+            let createdAgent = await api.find(query);
+            createdAgent.name = this.agent.name;
+            createdAgent.terms.area = this.agent.terms.area;
+            createdAgent.shortDescription = this.agent.shortDescription;
+            createdAgent.save();
+        },
+
+        async register() {
             let api = new API();
             let data = {
                 'name': this.agent.name,
@@ -175,21 +183,117 @@ app.component('create-account', {
                 'password': this.password,
                 'confirm_password': this.confirmPassword
             }
-            
-            /* api.POST($MAPAS.baseURL+"autenticacao/register", data).then( async response => {
-                console.log('teste', response);
-            }); */
+
+            if (this.validateAgent()) {                
+                await api.POST($MAPAS.baseURL+"autenticacao/register", data).then(response => response.json().then(dataReturn => {
+                    this.registerTerms(dataReturn.id);
+                    this.registerAgent(dataReturn.profile.id);
+
+                }).catch(err => {
+                    console.log(err);
+                }));
+            }
         },
 
-        cancelarCadastro() {
-            this.step =  1;
-            this.strongness =  0;
-            this.strongnessClass =  'fraco';
-            this.email =  '';
-            this.cpf =  '';
-            this.password =  '';
-            this.confirmPassword =  '';
-            this.agent =  null;
+        cancel() {
+            this.step = 1;
+            this.strongnessClass = 'fraco';
+            this.email = '';
+            this.cpf = '';
+            this.password = '';
+            this.confirmPassword = '';
+            this.agent = null;
         },
+        
+        /* Validações */        
+        validatePassword() {
+            let strongness = this.passwordStrongness;
+            if (this.password == '') {
+                messages.error('senha obrigatória');
+                return false;
+            }
+            if (strongness < 100) {
+                messages.error('a senha não atende os requisitos');
+                return false;
+            }
+            return true;
+        },
+
+        validateConfirmPassword() {
+            if (this.password !== this.confirmPassword) {
+                messages.error('senhas diferentes');
+                return false;
+            }
+            return true;
+        },
+
+        validateCPF() {
+            let cpf = this.cpf.replace(/[^\d]+/g, '');
+            let invalidCpfs = ["00000000000", "11111111111", "22222222222", "33333333333", "44444444444", "55555555555", "66666666666", "77777777777", "88888888888", "99999999999"];
+            let soma, resto = 0;
+
+            if (cpf == '') {
+                messages.error('cpf obrigatório');
+                return false;
+            }
+            if (!/[0-9]{11}/.test(cpf) || invalidCpfs.indexOf(cpf) !== -1) {
+                messages.error('cpf inválido');
+                return false;
+            }
+
+            /* 1º digito */
+            soma = 0;
+            for (i = 0; i < 9; i++) {
+                soma += parseInt(cpf.charAt(i)) * (10 - i);
+            }
+            resto = 11 - (soma % 11);
+            resto = (resto == 10 || resto == 11 || resto < 2) ? 0 : resto;
+            if (resto != parseInt(cpf.charAt(9))) {
+                messages.error('cpf inválido');
+                return false;
+            }
+
+            /* 2º digito */
+            soma = 0;
+            for (i = 0; i < 10; i++) {
+                soma += parseInt(cpf.charAt(i)) * (11 - i);
+            }
+            resto = 11 - (soma % 11);
+            resto = (resto == 10 || resto == 11 || resto < 2) ? 0 : resto;
+            if (resto != parseInt(cpf.charAt(10))) {
+                messages.error('cpf inválido');
+                return false;
+            }
+            
+            return true;
+        },
+
+        validateEmail() {
+            if (this.email == '') {
+                messages.error('email obrigatório');
+                return false;
+            }
+            if (!/^[\w+.]+@\w+\.\w{2,}(?:\.\w{2})?$/.test(this.email)) {
+                messages.error('email inválido');
+                return false;
+            }
+            return true;
+        },
+
+        validateAgent() {
+            if (!this.agent.name) {
+                messages.error('nome obrigatório');
+                return false;
+            }
+            if (!this.agent.shortDescription) {
+                messages.error('descrição obrigatória');
+                return false;
+            }
+            if (this.agent.terms.area.length == 0) {
+                messages.error('área de atuação obrigatória');
+                return false;
+            }
+            return true;
+        }
     },
 });
