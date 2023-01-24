@@ -30,6 +30,13 @@ app.component('create-account', {
         }
     },
 
+    props: {
+        config: {
+            type: String,
+            required: true
+        }
+    },
+
     mounted() {
         let api = new API();
         api.GET($MAPAS.baseURL + "auth/passwordvalidationinfos").then(async response => response.json().then(validations => {
@@ -50,6 +57,11 @@ app.component('create-account', {
     },
 
     computed: {
+
+        strategies() {
+            return JSON.parse(this.config);
+        },
+
         cpfMask() {
             this.cpf = this.cpf.replace(/\D/g,"")
             this.cpf = this.cpf.replace(/(\d{3})(\d)/,"$1.$2")
