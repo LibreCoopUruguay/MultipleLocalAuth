@@ -50,6 +50,12 @@ app.component('create-account', {
     },
 
     computed: {
+        cpfMask() {
+            this.cpf = this.cpf.replace(/\D/g,"")
+            this.cpf = this.cpf.replace(/(\d{3})(\d)/,"$1.$2")
+            this.cpf = this.cpf.replace(/(\d{3})(\d)/,"$1.$2")
+            this.cpf = this.cpf.replace(/(\d{3})(\d{1,2})$/,"$1-$2")           
+        },
 
         passwordStrongness() {
             if (this.password) {
@@ -122,7 +128,6 @@ app.component('create-account', {
         releaseAcceptButton() {
             setTimeout(() => {
                 let termArea = this.$refs.terms[this.step - 2];
-                console.log(termArea);
                 /* Em caso do termo ser curto o suficiente para não aparecer o scroll */
                 if (termArea && termArea.offsetHeight < 600) {
                     document.querySelector("#acceptTerm" + (this.step - 2)).classList.remove('disabled');
@@ -189,8 +194,6 @@ app.component('create-account', {
                     this.registerTerms(dataReturn.id);
                     this.registerAgent(dataReturn.profile.id);
 
-                }).catch(err => {
-                    console.log(err);
                 }));
             }
         },

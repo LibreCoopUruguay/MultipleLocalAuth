@@ -51,7 +51,7 @@ $this->import('
                                 </VMenu>
                             </div>
                         </label>
-                        <input type="text" name="cpf" id="cpf" v-model="cpf" maxlength="11" />
+                        <input type="text" name="cpf" id="cpf" v-model="cpf" @change="cpfMask" maxlength="14" />
                     </div>
                     <div class="field col-12 password">
                         <label for="pwd"> <?= i::__('Senha'); ?> </label>
@@ -82,7 +82,7 @@ $this->import('
                 <label class="title col-12"> {{value.title}} </label>
                 <div class="term col-12" v-html="value.text" :id="'term'+index" ref="terms"></div>
                 <div class="divider col-12"></div>                
-                <button class="col-12 button button--primary button--large button--md disabled" :id="'acceptTerm'+index" @click="nextStep(); acceptTerm(name)"> <?= i::__('Aceito os') ?> {{value.title}} </button>
+                <button class="col-12 button button--primary button--large button--md disabled" :id="'acceptTerm'+index" @click="nextStep(); acceptTerm(name)"> {{value.buttonText}} </button>
                 <button class="col-12 button button--text" @click="cancel()"> <?= i::__('Voltar e excluir minhas informações') ?> </button>
             </div>
 
