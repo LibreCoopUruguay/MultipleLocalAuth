@@ -212,11 +212,11 @@ app.component('create-account', {
         validatePassword() {
             let strongness = this.passwordStrongness;
             if (this.password == '') {
-                messages.error('senha obrigatória');
+                messages.error(__('Senha obrigatória', 'create-account'));
                 return false;
             }
             if (strongness < 100) {
-                messages.error('a senha não atende os requisitos');
+                messages.error(__('Senha não atende os requisitos', 'create-account'));
                 return false;
             }
             return true;
@@ -224,7 +224,7 @@ app.component('create-account', {
 
         validateConfirmPassword() {
             if (this.password !== this.confirmPassword) {
-                messages.error('senhas diferentes');
+                messages.error(__('Senhas diferentes', 'create-account'));
                 return false;
             }
             return true;
@@ -236,11 +236,11 @@ app.component('create-account', {
             let soma, resto = 0;
 
             if (cpf == '') {
-                messages.error('cpf obrigatório');
+                messages.error(__('CPF obrigatório', 'create-account'));
                 return false;
             }
             if (!/[0-9]{11}/.test(cpf) || invalidCpfs.indexOf(cpf) !== -1) {
-                messages.error('cpf inválido');
+                messages.error(__('CPF inválido', 'create-account'));
                 return false;
             }
 
@@ -252,7 +252,7 @@ app.component('create-account', {
             resto = 11 - (soma % 11);
             resto = (resto == 10 || resto == 11 || resto < 2) ? 0 : resto;
             if (resto != parseInt(cpf.charAt(9))) {
-                messages.error('cpf inválido');
+                messages.error(__('CPF inválido', 'create-account'));
                 return false;
             }
 
@@ -264,7 +264,7 @@ app.component('create-account', {
             resto = 11 - (soma % 11);
             resto = (resto == 10 || resto == 11 || resto < 2) ? 0 : resto;
             if (resto != parseInt(cpf.charAt(10))) {
-                messages.error('cpf inválido');
+                messages.error(__('CPF inválido', 'create-account'));
                 return false;
             }
             
@@ -273,27 +273,27 @@ app.component('create-account', {
 
         validateEmail() {
             if (this.email == '') {
-                messages.error('email obrigatório');
+                messages.error(__('Email obrigatório', 'create-account'));
                 return false;
             }
             if (!/^[\w+.]+@\w+\.\w{2,}(?:\.\w{2})?$/.test(this.email)) {
-                messages.error('email inválido');
+                messages.error(__('Email inválido', 'create-account'));
                 return false;
             }
             return true;
         },
-
+        
         validateAgent() {
             if (!this.agent.name) {
-                messages.error('nome obrigatório');
+                messages.error(__('Nome obrigatório', 'create-account'));
                 return false;
             }
             if (!this.agent.shortDescription) {
-                messages.error('descrição obrigatória');
+                messages.error(__('Descrição obrigatória', 'create-account'));
                 return false;
             }
             if (this.agent.terms.area.length == 0) {
-                messages.error('área de atuação obrigatória');
+                messages.error(__('Área de atuação obrigatória', 'create-account'));
                 return false;
             }
             return true;
