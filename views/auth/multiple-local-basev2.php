@@ -47,15 +47,14 @@ $this->import('
         </template>
         <template #content>
             <form class="grid-12" action="<?php echo $login_form_action; ?>" method="POST">
-
                 <div class="field col-12">
                     <label for="email"> <?= i::__('E-mail ou CPF') ?> </label>
-                    <input type="text" name="email" id="email" value="<?php echo htmlentities($triedEmail); ?>" />
+                    <input type="text" name="email" id="email" value="<?php echo htmlentities($triedEmail); ?>" autocomplete="off" />
                 </div>
 
                 <div class="field col-12">
                     <label for="password"> <?= i::__('Senha') ?> </label>
-                    <input type="password" name="password" id="password" value=""/>
+                    <input type="password" name="password" id="password" value="" autocomplete="off" />
                     <a id="multiple-login-recover" class="multiple-recover-link" href="<?php echo $app->createUrl('auth', 'recover') ?>"> <?= i::__('Esqueci minha senha') ?> </a>
                 </div>
 
@@ -68,7 +67,13 @@ $this->import('
                 <div class="divider col-12"></div>
 
                 <div class="social-login col-12">
-
+                    <?php if (showStrategy('govbr', $config)): ?>
+                        <a class="social-login--button button button--icon button--large button--md govbr" href="<?php echo $app->createUrl('auth', 'govbr') ?>">                                
+                            <div class="img"> <img height="16" class="br-sign-in-img" src="<?php $this->asset('img/govbr-white.png'); ?>" /> </div>                                
+                            <?= i::__('Entrar com Gov.br') ?>                            
+                        </a>
+                    <?php endif; ?>
+                    
                     <?php if (showStrategy('Google', $config)): ?>
                         <a class="social-login--button button button--icon button--large button--md google" href="<?php echo $app->createUrl('auth', 'google') ?>">                                
                             <div class="img"> <img height="16" src="<?php $this->asset('img/g.png'); ?>" /> </div>                                
@@ -76,13 +81,6 @@ $this->import('
                         </a>
                     <?php endif; ?>
 
-                    <?php if (showStrategy('govbr', $config)): ?>
-                        <a class="social-login--button button button--icon button--large button--md govbr" href="<?php echo $app->createUrl('auth', 'govbr') ?>">                                
-                            <div class="img"> <img height="16" class="br-sign-in-img" src="<?php $this->asset('img/govbr-white.png'); ?>" /> </div>                                
-                            <?= i::__('Entrar com Gov.br') ?>                            
-                    </a>
-                    <?php endif; ?>
-                    
                     <?php if (showStrategy('Google', $config) || showStrategy('govbr', $config)):?>
                         <h1 class="col-12">OU</h1>
                     <?php endif; ?>
@@ -93,9 +91,7 @@ $this->import('
                             <?= i::__('Criar conta') ?>
                         </a>
                     </div>
-
                 </div>
-
             </form>
         </template>
     </mapas-card>
