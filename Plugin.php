@@ -24,6 +24,7 @@ class Plugin extends \MapasCulturais\Plugin {
             $app->view->enqueueStyle('app', 'multipleLocal', 'css/app.css');
             $app->view->enqueueStyle('app', 'fontawesome', 'https://use.fontawesome.com/releases/v5.8.2/css/all.css');
             $app->view->enqueueStyle('app', 'multipleLocal-govbr', 'css/govbr.css');
+            $app->view->enqueueStyle('app-v2', 'multipleLocal-v2', 'css/auth-v2.css');
         });
         
         $app->hook('<<GET|POST|ALL>>(panel.<<*>>):before', function() use ($app) {
@@ -40,7 +41,6 @@ class Plugin extends \MapasCulturais\Plugin {
     
     public function register() {
         $this->registerUserMetadata(Provider::$passMetaName, ['label' => i::__('Senha')]);
-        
         $this->registerUserMetadata(Provider::$recoverTokenMetadata, ['label' => i::__('Token para recuperação de senha')]);
         $this->registerUserMetadata(Provider::$recoverTokenTimeMetadata, ['label' => i::__('Timestamp do token para recuperação de senha')]);
         $this->registerUserMetadata(Provider::$accountIsActiveMetadata, ['label' => i::__('Conta ativa?')]);
