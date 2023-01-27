@@ -45,7 +45,7 @@ app.component('create-account', {
 
         Object.entries(this.terms).forEach(function (term, index) {
             document.querySelector("#term" + index).addEventListener('scroll', function () {
-                if (Math.ceil(this.scrollTop + this.offsetHeight) == this.scrollHeight) {
+                if (Math.ceil(this.scrollTop + this.offsetHeight) >= this.scrollHeight) {
                     document.querySelector("#acceptTerm" + index).classList.remove('disabled');
                 }
             });
@@ -172,25 +172,6 @@ app.component('create-account', {
             this.slugs.push(slug);
         },
 
-        registerTerms(id) {
-            let url = Utils.createUrl('lgpd', 'accept');
-            let api = new API();
-            api.POST(url, [this.slugs, id]);
-        },
-
-        async registerAgent(agentId) {
-            let api = new API('agent');
-            let query = {
-                '@select': '*',
-                'id': `EQ(`+agentId+`)`
-            };    
-            let createdAgent = await api.find(query);
-            createdAgent.name = this.agent.name;
-            createdAgent.terms.area = this.agent.terms.area;
-            createdAgent.shortDescription = this.agent.shortDescription;
-            createdAgent.save();
-        },
-
         async register() {
             let api = new API();
             let data = {
@@ -198,14 +179,18 @@ app.component('create-account', {
                 'email': this.email,
                 'cpf': this.cpf,
                 'password': this.password,
-                'confirm_password': this.confirmPassword
+                'confirm_password': this.confirmPassword,
+                'slugs': this.slugs,
+                'agentData': {
+                    'name': this.agent.name,
+                    'terms:area': this.agent.terms.area,
+                    'shortDescription': this.agent.shortDescription,
+                }
             }
 
             if (this.validateAgent()) {                
                 await api.POST($MAPAS.baseURL+"autenticacao/register", data).then(response => response.json().then(dataReturn => {
-                    this.registerTerms(dataReturn.id);
-                    this.registerAgent(dataReturn.profile.id);
-
+                    console.log(dataReturn);
                 }));
             }
         },
@@ -221,6 +206,14 @@ app.component('create-account', {
         },
         
         /* Validações */        
+
+        /**
+         * @todo Criar acesso ao endpoint para verificação do cpf e email
+         */
+        validateFields() {
+
+        },
+
         validatePassword() {
             let strongness = this.passwordStrongness;
             if (this.password == '') {
