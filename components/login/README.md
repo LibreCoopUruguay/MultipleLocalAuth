@@ -1,11 +1,8 @@
 # Componente `<login>`
-
-
-### Eventos
-- **event** - evento disparado
+Componente para efetuar login seguro no mapas culturais BaseV2
   
 ## Propriedades
-- *Type **prop*** - propriedade
+- *String **config*** - json com configurações necessárias para o funcionamento do login (definidas no php)
 
 ### Importando componente
 ```PHP
@@ -16,5 +13,5 @@ $this->import('login');
 ### Exemplos de uso
 ```HTML
 <!-- utilizaçao básica -->
-<login></login>
+<login config='<?= $configs; ?>'></login>
 ```

@@ -1,11 +1,8 @@
 # Componente `<create-account>`
-
-
-### Eventos
-- **event** - evento disparado
+Componente para cadastrar uma conta no mapas culturais BaseV2
   
 ## Propriedades
-- *Type **prop*** - propriedade
+- *String **config*** - json com configurações necessárias para o funcionamento da criação de contas (definidas no php)
 
 ### Importando componente
 ```PHP
@@ -16,5 +13,5 @@ $this->import('create-account');
 ### Exemplos de uso
 ```HTML
 <!-- utilizaçao básica -->
-<create-account></create-account>
+<create-account config='<?= $configs; ?>'></create-account>
 ```
