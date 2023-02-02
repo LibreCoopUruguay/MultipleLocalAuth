@@ -1,5 +1,3 @@
-
-
 /* ----- 1: SETTINGS ------- */
 @import '1-settings/s-variables';
 @import '1-settings/s-typography';
@@ -13,22 +11,9 @@
 
 
 /* ----- 3: LAYOUT ------- */
-@import '3-layout/l-form';
+
 
 /* ----- 4: COMPONENTS ------- */
-@import '4-components/c-button';
-@import '4-components/c-card';
-@import '4-components/c-status-card';
 
 
-/* ----- 4: AREAS ------- */
-@import '5-areas/a-login';
-@import '5-areas/a-loginV2';
-
-
-/* ----- 5: PAGES ------- */
-//@import '5-pages/p-cadastro';
-
-/* ----- 6: VENDORS ------- */
-// @import './../example-vendor/sss.css';
-
+/* ----- 5: AREAS ------- */
