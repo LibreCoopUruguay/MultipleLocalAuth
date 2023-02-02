@@ -348,7 +348,12 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         
         $app->hook('POST(auth.register)', function () use($app){
+            /**
+             * @var \MapasCulturais\Controller $this
+             */
+
             $registration = $app->auth->doRegister();
+
             if ($registration['success']) {
                 $this->json(['error' => false, 'emailSent' => $registration['emailSent']]);
             } else {
@@ -361,45 +366,39 @@ class Provider extends \MapasCulturais\AuthProvider {
             /**
              * @var \MapasCulturais\Controller $this
              */
-            
+
             $validateFields = $app->auth->validateRegisterFields();
 
-            if (!$validateFields['success']) {
-                $this->errorJson($validateFields['errors'], 200);
-            } else {
+            if ($validateFields['success']) {
                 $this->json(['error' => false]);
+            } else {
+                $this->errorJson($validateFields['errors'], 200);
             }
         });
 
         
         $app->hook('POST(auth.login)', function () use($app){
-            if ($app->auth->verifyLogin()) {
-                $app->applyHook('auth.successful');
-                
-                $redirectUrl = $app->request->post('redirectUrl') ?: $app->auth->getRedirectPath();
+            /**
+             * @var \MapasCulturais\Controller $this
+             */
 
-                $app->applyHookBoundTo($this, 'auth.successful:redirectUrl', [&$redirectUrl]);
+            $login = $app->auth->doLogin();
 
-                unset($_SESSION['mapasculturais.auth.redirect_path']);
-                
-                $app->redirect($redirectUrl);
+            if ($login['success']) {
+                $this->json(['error' => false]);
             } else {
-                $app->applyHook('auth.failed');
-                $app->auth->renderForm($this);
+                $this->errorJson($login['errors'], 200);
             }
         });
         
-        $app->hook('POST(auth.recover)', function () use($app){
-        
+        $app->hook('POST(auth.recover)', function () use($app){        
             $app->auth->recover();
             $app->auth->renderForm($this);
         
         });
         
-        $app->hook('GET(auth.recover-resetform)', function () use($app){
-        
-            $app->auth->renderRecoverForm($this);
-        
+        $app->hook('GET(auth.recover-resetform)', function () use($app){        
+            $app->auth->renderRecoverForm($this);        
         });
         
         $app->hook('POST(auth.recover-resetform)', function () use($app){
@@ -969,13 +968,22 @@ class Provider extends \MapasCulturais\AuthProvider {
         return true;
     
     }
-    
-    function verifyLogin() {
+
+    function doLogin() {
         $app = App::i();
         $config = $this->_config;
+        
+        $hasErrors = false;
+        $errors = [
+            'captcha' => [],
+            'login' => [],
+            'confirmEmail' => []
+        ];
 
-        if (!$this->verifyRecaptcha2())
-           return $this->setFeedback(i::__('Captcha incorreto, tente novamente !', 'multipleLocal'));
+        if (!$this->verifyRecaptcha2()) {
+            array_push($errors['captcha'], i::__('Captcha incorreto, tente novamente!', 'multipleLocal'));
+            $hasErrors = true;
+        }
 
         $email = filter_var($app->request->post('email'), FILTER_SANITIZE_EMAIL);
         $emailToCheck = $email;
@@ -992,21 +1000,17 @@ class Provider extends \MapasCulturais\AuthProvider {
         $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
 
         // verifica se esta habilitado 'enableLoginByCPF' em conf.php && esta tentando fazer login com CPF
-
         if ($this->validaCPF($email) && $config['enableLoginByCPF']) {
 
             // LOGIN COM CPF
             $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig(); 
-
             $cpf = $email;
-
             $cpf = preg_replace("/(\d{3}).?(\d{3}).?(\d{3})-?(\d{2})/", "$1.$2.$3-$4", $cpf);
             $cpf2 = preg_replace( '/[^0-9]/is', '', $cpf );
-
             $foundAgent = $app->repo("AgentMeta")->findBy(['key' => $metadataFieldCpf, 'value' => [$cpf,$cpf2]]);
-
             if(!$foundAgent) {
-                return $this->setFeedback(i::__('CPF ou senha incorreta', 'multipleLocal'));
+                array_push($errors['login'], i::__('CPF ou senha incorreta, tente novamente!', 'multipleLocal'));
+                $hasErrors = true;
             }
 
             //cria um array com os agentes que estão com status == 1, pois o usuario pode ter, por exemplo, 3 agentes, mas 2 estão com status == 0
@@ -1026,17 +1030,16 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $foundAgent = $activeAgents;
             }
 
-
             if(count($active_agent_users) > 1) {
-                return $this->setFeedback(i::__('Você possui 2 ou mais agente com o mesmo CPF ! Por favor entre em contato com o suporte.', 'multipleLocal'));
+                array_push($errors['login'], i::__('Você possui 2 ou mais agente com o mesmo CPF! Por favor entre em contato com o suporte.', 'multipleLocal'));
+                $hasErrors = true;
             }
             
             $user = $app->repo("User")->findOneBy(array('id' => $foundAgent[0]->owner->user->id));
-
             if($user->profile->id != $foundAgent[0]->owner->id) {
-                return $this->setFeedback(i::__('CPF ou senha incorreta. Utilize o CPF do seu agente principal', 'multipleLocal'));
+                array_push($errors['login'], i::__('CPF ou senha incorreta. Utilize o CPF do seu agente principal.', 'multipleLocal'));
+                $hasErrors = true;
             }
-
         } else {
             // LOGIN COM EMAIL
             $query = new \MapasCulturais\ApiQuery ('MapasCulturais\Entities\User', ['@select' => 'id', 'email' => 'ILIKE(' . $emailToCheck . ')']);
@@ -1054,48 +1057,49 @@ class Provider extends \MapasCulturais\AuthProvider {
             $this->feedback_success = false;
             $this->triedEmail = $email;
             $this->middlewareLoginAttempts();
-            $this->feedback_msg = i::__('Usuário ou senha inválidos', 'multipleLocal');
-            return false;
-        }
-        
-        $accountIsActive = $user->getMetadata(self::$accountIsActiveMetadata);
-
-        if($config['userMustConfirmEmailToUseTheSystem']) {
-
-            if(isset($user) && $accountIsActive === '0' ) {
-                return $this->setFeedback(i::__('Verifique seu email para validar a sua conta', 'multipleLocal'));
+            array_push($errors['login'], i::__('Usuário ou senha inválidos.', 'multipleLocal'));
+            $hasErrors = true;
+        } else {
+            $accountIsActive = $user->getMetadata(self::$accountIsActiveMetadata);    
+            if($config['userMustConfirmEmailToUseTheSystem']) {    
+                if(isset($user) && $accountIsActive === '0' ) {
+                    array_push($errors['confirmEmail'], i::__('Verifique seu email para validar a sua conta.', 'multipleLocal'));
+                    $hasErrors = true;
+                }    
             }
-
-        }
-        
-        $config = $this->_config;
-        $timeBlockedloginAttemp = $config['timeBlockedloginAttemp'];
-        //verifica se o metadata 'timeBlockedloginAttempMetadata' existe e é maior que o tempo de agora, se for, então o usuario ta bloqueado te tentar fazer login
-        if(isset($user) && intval($user->getMetadata(self::$timeBlockedloginAttempMetadata) >= time()) ) {
-            return $this->setFeedback(i::__("Login bloqueado, tente novamente em ".intval($timeBlockedloginAttemp/60)." minutos, ou resete a sua senha", 'multipleLocal'));
-        }
-        
-        if ($emailToCheck != $emailToLogin) {
-            // Skeleton key check if user is admin
-            if ($user->is('admin'))
-                $userToLogin = $this->getUserFromDB($emailToLogin);
             
-        }
-        
-        $meta = self::$passMetaName;
-        $savedPass = $user->getMetadata($meta);
+            $config = $this->_config;
+            $timeBlockedloginAttemp = $config['timeBlockedloginAttemp'];
+            //verifica se o metadata 'timeBlockedloginAttempMetadata' existe e é maior que o tempo de agora, se for, então o usuario ta bloqueado te tentar fazer login
+            if(isset($user) && intval($user->getMetadata(self::$timeBlockedloginAttempMetadata) >= time()) ) {
+                array_push($errors['login'], i::__("Login bloqueado, tente novamente em ".intval($timeBlockedloginAttemp/60)." minutos ou resete a sua senha.", 'multipleLocal'));
+                $hasErrors = true;
+            }
+            
+            if ($emailToCheck != $emailToLogin) {
+                // Skeleton key check if user is admin
+                if ($user->is('admin')) {
+                    $userToLogin = $this->getUserFromDB($emailToLogin);
+                }            
+            }
+            
+            $meta = self::$passMetaName;
+            $savedPass = $user->getMetadata($meta);
+    
+            if (password_verify($pass, $savedPass)) {
+                $this->middlewareLoginAttempts(true);
+                $this->authenticateUser($userToLogin);
+            } else {
+                $this->middlewareLoginAttempts();
+                array_push($errors['login'], i::__('Usuário ou senha inválidos.', 'multipleLocal'));
+                $hasErrors = true;
+            }
+        }        
 
-        if (password_verify($pass, $savedPass)) {
-            $this->middlewareLoginAttempts(true);
-            $this->authenticateUser($userToLogin);
-            return true;
-        }
-        
-        $this->feedback_success = false;
-        $this->middlewareLoginAttempts();
-        $this->feedback_msg = i::__('Usuário ou senha inválidos', 'multipleLocal');
-        return false;
-        
+        return [
+            'success' => !$hasErrors,
+            'errors' => $errors
+        ];;
     }
     
     function doRegister() {
