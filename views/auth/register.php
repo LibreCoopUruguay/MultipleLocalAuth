@@ -5,7 +5,7 @@ use MapasCulturais\App;
 
 $app = App::i();
 
-$strategies = json_encode($config);
+$configs = json_encode($config);
 
 $this->import('
     create-account
@@ -23,4 +23,4 @@ $this->breadcrumb = [
 
 <mapas-breadcrumb></mapas-breadcrumb>
 
-<create-account config='<?= $strategies; ?>'></create-account>
+<create-account config='<?= $configs; ?>'></create-account>
