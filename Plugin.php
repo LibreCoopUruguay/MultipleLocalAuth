@@ -20,16 +20,11 @@ class Plugin extends \MapasCulturais\Plugin {
         
         // Load JS & CSS
         $app->hook('<<GET|POST>>(auth.<<*>>)', function() use ($app) {
-            $app->view->enqueueScript('app', 'multipleLocal', 'js/app.js');
-            $app->view->enqueueStyle('app', 'multipleLocal', 'css/app.css');
-            $app->view->enqueueStyle('app', 'fontawesome', 'https://use.fontawesome.com/releases/v5.8.2/css/all.css');
-            $app->view->enqueueStyle('app', 'multipleLocal-govbr', 'css/govbr.css');
-            $app->view->enqueueStyle('app-v2', 'multipleLocal-v2', 'css/auth-v2.css');
+            $app->view->enqueueStyle('app-v2', 'multipleLocal-v2', 'css/app.css');
         });
         
         $app->hook('<<GET|POST|ALL>>(panel.<<*>>):before', function() use ($app) {
-            $app->view->enqueueStyle('app', 'multipleLocal', 'css/multipleLocal.css');
-            $app->view->enqueueStyle('app', 'multipleLocal', 'css/app.css');
+            $app->view->enqueueStyle('app-v2', 'multipleLocal-v2', 'css/app.css');
         });
 
         if (php_sapi_name() == "cli") {

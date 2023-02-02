@@ -1,0 +1,92 @@
+.controller-auth {
+    background-color: var(--mc-gray-100);
+
+    .login {
+        max-width: 570px;
+        margin: 32px auto;
+        padding: 0 16px;
+
+        .mapas-card {
+            padding: 24px 48px;
+        }
+
+        .field {
+            .multiple-recover-link {
+                font-weight: 600;
+                font-size: 14px;
+                line-height: 19px;
+                text-align: right;
+                color: var(--mc-primary-500);
+                text-decoration: none;
+            }
+        }
+
+        .g-recaptcha {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .divider {
+            width: 100%;
+            border-bottom: 1px solid #BBBBBB;
+        }
+
+        .social-login {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+
+            &--button {
+                text-align: center;
+                display: block;
+    
+                .img {
+                    width: 50px;
+                    float: left;
+                    text-align: left;
+                    display: flex;
+                    align-items: center;
+    
+                    img {
+                        height: 16px;    
+                    }
+
+                    @media (max-width: 500px) {
+                        width: 39px;
+                        img {
+                            height: 14px;
+                        }
+                    }
+                }
+    
+                &.google {
+                    border: var(--mc-border-hairline) var(--mc-low-500);
+                    color: var(--mc-low-700);
+                }
+    
+                &.govbr {
+                    border: var(--mc-border-hairline) #1351B4;
+                    background-color: #1351B4;
+                    color: var(--mc-high-500);
+                }
+
+                @media (max-width: 380px)  {
+                    &.google,
+                    &.govbr {
+                        font-size: 13px;
+                    }
+                }
+            }
+
+            .create {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                gap: 8px;
+                align-items: center;
+            }
+        }
+    }
+}
