@@ -75,7 +75,6 @@ app.component('create-account', {
         },
 
         configs() {
-            console.log(JSON.parse(this.config));
             return JSON.parse(this.config);
         },
 
