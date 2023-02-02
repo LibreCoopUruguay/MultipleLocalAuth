@@ -13,21 +13,21 @@ class Provider extends \MapasCulturais\AuthProvider {
     
     var $feedback_success   = false;
     var $feedback_msg       = '';
-    var $triedEmail = '';
-    var $triedName = '';
+    var $triedEmail         = '';
+    var $triedName          = '';
     
     public $register_form_action = '';
     public $register_form_method = 'POST';
     
     public static $passMetaName = 'localAuthenticationPassword';
 
-    public static $recoverTokenMetadata = 'recover_token';
+    public static $recoverTokenMetadata     = 'recover_token';
     public static $recoverTokenTimeMetadata = 'recover_token_time';
     
-    public static $accountIsActiveMetadata = 'accountIsActive';
+    public static $accountIsActiveMetadata    = 'accountIsActive';
     public static $tokenVerifyAccountMetadata = 'tokenVerifyAccount';
 
-    public static $loginAttempMetadata = "loginAttemp";
+    public static $loginAttempMetadata            = "loginAttemp";
     public static $timeBlockedloginAttempMetadata = "timeBlockedloginAttemp";
     
     function __construct ($config) {
@@ -309,17 +309,16 @@ class Provider extends \MapasCulturais\AuthProvider {
         });
 
         $app->hook('GET(auth.register)', function () use($app, $config){
-
             $this->render("register", [
-                'config' => $config,
-                'register_form_action' => $app->auth->register_form_action,
-                'register_form_method' => $app->auth->register_form_method,
-                'login_form_action' => $app->createUrl('auth', 'login'),
-                'recover_form_action' => $app->createUrl('auth', 'recover'),
-                'feedback_success'        => $app->auth->feedback_success,
-                'feedback_msg'    => $app->auth->feedback_msg,   
-                'triedEmail' => $app->auth->triedEmail,
-                'triedName' => $app->auth->triedName,
+                'config'                => $config,
+                'register_form_action'  => $app->auth->register_form_action,
+                'register_form_method'  => $app->auth->register_form_method,
+                'login_form_action'     => $app->createUrl('auth', 'login'),
+                'recover_form_action'   => $app->createUrl('auth', 'recover'),
+                'feedback_success'      => $app->auth->feedback_success,
+                'feedback_msg'          => $app->auth->feedback_msg,   
+                'triedEmail'            => $app->auth->triedEmail,
+                'triedName'             => $app->auth->triedName,
             ]);
         });
 
@@ -354,30 +353,26 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         
         $app->hook('POST(auth.register)', function () use($app){
-            if($app->view instanceof \MapasCulturais\Themes\BaseV1\Theme) {
-                $app->auth->doRegister();
-                $app->auth->renderForm($this);
+            $registration = $app->auth->doRegister();
+            if ($registration['success']) {
+                $this->json(['error' => false, 'emailSent' => $registration['emailSent']]);
             } else {
-                $app->auth->doRegister();                
+                $this->errorJson($registration['errors'], 200);
             }
         });
 
 
-        /**
-         * @todo Criar validação de cpf e email ao criar a conta
-         */
         $app->hook('POST(auth.validate)', function () use($app) {
             /**
              * @var \MapasCulturais\Controller $this
              */
-            if (true) {
-                $this->json(['error' => false]);
-            } else {
-                $errors = [
-                    'email' => ['Email já está em uso na plataforma.', 'Email inválido']
-                ];
+            
+            $validateFields = $app->auth->validateRegisterFields();
 
-                $this->errorJson($errors, 200);
+            if (!$validateFields['success']) {
+                $this->errorJson($validateFields['errors'], 200);
+            } else {
+                $this->json(['error' => false]);
             }
         });
 
@@ -512,55 +507,47 @@ class Provider extends \MapasCulturais\AuthProvider {
     }
 
     function verifyRecaptcha2() {
-        $app = App::i();
         $config = $this->_config;
-        //$config = $app->config['auth.config'];
+
         if (!$config['google-recaptcha-sitekey']) return true;
-        if (empty($_POST["g-recaptcha-response"]))
-            return false;
+        if (empty($_POST["g-recaptcha-response"])) return false;
+
         $token = $_POST["g-recaptcha-response"];
-        $verificado = $this->verificarToken($token, $config["google-recaptcha-secret"]);
-        if ($verificado)
-            return true;
-        else
-            return false;
+        $verified = $this->verificarToken($token, $config["google-recaptcha-secret"]);   
+
+        return $verified ? true : false;
     }
 
     function verifyPassowrds($pass, $verify) {
         $config = $this->_config;
-
         $passwordLength = $config['minimumPasswordLength'];
+        $errors = [];
 
-        $err = "";
         if(!empty($pass) && $pass != "" ){
             if (strlen($pass) < $passwordLength) {
-                $err .= i::__("Sua senha deve conter pelo menos ".$passwordLength." dígitos !", 'multipleLocal');
+                array_push($errors, i::__("Sua senha deve conter pelo menos ".$passwordLength." dígitos!", 'multipleLocal'));
             }
-            if($config['passwordMustHaveNumbers'] &&
-                !preg_match("#[0-9]+#",$pass)) {
-                $err .= i::__(" Sua senha deve conter pelo menos 1 número !", 'multipleLocal');
+            if($config['passwordMustHaveNumbers'] && !preg_match("#[0-9]+#",$pass)) {
+                array_push($errors, i::__(" Sua senha deve conter pelo menos 1 número!", 'multipleLocal'));
             }
-            if($config['passwordMustHaveCapitalLetters'] &&
-                !preg_match("#[A-Z]+#",$pass)) {
-                $err .= i::__(" Sua senha deve conter pelo menos 1 letra maiúscula !", 'multipleLocal');
+            if($config['passwordMustHaveCapitalLetters'] && !preg_match("#[A-Z]+#",$pass)) {
+                array_push($errors, i::__(" Sua senha deve conter pelo menos 1 letra maiúscula!", 'multipleLocal'));
             }
-            if($config['passwordMustHaveLowercaseLetters'] &&
-                !preg_match("#[a-z]+#",$pass)) {
-                $err .= i::__(" Sua senha deve conter pelo menos 1 letra minúscula !", 'multipleLocal');
+            if($config['passwordMustHaveLowercaseLetters'] && !preg_match("#[a-z]+#",$pass)) {
+                array_push($errors, i::__(" Sua senha deve conter pelo menos 1 letra minúscula!", 'multipleLocal'));
             }
-            if($config['passwordMustHaveSpecialCharacters'] &&
-                !preg_match('/[\'^£$%&*()}{@#~?><>,|=_"!¨+`´\[\].;:\/-]/', $pass)) {
-                $err .= i::__(" Sua senha deve conter pelo menos 1 caractere especial !", 'multipleLocal');
+            if($config['passwordMustHaveSpecialCharacters'] && !preg_match('/[\'^£$%&*()}{@#~?><>,|=_"!¨+`´\[\].;:\/-]/', $pass)) {
+                array_push($errors, i::__(" Sua senha deve conter pelo menos 1 caractere especial!", 'multipleLocal'));
             }
         }else{
-            $err .= i::__("Por favor, insira sua senha", 'multipleLocal');
+            array_push($errors, i::__("Por favor, insira sua senha.", 'multipleLocal'));
         }
 
-        if (strlen($err) > 1) 
-            return $this->setFeedback(i::__($err, 'multipleLocal'));
-        if ($pass != $verify) 
-            return $this->setFeedback(i::__('As senhas não conferem', 'multipleLocal'));
-        return true;
+        if ($pass != $verify) {
+            array_push($errors, i::__("As senhas não conferem.", 'multipleLocal'));
+        }
+        
+        return $errors;
     }
 
 
@@ -570,56 +557,48 @@ class Provider extends \MapasCulturais\AuthProvider {
     function validateRegisterFields() {
         $app = App::i();
         $config = $this->_config;
+        $hasErrors = false;
+
         $cpf = filter_var($app->request->post('cpf'), FILTER_SANITIZE_STRING);
         $email = filter_var( $app->request->post('email') , FILTER_SANITIZE_EMAIL);
         $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
         $pass_v = filter_var($app->request->post('confirm_password'), FILTER_SANITIZE_STRING);
-        $name = filter_var($app->request->post('name'), FILTER_SANITIZE_STRING);
         $this->triedEmail = $email;
-        $this->triedName = $name;
 
         $errors = [
             'captcha' => [],
             'user' => [
-                'name' => [],
                 'cpf' => [],
-                'email' => []
-            ],
+                'email' => [],
+                'password' => []
+            ]
         ];
 
-        // VALIDO CAPTCHA
+        // validate captcha
         if (!$this->verifyRecaptcha2()) {
-            $errors['captcha'] = [i::__('Captcha incorreto, tente novamente!', 'multipleLocal')];
-            //return $this->setFeedback(i::__('Captcha incorreto, tente novamente !', 'multipleLocal'));
+            array_push($errors['captcha'], i::__('Captcha incorreto, tente novamente!', 'multipleLocal'));
+            $hasErrors = true;
         }
 
-        // validate name
-        if (empty($name)){
-            array_push($errors['user']['name'], i::__('Por favor, informe seu nome.', 'multipleLocal'));
-            //return $this->setFeedback(i::__('Por favor, informe seu nome', 'multipleLocal'));
-        }
-
-        //SOMENTE FAZ VERIFICAÇÕES DE CPF SE EM conf.php ESTIVER HABILITADO 'enableLoginByCPF'
+        // validates cpf only if login by cpf is enabled
         if($config['enableLoginByCPF']) {
 
             // validate cpf
             if(empty($cpf) || !$this->validateCPF($cpf)) {
                 array_push($errors['user']['cpf'], i::__('Por favor, informe um cpf válido.', 'multipleLocal'));
-                //return $this->setFeedback(i::__('Por favor, informe um cpf válido', 'multipleLocal'));
+                $hasErrors = true;
             }
-
-            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig(); 
-
+            
+            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();
+            // check if cpf (with "-" and ".") exists
             $findUserByCpfMetadata1 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
-            // cpf exists? 
-            //retira ". e -" do $request->post('cpf')
-            $cpf = str_replace("-","",$cpf);
-            $cpf = str_replace(".","",$cpf);
+            // check if cpf (without "-" and ".") exists
+            $cpf = str_replace("-","",$cpf); // remove "-"
+            $cpf = str_replace(".","",$cpf); // remove "."
             $findUserByCpfMetadata2 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
-
             $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
 
-            //cria um array com os agentes que estão com status == 1, pois o usuario pode ter, por exemplo, 3 agentes, mas 2 estão com status == 0
+            // creates an array with agents with status == 1, because the user can have, for example, 3 agents, but 2 have status == 0
             $activeAgents  = [];
             foreach ($foundAgent as $agentMeta) {
                 if($agentMeta->owner->status === 1) {
@@ -629,29 +608,36 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             if(count($activeAgents) > 0) {
                 array_push($errors['user']['cpf'], i::__('Este CPF já esta em uso. Tente recuperar a sua senha.', 'multipleLocal'));
-                //return $this->setFeedback(i::__('Este CPF já esta em uso. Tente recuperar a sua senha.', 'multipleLocal'));
+                $hasErrors = true;
             }
 
         }
         
-        // email exists? (case insensitive)
+        // check if email exists (case insensitive)
         $checkEmailExistsQuery = $app->em->createQuery("SELECT u FROM \MapasCulturais\Entities\User u WHERE LOWER(u.email) = :email");
         $checkEmailExistsQuery->setParameter('email', strtolower($email));
         $checkEmailExists = $checkEmailExistsQuery->getResult();
-
-        if (!empty($checkEmailExists)){
+        if (!empty($checkEmailExists)) {
             array_push($errors['user']['email'], i::__('Este endereço de email já está em uso. Tente recuperar a sua senha.', 'multipleLocal'));
-            //return $this->setFeedback(i::__('Este endereço de email já está em uso', 'multipleLocal'));
+            $hasErrors = true;
         }
         
         // validate email
-        if (empty($email) || Validator::email()->validate($email) !== true){
+        if (empty($email) || Validator::email()->validate($email) !== true) {
             array_push($errors['user']['email'], i::__('Por favor, informe um email válido.', 'multipleLocal'));
-            //return $this->setFeedback(i::__('Por favor, informe um email válido', 'multipleLocal'));
+            $hasErrors = true;
         }
 
         // validate password
-        return $this->verifyPassowrds($pass, $pass_v);
+        $errors['user']['password'] = $this->verifyPassowrds($pass, $pass_v);
+        if (!empty($errors['user']['password'])) {
+            $hasErrors = true;
+        }
+        
+        return [
+            'success' => !$hasErrors,
+            'errors' => $errors
+        ];
     }
 
     function hashPassword($pass) {
@@ -869,33 +855,18 @@ class Provider extends \MapasCulturais\AuthProvider {
             'minimumPasswordLength'=> i::__('O tamanho mínimo da senha é de: ', 'multipleLocal'),
         ];
 
-        if ($app->view instanceof \MapasCulturais\Themes\BaseV1\Theme) {
-            $theme->render('multiple-local', [
-                'jsLabelsInternationalization' => $jsLabelsInternationalization,
-                'config' => $config,
-                'register_form_action' => $app->auth->register_form_action,
-                'register_form_method' => $app->auth->register_form_method,
-                'login_form_action' => $app->createUrl('auth', 'login'),
-                'recover_form_action' => $app->createUrl('auth', 'recover'),
-                'feedback_success'        => $app->auth->feedback_success,
-                'feedback_msg'    => $app->auth->feedback_msg,   
-                'triedEmail' => $app->auth->triedEmail,
-                'triedName' => $app->auth->triedName,
-            ]);
-        } else {
-            $theme->render('multiple-local-basev2', [
-                'jsLabelsInternationalization' => $jsLabelsInternationalization,
-                'config' => $config,
-                'register_form_action' => $app->auth->register_form_action,
-                'register_form_method' => $app->auth->register_form_method,
-                'login_form_action' => $app->createUrl('auth', 'login'),
-                'recover_form_action' => $app->createUrl('auth', 'recover'),
-                'feedback_success'        => $app->auth->feedback_success,
-                'feedback_msg'    => $app->auth->feedback_msg,   
-                'triedEmail' => $app->auth->triedEmail,
-                'triedName' => $app->auth->triedName,
-            ]);
-        }
+        $theme->render('multiple-local', [
+            'jsLabelsInternationalization'  => $jsLabelsInternationalization,
+            'config'                        => $config,
+            'register_form_action'          => $app->auth->register_form_action,
+            'register_form_method'          => $app->auth->register_form_method,
+            'login_form_action'             => $app->createUrl('auth', 'login'),
+            'recover_form_action'           => $app->createUrl('auth', 'recover'),
+            'feedback_success'              => $app->auth->feedback_success,
+            'feedback_msg'                  => $app->auth->feedback_msg,   
+            'triedEmail'                    => $app->auth->triedEmail,
+            'triedName'                     => $app->auth->triedName,
+        ]);
 
     }
 
@@ -944,11 +915,6 @@ class Provider extends \MapasCulturais\AuthProvider {
         $app->disableAccessControl();
         $user->saveMetadata(true);
         $app->enableAccessControl();
-
-        // $user->saveMetadata();
-        // $app->em->flush();
-
-
     }
 
     function validateCPF($cpf) {
@@ -1113,7 +1079,6 @@ class Provider extends \MapasCulturais\AuthProvider {
         if(isset($user) && intval($user->getMetadata(self::$timeBlockedloginAttempMetadata) >= time()) ) {
             return $this->setFeedback(i::__("Login bloqueado, tente novamente em ".intval($timeBlockedloginAttemp/60)." minutos, ou resete a sua senha", 'multipleLocal'));
         }
-
         
         if ($emailToCheck != $emailToLogin) {
             // Skeleton key check if user is admin
@@ -1121,8 +1086,6 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $userToLogin = $this->getUserFromDB($emailToLogin);
             
         }
-        
-        
         
         $meta = self::$passMetaName;
         $savedPass = $user->getMetadata($meta);
@@ -1143,15 +1106,14 @@ class Provider extends \MapasCulturais\AuthProvider {
     function doRegister() {
         $app = App::i();
         $config = $app->_config;
+        $validateFields = $this->validateRegisterFields();
 
-        if ($this->validateRegisterFields()) {
-            
+        if ($validateFields['success']) {            
             $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
-            
-            //retira ". e -" do $request->post('cpf')
+                        
             $cpf = filter_var($app->request->post('cpf'), FILTER_SANITIZE_STRING);
-            $cpf = str_replace("-","",$cpf);
-            $cpf = str_replace(".","",$cpf);
+            $cpf = str_replace("-","",$cpf); // remove "-"
+            $cpf = str_replace(".","",$cpf); // remove "."
 
             // generate the token hash
             $source = rand(3333, 8888);
@@ -1159,7 +1121,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             $string = $this->hashPassword($source);
             $token = substr($string, $cut, 20);
 
-            // Para simplificar, montaremos uma resposta no padrão Oauth
+            // Oauth pattern
             $response = [
                 'auth' => [
                     'provider' => 'local',
@@ -1221,16 +1183,22 @@ class Provider extends \MapasCulturais\AuthProvider {
             $user->save();
             $app->enableAccessControl();
 
-            $this->feedback_success = true;
+            return [ 
+                'success' => true,
+                'emailSent' => (
+                    isset($config['auth.config']) && 
+                    isset($config['auth.config']['userMustConfirmEmailToUseTheSystem']) && 
+                    $config['auth.config']['userMustConfirmEmailToUseTheSystem']
+                    ) ? true : false
+            ];
 
-            if(isset($config['auth.config']) && isset($config['auth.config']['userMustConfirmEmailToUseTheSystem']) && $config['auth.config']['userMustConfirmEmailToUseTheSystem']) {
-                $this->feedback_msg = i::__('Sucesso: Um e-mail lhe foi enviado com detalhes sobre a plataforma '.$config['app.siteName'] . '. Verifique sua caixa de email e clique em “Validar conta” para continuar.' , 'multipleLocal');
-            } else {
-                $this->feedback_msg = i::__('Sucesso: Conta criada com sucesso.' , 'multipleLocal');
-            }
+        } else {
 
-        } 
-        
+            return [ 
+                'success' => false,
+                'errors' => $validateFields['errors']
+            ];
+        }
     }    
     
     
