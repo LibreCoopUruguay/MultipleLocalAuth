@@ -131,11 +131,6 @@ class Provider extends \MapasCulturais\AuthProvider {
     protected function _init() {
 
         $app = App::i();
-
-        $app->hook('GET(auth.termos-e-condicoes)',function () use ($app) {
-            $this->render('termos-e-condicoes');
-        });
-
         $config = $this->_config;
 
         $app->hook('GET(auth.passwordvalidationinfos)', function () use($config){
