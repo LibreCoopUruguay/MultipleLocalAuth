@@ -27,9 +27,7 @@ app.component('login', {
     },
 
     computed: {
-
         configs() {
-            console.log(JSON.parse(this.config));
             return JSON.parse(this.config);
         },
     },
