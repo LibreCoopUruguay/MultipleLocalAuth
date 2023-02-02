@@ -1,6 +1,10 @@
 app.component('create-account', {
     template: $TEMPLATES['create-account'],
 
+    components: {
+        VueRecaptcha
+    },
+
     setup() {
         const messages = useMessages();
         const text = Utils.getTexts('create-account')
@@ -12,21 +16,21 @@ app.component('create-account', {
         const termsQtd = Object.entries(terms).length;
 
         return {
-            step: 1,
+            actualStep: 1,
             totalSteps: termsQtd + 2,
             terms,
-
             passwordRules: {},
             strongness: 0,
             strongnessClass: 'fraco',
-
             slugs: [],
-
             email: '',
             cpf: '',
             password: '',
             confirmPassword: '',
             agent: null,
+            recaptchaResponse: '',
+            created: false,
+            emailSent: false,
         }
     },
 
@@ -58,7 +62,20 @@ app.component('create-account', {
 
     computed: {
 
-        strategies() {
+        step () {
+            if (this.actualStep >= this.totalSteps) {
+                this.actualStep = this.totalSteps;
+            } 
+
+            if (this.actualStep <= 1) {
+                this.actualStep = 1;
+            }
+
+            return this.actualStep;
+        },
+
+        configs() {
+            console.log(JSON.parse(this.config));
             return JSON.parse(this.config);
         },
 
@@ -66,7 +83,7 @@ app.component('create-account', {
             this.cpf = this.cpf.replace(/\D/g,"")
             this.cpf = this.cpf.replace(/(\d{3})(\d)/,"$1.$2")
             this.cpf = this.cpf.replace(/(\d{3})(\d)/,"$1.$2")
-            this.cpf = this.cpf.replace(/(\d{3})(\d{1,2})$/,"$1-$2")           
+            this.cpf = this.cpf.replace(/(\d{3})(\d{1,2})$/,"$1-$2")
         },
 
         passwordStrongness() {
@@ -147,56 +164,71 @@ app.component('create-account', {
             }, 1000);
         },
 
-        nextStep() {
-            if (this.step <= this.totalSteps) {            
-                if (this.step == 1 && (!this.validateEmail() || !this.validateCPF() || !this.validatePassword() || !this.validateConfirmPassword())) {
-                    return false;
+        async nextStep() {
+            if (this.step <= this.totalSteps) {          
+                
+                if(this.actualStep == 1) {                    
+                    if (await this.validateFields()) {
+                        ++this.actualStep;
+                    }                    
+                } else {
+                    if (this.step == this.totalSteps - 1) {
+                        this.startAgent();
+                    }
+                    ++this.actualStep;
+                    this.releaseAcceptButton();
                 }
 
-                if (this.step == this.totalSteps - 1) {
-                    this.startAgent();
-                }
-
-                ++this.step;
-                this.releaseAcceptButton();
             }
         },
 
         previousStep() {
             if (this.step > 1) {
-                --this.step;
+                --this.actualStep;
             }
         },
 
+        /* Terms */
         acceptTerm(slug) {
             this.slugs.push(slug);
         },
 
+        /* Do register */
         async register() {
             let api = new API();
-            let data = {
-                'name': this.agent.name,
-                'email': this.email,
-                'cpf': this.cpf,
-                'password': this.password,
-                'confirm_password': this.confirmPassword,
-                'slugs': this.slugs,
-                'agentData': {
-                    'name': this.agent.name,
-                    'terms:area': this.agent.terms.area,
-                    'shortDescription': this.agent.shortDescription,
-                }
-            }
 
             if (this.validateAgent()) {                
-                await api.POST($MAPAS.baseURL+"autenticacao/register", data).then(response => response.json().then(dataReturn => {
-                    console.log(dataReturn);
+                let dataPost = {
+                    'name': this.agent.name,
+                    'email': this.email,
+                    'cpf': this.cpf,
+                    'password': this.password,
+                    'confirm_password': this.confirmPassword,
+                    'slugs': this.slugs,
+                    'g-recaptcha-response': this.recaptchaResponse,
+                    'agentData': {
+                        'name': this.agent.name,
+                        'terms:area': this.agent.terms.area,
+                        'shortDescription': this.agent.shortDescription,
+                    },
+                }
+
+                await api.POST($MAPAS.baseURL+"autenticacao/register", dataPost).then(response => response.json().then(dataReturn => {
+                    if (dataReturn.error) {
+                        this.throwErrors(dataReturn.data);
+                    } else {
+                        this.created = true;
+                        if (dataReturn.emailSent) {
+                            this.emailSent = true;
+                        }
+                    }
                 }));
             }
         },
 
+        /* Cancel register */
         cancel() {
-            this.step = 1;
+            this.actualStep = 1;
             this.strongnessClass = 'fraco';
             this.email = '';
             this.cpf = '';
@@ -205,89 +237,53 @@ app.component('create-account', {
             this.agent = null;
         },
         
-        /* Validações */        
-
-        /**
-         * @todo Criar acesso ao endpoint para verificação do cpf e email
-         */
-        validateFields() {
-
-        },
-
-        validatePassword() {
-            let strongness = this.passwordStrongness;
-            if (this.password == '') {
-                messages.error(__('Senha obrigatória', 'create-account'));
-                return false;
-            }
-            if (strongness < 100) {
-                messages.error(__('Senha não atende os requisitos', 'create-account'));
-                return false;
-            }
-            return true;
-        },
-
-        validateConfirmPassword() {
-            if (this.password !== this.confirmPassword) {
-                messages.error(__('Senhas diferentes', 'create-account'));
-                return false;
-            }
-            return true;
-        },
-
-        validateCPF() {
-            let cpf = this.cpf.replace(/[^\d]+/g, '');
-            let invalidCpfs = ["00000000000", "11111111111", "22222222222", "33333333333", "44444444444", "55555555555", "66666666666", "77777777777", "88888888888", "99999999999"];
-            let soma, resto = 0;
-
-            if (cpf == '') {
-                messages.error(__('CPF obrigatório', 'create-account'));
-                return false;
-            }
-            if (!/[0-9]{11}/.test(cpf) || invalidCpfs.indexOf(cpf) !== -1) {
-                messages.error(__('CPF inválido', 'create-account'));
-                return false;
-            }
-
-            /* 1º digito */
-            soma = 0;
-            for (i = 0; i < 9; i++) {
-                soma += parseInt(cpf.charAt(i)) * (10 - i);
-            }
-            resto = 11 - (soma % 11);
-            resto = (resto == 10 || resto == 11 || resto < 2) ? 0 : resto;
-            if (resto != parseInt(cpf.charAt(9))) {
-                messages.error(__('CPF inválido', 'create-account'));
-                return false;
-            }
-
-            /* 2º digito */
-            soma = 0;
-            for (i = 0; i < 10; i++) {
-                soma += parseInt(cpf.charAt(i)) * (11 - i);
-            }
-            resto = 11 - (soma % 11);
-            resto = (resto == 10 || resto == 11 || resto < 2) ? 0 : resto;
-            if (resto != parseInt(cpf.charAt(10))) {
-                messages.error(__('CPF inválido', 'create-account'));
-                return false;
-            }
-            
-            return true;
-        },
-
-        validateEmail() {
-            if (this.email == '') {
-                messages.error(__('Email obrigatório', 'create-account'));
-                return false;
-            }
-            if (!/^[\w+.]+@\w+\.\w{2,}(?:\.\w{2})?$/.test(this.email)) {
-                messages.error(__('Email inválido', 'create-account'));
-                return false;
-            }
-            return true;
-        },
+        /* Validações */    
         
+        async verifyCaptcha(response) {
+            this.recaptchaResponse = response;
+        },
+
+        expiredCaptcha() {
+            this.recaptchaResponse = '';
+        },
+
+        async validateFields() {
+            let api = new API();
+            let success = true;
+            let data = {
+                'cpf': this.cpf,
+                'email': this.email,
+                'password': this.password,
+                'confirm_password': this.confirmPassword,
+                'g-recaptcha-response': this.recaptchaResponse,
+            }
+            await api.POST($MAPAS.baseURL+"autenticacao/validate", data).then(response => response.json().then(dataReturn => {
+                if (dataReturn.error) {
+                    this.throwErrors(dataReturn.data);
+                    success = false;
+                } else {
+                    this.recaptchaResponse = '';
+                }
+            }));
+
+            return success;
+        },
+
+        throwErrors(errors) {
+            if (errors['user']) {
+                Object.keys(errors['user']).forEach(key => {
+                    errors['user'][key].forEach(function(value){
+                        messages.error(value);
+                    });
+                });
+            }
+            if (errors['captcha']) {
+                Object.keys(errors['captcha']).forEach(key => {
+                    messages.error(errors['captcha'][key]);
+                });
+            }
+        },
+
         validateAgent() {
             if (!this.agent.name) {
                 messages.error(__('Nome obrigatório', 'create-account'));

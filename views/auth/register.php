@@ -5,7 +5,7 @@ use MapasCulturais\App;
 
 $app = App::i();
 
-$strategies = json_encode($config['strategies']);
+$strategies = json_encode($config);
 
 $this->import('
     create-account
@@ -16,6 +16,10 @@ $this->breadcrumb = [
     ['label'=> i::__('Voltar para entrar na conta'), 'url' => $app->createUrl('auth')],
 ];
 ?>
+
+<?php if (isset($config['google-recaptcha-sitekey'])) : ?>
+    <script src="https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit" async defer></script>
+<?php endif; ?>
 
 <mapas-breadcrumb></mapas-breadcrumb>
 
