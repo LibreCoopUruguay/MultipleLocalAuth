@@ -1,75 +1,79 @@
 /* ----- 1: SETTINGS ------- */
 
+.controller-auth {
+  background-color: var(--mc-gray-100);
+}
+
+.controller-auth .mapas-card {
+  padding: 25px 45px;
+}
+
+.controller-auth .mapas-card.no-title .mapas-card__title {
+  display: none;
+}
+
+.controller-auth .v-popper__inner {
+  padding: 3px 10px;
+}
+
 /* ----- 2: ATOMS ------- */
 
 /* ----- 3: LAYOUT ------- */
 
 /* ----- 4: COMPONENTS ------- */
 
-.controller-auth {
-  background-color: var(--mc-gray-100);
-}
-
-.controller-auth .create-account {
-  max-width: 570px;
+.create-account {
+  max-width: 602px;
   margin: 32px auto;
   padding: 0 16px;
 }
 
-.controller-auth .create-account .mapas-card {
-  padding: 24px 48px;
-}
-
-.controller-auth .create-account .mapas-card__title {
-  display: none;
-}
-
-.controller-auth .create-account .mapas-card.card-created {
+.create-account .mapas-card.card-created {
   margin: 80px 0;
 }
 
-.controller-auth .create-account__title {
+.create-account__title {
   margin: 35px 0;
 }
 
-.controller-auth .create-account__title label {
+.create-account__title label {
   font-weight: 700;
   font-size: 24px;
   line-height: 28px;
 }
 
-.controller-auth .create-account__title p {
+.create-account__title p {
   margin: 8px 0 0;
   font-size: 14px;
   line-height: 19px;
 }
 
-.controller-auth .create-account__timeline {
+.create-account__timeline {
   display: flex;
   justify-content: space-between;
   position: relative;
 }
 
-.controller-auth .create-account__timeline .step {
+.create-account__timeline .step {
   width: 100%;
   position: relative;
   display: flex;
   justify-content: flex-end;
 }
 
-.controller-auth .create-account__timeline .step:first-child {
+.create-account__timeline .step:first-child {
   width: unset;
 }
 
-.controller-auth .create-account__timeline .step:first-child::before {
+.create-account__timeline .step:first-child::before {
   content: unset;
 }
 
-.controller-auth .create-account__timeline .step:first-child .count {
+.create-account__timeline .step:first-child .count {
   background-color: var(--mc-secondary-500);
 }
 
-.controller-auth .create-account__timeline .step::before {
+.create-account__timeline .step::before {
   content: "";
   height: 2px;
   width: 100%;
@@ -79,7 +83,7 @@
   transition: background-color 300ms linear, color 300ms;
 }
 
-.controller-auth .create-account__timeline .step .count {
+.create-account__timeline .step .count {
   align-items: center;
   background-color: var(--mc-gray-100);
   border-radius: 50%;
@@ -95,36 +99,36 @@
   transition: background-color 300ms linear, color 300ms;
 }
 
-.controller-auth .create-account__timeline .step.active .count {
+.create-account__timeline .step.active .count {
   background-color: var(--mc-secondary-500);
   color: var(--mc-high-500);
 }
 
-.controller-auth .create-account__timeline .step.active::before {
+.create-account__timeline .step.active::before {
   background-color: var(--mc-secondary-500);
 }
 
-.controller-auth .create-account__step .title {
+.create-account__step .title {
   font-weight: 700;
   font-size: 18px;
   line-height: 25px;
   margin: 8px 0 4px;
 }
 
-.controller-auth .create-account__step .title .subtitle {
+.create-account__step .title .subtitle {
   font-weight: 400;
   font-size: 14px;
   line-height: 19px;
   margin-top: 16px;
 }
 
-.controller-auth .create-account__step .document-label {
+.create-account__step .document-label {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.controller-auth .create-account__step .document-label .question {
+.create-account__step .document-label .question {
   display: flex;
   gap: 4px;
   align-items: center;
@@ -132,19 +136,19 @@
   border: unset;
 }
 
-.controller-auth .create-account__step .password-rules {
+.create-account__step .password-rules {
   font-size: 14px;
   line-height: 19px;
   color: var(--mc-secondary-500);
 }
 
-.controller-auth .create-account__step .progressbar {
+.create-account__step .progressbar {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.controller-auth .create-account__step .progressbar progress[value] {
+.create-account__step .progressbar progress[value] {
   -webkit-appearance: none;
      -moz-appearance: none;
           appearance: none;
@@ -152,53 +156,53 @@
   width: 210px;
 }
 
-.controller-auth .create-account__step .progressbar progress[value]::-webkit-progress-bar {
+.create-account__step .progressbar progress[value]::-webkit-progress-bar {
   background-color: var(--mc-low-300);
   border-radius: var(--mc-border-radius-sm);
 }
 
-.controller-auth .create-account__step .progressbar progress[value]::-webkit-progress-value {
+.create-account__step .progressbar progress[value]::-webkit-progress-value {
   border-radius: var(--mc-border-radius-sm);
   -webkit-transition: 1s;
   transition: 1s;
 }
 
-.controller-auth .create-account__step .progressbar progress[value].fraco::-webkit-progress-value {
+.create-account__step .progressbar progress[value].fraco::-webkit-progress-value {
   background: red;
 }
 
-.controller-auth .create-account__step .progressbar progress[value].medio::-webkit-progress-value {
+.create-account__step .progressbar progress[value].medio::-webkit-progress-value {
   background: yellow;
 }
 
-.controller-auth .create-account__step .progressbar progress[value].forte::-webkit-progress-value {
+.create-account__step .progressbar progress[value].forte::-webkit-progress-value {
   background: green;
 }
 
-.controller-auth .create-account__step .g-recaptcha {
+.create-account__step .g-recaptcha {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.controller-auth .create-account__step .divider {
+.create-account__step .divider {
   width: 100%;
   border-bottom: 1px solid #BBBBBB;
 }
 
-.controller-auth .create-account__step .social-login {
+.create-account__step .social-login {
   display: flex;
   flex-direction: column;
   gap: 16px;
   align-items: center;
 }
 
-.controller-auth .create-account__step .social-login--button {
+.create-account__step .social-login--button {
   text-align: center;
   display: block;
 }
 
-.controller-auth .create-account__step .social-login--button .img {
+.create-account__step .social-login--button .img {
   width: 50px;
   float: left;
   text-align: left;
@@ -206,39 +210,39 @@
   align-items: center;
 }
 
-.controller-auth .create-account__step .social-login--button .img img {
+.create-account__step .social-login--button .img img {
   height: 16px;
 }
 
 @media (max-width: 500px) {
-  .controller-auth .create-account__step .social-login--button .img {
+  .create-account__step .social-login--button .img {
     width: 39px;
   }
 
-  .controller-auth .create-account__step .social-login--button .img img {
+  .create-account__step .social-login--button .img img {
     height: 14px;
   }
 }
 
-.controller-auth .create-account__step .social-login--button.google {
+.create-account__step .social-login--button.google {
   border: var(--mc-border-hairline) var(--mc-low-500);
   color: var(--mc-low-700);
 }
 
-.controller-auth .create-account__step .social-login--button.govbr {
+.create-account__step .social-login--button.govbr {
   border: var(--mc-border-hairline) #1351B4;
   background-color: #1351B4;
   color: var(--mc-high-500);
 }
 
 @media (max-width: 380px) {
-  .controller-auth .create-account__step .social-login--button.google,
-  .controller-auth .create-account__step .social-login--button.govbr {
+  .create-account__step .social-login--button.google,
+  .create-account__step .social-login--button.govbr {
     font-size: 13px;
   }
 }
 
-.controller-auth .create-account__step .term {
+.create-account__step .term {
   max-height: 600px;
   overflow-y: scroll;
   padding-right: 20px;
@@ -247,43 +251,43 @@
   /* scroll thumb */
 }
 
-.controller-auth .create-account__step .term::-webkit-scrollbar {
+.create-account__step .term::-webkit-scrollbar {
   width: 6px;
 }
 
-.controller-auth .create-account__step .term::-webkit-scrollbar-track {
+.create-account__step .term::-webkit-scrollbar-track {
   background: unset;
 }
 
-.controller-auth .create-account__step .term::-webkit-scrollbar-thumb {
+.create-account__step .term::-webkit-scrollbar-thumb {
   background-color: #6C6C6C;
   border-radius: var(--mc-border-radius-pill);
 }
 
-.controller-auth .create-account__step .button--text {
+.create-account__step .button--text {
   color: var(--mc-primary-500);
 }
 
-.controller-auth .create-account__created .title {
+.create-account__created .title {
   align-items: center;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.controller-auth .create-account__created .title__icon {
+.create-account__created .title__icon {
   color: green;
   font-size: 96px;
 }
 
-.controller-auth .create-account__created .title__label {
+.create-account__created .title__label {
   font-weight: 700;
   font-size: 24px;
   line-height: 28px;
   text-align: center;
 }
 
-.controller-auth .create-account__created .emailSent {
+.create-account__created .emailSent {
   font-weight: 400;
   font-size: 16px;
   line-height: 19px;
@@ -291,102 +295,125 @@
   text-align: center;
 }
 
-.controller-auth .v-popper__inner {
-  padding: 3px 10px;
-}
-
-.controller-auth {
-  background-color: var(--mc-gray-100);
-}
-
-.controller-auth .login {
-  max-width: 570px;
+.login {
+  max-width: 602px;
   margin: 32px auto;
   padding: 0 16px;
 }
 
-.controller-auth .login .mapas-card {
-  padding: 24px 48px;
-}
-
-.controller-auth .login .field .multiple-recover-link {
+.login .field .recover {
+  color: var(--mc-primary-500);
+  cursor: pointer;
   font-weight: 600;
   font-size: 14px;
   line-height: 19px;
   text-align: right;
-  color: var(--mc-primary-500);
   text-decoration: none;
 }
 
-.controller-auth .login .g-recaptcha {
+.login .g-recaptcha {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.controller-auth .login .divider {
+.login .divider {
   width: 100%;
   border-bottom: 1px solid #BBBBBB;
 }
 
-.controller-auth .login .social-login {
+.login__action .social-login {
+  align-items: center;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  align-items: center;
 }
 
-.controller-auth .login .social-login--button {
-  text-align: center;
+.login__action .social-login--button {
   display: block;
+  text-align: center;
 }
 
-.controller-auth .login .social-login--button .img {
-  width: 50px;
+.login__action .social-login--button .img {
+  align-items: center;
+  display: flex;
   float: left;
   text-align: left;
-  display: flex;
-  align-items: center;
+  width: 50px;
 }
 
-.controller-auth .login .social-login--button .img img {
+.login__action .social-login--button .img img {
   height: 16px;
 }
 
 @media (max-width: 500px) {
-  .controller-auth .login .social-login--button .img {
+  .login__action .social-login--button .img {
     width: 39px;
   }
 
-  .controller-auth .login .social-login--button .img img {
+  .login__action .social-login--button .img img {
     height: 14px;
   }
 }
 
-.controller-auth .login .social-login--button.google {
+.login__action .social-login--button.google {
   border: var(--mc-border-hairline) var(--mc-low-500);
   color: var(--mc-low-700);
 }
 
-.controller-auth .login .social-login--button.govbr {
-  border: var(--mc-border-hairline) #1351B4;
+.login__action .social-login--button.govbr {
   background-color: #1351B4;
+  border: var(--mc-border-hairline) #1351B4;
   color: var(--mc-high-500);
 }
 
 @media (max-width: 380px) {
-  .controller-auth .login .social-login--button.google,
-  .controller-auth .login .social-login--button.govbr {
+  .login__action .social-login--button.google,
+  .login__action .social-login--button.govbr {
     font-size: 13px;
   }
 }
 
-.controller-auth .login .social-login .create {
+.login__action .create {
+  align-items: center;
   display: flex;
   flex-direction: column;
-  width: 100%;
   gap: 8px;
+  width: 100%;
+}
+
+.login__recovery--request .header {
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  gap: 8px;
+}
+
+.login__recovery--request .header__title {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 28px;
+}
+
+.login__recovery--request .header__icon {
+  color: green;
+  font-size: 96px;
+}
+
+.login__recovery--request .header__label {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  text-align: center;
+}
+
+.login__recovery--action .password-rules {
+  font-size: 14px;
+  line-height: 19px;
+}
+
+.login__recovery--action .password-rules strong {
+  color: var(--mc-danger-500);
 }
 
 /* ----- 5: AREAS ------- */
