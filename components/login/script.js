@@ -21,7 +21,11 @@ app.component('login', {
             passwordRules: {},
             
             recoveryRequest: false,
-            recoveryEmailSent: false
+            recoveryEmailSent: false,
+            
+            recoveryMode: $MAPAS.recoveryMode?.status ?? '',
+            recoveryEmail: $MAPAS.recoveryMode?.email ?? '',
+            recoveryToken: $MAPAS.recoveryMode?.token ?? '',
         }
     },
 
@@ -29,10 +33,6 @@ app.component('login', {
         config: {
             type: String,
             required: true
-        },
-        recoveryMode: {
-            type: Boolean,
-            default: false
         }
     },
 
@@ -87,6 +87,28 @@ app.component('login', {
                 }
             }));
         },
+
+        async doRecover() {
+            let api = new API();
+               
+            let dataPost = {
+                'email': this.recoveryEmail,
+                'password': this.password,
+                'confirm_password': this.confirmPassword,
+                'token': this.recoveryToken
+            }
+
+            await api.POST($MAPAS.baseURL+"autenticacao/dorecover", dataPost).then(response => response.json().then(dataReturn => {
+                if (dataReturn.error) {
+                    this.throwErrors(dataReturn.data);
+                } else {
+                    messages.success('Senha alterada com sucesso!');
+                    setTimeout(() => {
+                        window.location.href = $MAPAS.baseURL+'autenticacao';
+                    }, "1000")
+                }
+            }));
+        },
                
         /* Validações */
         async verifyCaptcha(response) {
@@ -103,6 +125,11 @@ app.component('login', {
                     messages.error(errors['captcha'][key]);
                 });
             }
+            if (errors['login']) {
+                Object.keys(errors['login']).forEach(key => {
+                    messages.error(errors['login'][key]);
+                });
+            }
             if (errors['email']) {
                 Object.keys(errors['email']).forEach(key => {
                     messages.error(errors['email'][key]);
@@ -116,6 +143,21 @@ app.component('login', {
             if (errors['sendEmail']) {
                 Object.keys(errors['sendEmail']).forEach(key => {
                     messages.error(errors['sendEmail'][key]);
+                });
+            }
+            if (errors['user']) {
+                Object.keys(errors['user']).forEach(key => {
+                    messages.error(errors['user'][key]);
+                });
+            }
+            if (errors['password']) {
+                Object.keys(errors['password']).forEach(key => {
+                    messages.error(errors['password'][key]);
+                });
+            }
+            if (errors['token']) {
+                Object.keys(errors['token']).forEach(key => {
+                    messages.error(errors['token'][key]);
                 });
             }
         },

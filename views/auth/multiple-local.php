@@ -7,13 +7,15 @@ $app = App::i();
 
 $configs = json_encode($config);
 
+if (isset($_GET['e']) && $_GET['e'] != '' && isset($_GET['t']) && $_GET['t'] != '') {
+    $this->jsObject['recoveryMode']['status'] = true;
+    $this->jsObject['recoveryMode']['email'] = $_GET['e'];
+    $this->jsObject['recoveryMode']['token'] = $_GET['t']; 
+}
+
 $this->import('
     login
 ')
 ?>
 
-<?php if (isset($config['google-recaptcha-sitekey'])) : ?>
-    <script src="https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit" async defer></script>
-<?php endif; ?>
-
-<login config='<?= $configs; ?>'></login>
+<login config='<?= $configs; ?>' ></login>

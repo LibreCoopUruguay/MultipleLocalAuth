@@ -396,6 +396,20 @@ class Provider extends \MapasCulturais\AuthProvider {
             }
         });
 
+        $app->hook('POST(auth.dorecover)', function () use($app){
+            /**
+             * @var \MapasCulturais\Controller $this
+             */
+            
+            $requestRecover = $app->auth->doRecover();
+
+            if ($requestRecover['success']) {
+                $this->json(['error' => false]);
+            } else {
+                $this->errorJson($requestRecover['errors'], 200);
+            }
+        });
+
         
         
         /* $app->hook('POST(auth.recover)', function () use($app){        
@@ -716,54 +730,63 @@ class Provider extends \MapasCulturais\AuthProvider {
         $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
         $pass_v = filter_var($app->request->post('confirm_password'), FILTER_SANITIZE_STRING);
         $user = $app->repo("User")->findOneBy(array('email' => $email));
-        $token = filter_var($app->request->get('t'), FILTER_SANITIZE_STRING);
-        
+        $token = filter_var($app->request->post('token'), FILTER_SANITIZE_STRING);
+
+        $hasErrors = false;
+        $errors = [
+            'user' => [],
+            'password' => [],
+            'token' => []
+        ];
+
         if (!$user) {
-            $this->feedback_success = false;
-            $this->triedEmail = $email;
-            $this->feedback_msg = i::__('Email ou token inválidos', 'multipleLocal');
-            return false;
-        }
+            array_push($errors['user'], i::__('Email inválido.', 'multipleLocal'));
+            $hasErrors = true;
+        } else {
+            $savedToken = $user->getMetadata('recover_token');
         
-        $savedToken = $user->getMetadata('recover_token');
+            if (!$savedToken || $savedToken != $token) {
+                array_push($errors['user'], i::__('Email ou token inválidos.', 'multipleLocal'));
+                $hasErrors = true;
+            }
+
+            $recover_token_time = $user->getMetadata('recover_token_time');
         
-        if (!$savedToken || $savedToken != $token) {
-            $this->feedback_success = false;
-            $this->triedEmail = $email;
-            $this->feedback_msg = i::__('Email ou token inválidos', 'multipleLocal');
-            return false;
+            // check if token is still valid
+            $now = time();
+            $diff = $now - intval($recover_token_time);
+            
+            if ($diff > 60 * 60 * 24 * 30) {
+                array_push($errors['token'], i::__('Este token expirou.', 'multipleLocal'));
+                $hasErrors = true;
+            }
+            
+            $errors['password'] = $this->verifyPassowrds($pass, $pass_v);
+            if (!empty($errors['password'])) {
+                $hasErrors = true;
+            }
         }
 
-        $recover_token_time = $user->getMetadata('recover_token_time');
+        if (!$hasErrors) {
         
-        // check if token is still valid
-        $now = time();
-        $diff = $now - intval($recover_token_time);
-        
-        if ($diff > 60 * 60 * 24 * 30) {
-            $this->feedback_success = false;
-            $this->triedEmail = $email;
-            $this->feedback_msg = i::__('Este token expirou', 'multipleLocal');
-            return false;
-        }
-        
-        if (!$this->verifyPassowrds($pass, $pass_v))
-            return false;
-        
-        $user->setMetadata(self::$passMetaName, $this->hashPassword($pass));
-        $user->setMetadata(Provider::$accountIsActiveMetadata, '1');
-        
-        $app->disableAccessControl();
-        $user->save(true); 
-        $app->enableAccessControl();
-        
-        $this->middlewareLoginAttempts(true); //tira o BAN de login do usuario
+            $user->setMetadata(self::$passMetaName, $this->hashPassword($pass));
+            $user->setMetadata(Provider::$accountIsActiveMetadata, '1');
+            
+            $app->disableAccessControl();
+            $user->save(true); 
+            $app->enableAccessControl();
+            
+            $this->middlewareLoginAttempts(true); //tira o BAN de login do usuario
 
-        $this->feedback_success = true;
-        $this->triedEmail = $email;
-        $this->feedback_msg = i::__('Senha alterada com sucesso! Você pode fazer login agora', 'multipleLocal');
-        
-        return true;
+            return [ 
+                'success' => true
+            ];
+        } else {
+            return [ 
+                'success' => false,
+                'errors' => $errors
+            ];
+        }
     }
     
     function recover() {
@@ -806,7 +829,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             
             
             // build recover URL
-            $url = $app->createUrl('auth', 'index') . '?t=' . $token;
+            $url = $app->createUrl('auth', 'index') . '?e=' . $user->email . '&t=' . $token;
             
             $site_name = $app->view->dict('site: name', false);
             

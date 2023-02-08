@@ -105,7 +105,7 @@ $this->import('
                 <label> <?= i::__('Redefinir senha de acesso') ?> </label>
             </template>
             <template #content>
-                <form class="grid-12">
+                <form class="grid-12" @submit.prevent="doRecover();">
 
                     <div class="field col-12 password">
                         <label for="pwd"> <?= i::__('Senha'); ?> </label>
