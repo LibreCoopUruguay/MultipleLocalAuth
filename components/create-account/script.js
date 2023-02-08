@@ -269,17 +269,16 @@ app.component('create-account', {
         },
 
         throwErrors(errors) {
-            if (errors['user']) {
-                Object.keys(errors['user']).forEach(key => {
-                    errors['user'][key].forEach(function(value){
-                        messages.error(value);
-                    });
-                });
-            }
-            if (errors['captcha']) {
-                Object.keys(errors['captcha']).forEach(key => {
-                    messages.error(errors['captcha'][key]);
-                });
+            for (let key in errors) {
+                for (let val of errors[key]) {
+                    if (val instanceof Array) {
+                        for (let _val of val) {
+                            messages.error(val);
+                        }
+                    } else {
+                        messages.error(val);
+                    }
+                }
             }
         },
 
