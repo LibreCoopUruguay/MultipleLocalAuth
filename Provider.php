@@ -291,7 +291,7 @@ class Provider extends \MapasCulturais\AuthProvider {
         }
         
 
-        //Register form config
+        // Register form config
         $this->register_form_action = $app->createUrl('auth', 'register');    
         if(isset($config['register_form'])){
             $this->register_form_action = $config['register_form']['action'];
@@ -299,22 +299,16 @@ class Provider extends \MapasCulturais\AuthProvider {
         }
 
         // add actions to auth controller
-        $app->hook('GET(auth.index)', function () use($app){
-            $app->auth->renderForm($this);
+        $app->hook('GET(auth.index)', function () use($config){
+            $this->render('multiple-local', [ 'config' => $config ]);
         });
 
-        $app->hook('GET(auth.register)', function () use($app, $config){
-            $this->render("register", [
-                'config'                => $config,
-                'register_form_action'  => $app->auth->register_form_action,
-                'register_form_method'  => $app->auth->register_form_method,
-                'login_form_action'     => $app->createUrl('auth', 'login'),
-                'recover_form_action'   => $app->createUrl('auth', 'recover'),
-                'feedback_success'      => $app->auth->feedback_success,
-                'feedback_msg'          => $app->auth->feedback_msg,   
-                'triedEmail'            => $app->auth->triedEmail,
-                'triedName'             => $app->auth->triedName,
-            ]);
+        $app->hook('GET(auth.register)', function () use($config){
+            $this->render("register", [ 'config' => $config ]);
+        });
+
+        $app->hook('GET(auth.recover)', function () use($config){
+            $this->render("pass-recover", [ 'config' => $config ]);
         });
 
         $providers = [];
@@ -346,22 +340,6 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         /******* INIT LOCAL AUTH **********/
 
-        
-        $app->hook('POST(auth.register)', function () use($app){
-            /**
-             * @var \MapasCulturais\Controller $this
-             */
-
-            $registration = $app->auth->doRegister();
-
-            if ($registration['success']) {
-                $this->json(['error' => false, 'emailSent' => $registration['emailSent']]);
-            } else {
-                $this->errorJson($registration['errors'], 200);
-            }
-        });
-
-
         $app->hook('POST(auth.validate)', function () use($app) {
             /**
              * @var \MapasCulturais\Controller $this
@@ -376,6 +354,19 @@ class Provider extends \MapasCulturais\AuthProvider {
             }
         });
 
+        $app->hook('POST(auth.register)', function () use($app){
+            /**
+             * @var \MapasCulturais\Controller $this
+             */
+
+            $registration = $app->auth->doRegister();
+
+            if ($registration['success']) {
+                $this->json(['error' => false, 'emailSent' => $registration['emailSent']]);
+            } else {
+                $this->errorJson($registration['errors'], 200);
+            }
+        });
         
         $app->hook('POST(auth.login)', function () use($app){
             /**
@@ -390,12 +381,28 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $this->errorJson($login['errors'], 200);
             }
         });
+
+        $app->hook('POST(auth.recover)', function () use($app){
+            /**
+             * @var \MapasCulturais\Controller $this
+             */
+            
+            $requestRecover = $app->auth->recover();
+
+            if ($requestRecover['success']) {
+                $this->json(['error' => false]);
+            } else {
+                $this->errorJson($requestRecover['errors'], 200);
+            }
+        });
+
         
-        $app->hook('POST(auth.recover)', function () use($app){        
+        
+        /* $app->hook('POST(auth.recover)', function () use($app){        
             $app->auth->recover();
             $app->auth->renderForm($this);
         
-        });
+        }); */
         
         $app->hook('GET(auth.recover-resetform)', function () use($app){        
             $app->auth->renderRecoverForm($this);        
@@ -764,76 +771,98 @@ class Provider extends \MapasCulturais\AuthProvider {
         $config = $app->_config;
         $email = filter_var($app->request->post('email'), FILTER_SANITIZE_STRING);
         $user = $app->repo("User")->findOneBy(array('email' => $email));
+
+        $hasErrors = false;
+        $errors = [
+            'captcha' => [],
+            'email' => [],
+            'sendEmail' => []
+        ];
         
         if (!$user) {
-            $this->feedback_success = false;
-            $this->triedEmail = $email;
-            $this->feedback_msg = i::__('Email não encontrado', 'multipleLocal');
-            return false;
+            array_push($errors['email'], i::__('Email não encontrado', 'multipleLocal'));
+            $hasErrors = true;
         }
 
-        if (!$this->verifyRecaptcha2())
-           return $this->setFeedback(i::__('Captcha incorreto, tente novamente !', 'multipleLocal'));
+        if (!$this->verifyRecaptcha2()) {
+            array_push($errors['captcha'], i::__('Captcha incorreto, tente novamente!', 'multipleLocal'));
+            $hasErrors = true;
+        }
         
-        // generate the hash
-        $source = rand(3333, 8888);
-        $cut = rand(10, 30);
-        $string = $this->hashPassword($source);
-        $token = substr($string, $cut, 20);
-        
-        // save hash and created time
-        $app->disableAccessControl();
-        $user->setMetadata('recover_token', $token);
-        $user->setMetadata('recover_token_time', time());
-        $user->saveMetadata();
-        $app->em->flush();
-        $app->enableAccessControl();
-        
-        
-        // build recover URL
-        $url = $app->createUrl('auth', 'recover-resetform') . '?t=' . $token;
-        
-        $site_name = $app->view->dict('site: name', false);
-        
+        if (!$hasErrors) {
+            // generate the hash
+            $source = rand(3333, 8888);
+            $cut = rand(10, 30);
+            $string = $this->hashPassword($source);
+            $token = substr($string, $cut, 20);
+            
+            // save hash and created time
+            $app->disableAccessControl();
+            $user->setMetadata('recover_token', $token);
+            $user->setMetadata('recover_token_time', time());
+            $user->saveMetadata();
+            $app->em->flush();
+            $app->enableAccessControl();
+            
+            
+            // build recover URL
+            $url = $app->createUrl('auth', 'index') . '?t=' . $token;
+            
+            $site_name = $app->view->dict('site: name', false);
+            
 
-        // send email
-        $email_subject = sprintf(i::__('Pedido de recuperação de senha para %s', 'multipleLocal'), $site_name);
-        $mustache = new \Mustache_Engine();
+            // send email
+            $email_subject = sprintf(i::__('Pedido de recuperação de senha para %s', 'multipleLocal'), $site_name);
+            $mustache = new \Mustache_Engine();
 
-        $content = $mustache->render(
-            file_get_contents(
-                // @todo: usar a $app->view->getTemplatePathname()
-                __DIR__.
-                DIRECTORY_SEPARATOR.'views'.
-                DIRECTORY_SEPARATOR.'auth'.
-                DIRECTORY_SEPARATOR.'email-resert-password.html'
-            ), array(
-                "url" => $url,
-                "user" => $user->email,
-                "siteName" => $site_name,
-                "urlSupportChat" => $this->_config['urlSupportChat'],
-                "urlSupportEmail" => $this->_config['urlSupportEmail'],
-                "urlSupportSite" => $this->_config['urlSupportSite'],
-                "textSupportSite" => $this->_config['textSupportSite'],
-                "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
-            ));
-        
-        $app->applyHook('multipleLocalAuth.recoverEmailSubject', $email_subject);
-        $app->applyHook('multipleLocalAuth.recoverEmailBody', $content);
-        
-        if ($app->createAndSendMailMessage([
-                'from' => $app->config['mailer.from'],
-                'to' => $user->email,
-                'subject' => $email_subject,
-                'body' => $content
-            ])) {
-        
-            // set feedback
-            $this->feedback_success = true;
-            $this->feedback_msg = i::__('Sucesso: Um e-mail foi enviado com instruções para recuperação da senha.', 'multipleLocal');
+            $content = $mustache->render(
+                file_get_contents(
+                    // @todo: usar a $app->view->getTemplatePathname()
+                    __DIR__.
+                    DIRECTORY_SEPARATOR.'views'.
+                    DIRECTORY_SEPARATOR.'auth'.
+                    DIRECTORY_SEPARATOR.'email-resert-password.html'
+                ), array(
+                    "url" => $url,
+                    "user" => $user->email,
+                    "siteName" => $site_name,
+                    "urlSupportChat" => $this->_config['urlSupportChat'],
+                    "urlSupportEmail" => $this->_config['urlSupportEmail'],
+                    "urlSupportSite" => $this->_config['urlSupportSite'],
+                    "textSupportSite" => $this->_config['textSupportSite'],
+                    "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
+                ));
+            
+            $app->applyHook('multipleLocalAuth.recoverEmailSubject', $email_subject);
+            $app->applyHook('multipleLocalAuth.recoverEmailBody', $content);
+            
+            if ($app->createAndSendMailMessage([
+                    'from' => $app->config['mailer.from'],
+                    'to' => $user->email,
+                    'subject' => $email_subject,
+                    'body' => $content
+                ])) {
+                    
+                return [ 
+                    'success' => true
+                ];
+                // set feedback
+                // $this->feedback_success = true;
+                // $this->feedback_msg = i::__('Sucesso: Um e-mail foi enviado com instruções para recuperação da senha.', 'multipleLocal');
+            } else {
+                array_push($errors['sendEmail'], i::__('Erro ao enviar email de recuperação. Entre em contato com os administradors do site.', 'multipleLocal'));
+                return [ 
+                    'success' => false,
+                    'errors' => $errors
+                ];
+                // $this->feedback_success = false;
+                // $this->feedback_msg = i::__('Erro ao enviar email de recuperação. Entre em contato com os administradors do site.', 'multipleLocal');
+            }
         } else {
-            $this->feedback_success = false;
-            $this->feedback_msg = i::__('Erro ao enviar email de recuperação. Entre em contato com os administradors do site.', 'multipleLocal');
+            return [ 
+                'success' => false,
+                'errors' => $errors
+            ];
         }
     }
 
