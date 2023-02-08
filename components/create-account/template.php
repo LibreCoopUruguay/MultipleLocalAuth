@@ -23,7 +23,7 @@ $this->import('
     </div>
 
     <!-- Creating account -->
-    <mapas-card v-if="!created">        
+    <mapas-card v-if="!created" class="no-title">        
         <template #content> 
 
             <?php
@@ -123,7 +123,7 @@ $this->import('
     </mapas-card>
     
     <!-- Account created -->            
-    <mapas-card v-if="created" class="card-created">
+    <mapas-card v-if="created" class="no-title card-created">
         <template #content>
             <div class="create-account__created grid-12">
                 <div class="col-12 title">
