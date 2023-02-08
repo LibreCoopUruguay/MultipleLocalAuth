@@ -120,45 +120,10 @@ app.component('login', {
         },
 
         throwErrors(errors) {
-            if (errors['captcha']) {
-                Object.keys(errors['captcha']).forEach(key => {
-                    messages.error(errors['captcha'][key]);
-                });
-            }
-            if (errors['login']) {
-                Object.keys(errors['login']).forEach(key => {
-                    messages.error(errors['login'][key]);
-                });
-            }
-            if (errors['email']) {
-                Object.keys(errors['email']).forEach(key => {
-                    messages.error(errors['email'][key]);
-                });
-            }
-            if (errors['confirmEmail']) {
-                Object.keys(errors['confirmEmail']).forEach(key => {
-                    messages.error(errors['confirmEmail'][key]);
-                });
-            }
-            if (errors['sendEmail']) {
-                Object.keys(errors['sendEmail']).forEach(key => {
-                    messages.error(errors['sendEmail'][key]);
-                });
-            }
-            if (errors['user']) {
-                Object.keys(errors['user']).forEach(key => {
-                    messages.error(errors['user'][key]);
-                });
-            }
-            if (errors['password']) {
-                Object.keys(errors['password']).forEach(key => {
-                    messages.error(errors['password'][key]);
-                });
-            }
-            if (errors['token']) {
-                Object.keys(errors['token']).forEach(key => {
-                    messages.error(errors['token'][key]);
-                });
+            for (let key in errors) {
+                for (let val of errors[key]) {
+                    messages.error(val);
+                }
             }
         },
     },
