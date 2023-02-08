@@ -726,45 +726,44 @@ class Provider extends \MapasCulturais\AuthProvider {
     
     function dorecover() {
         $app = App::i();
-        $email = filter_var($app->request->post('email'), FILTER_SANITIZE_STRING);
-        $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
-        $pass_v = filter_var($app->request->post('confirm_password'), FILTER_SANITIZE_STRING);
-        $user = $app->repo("User")->findOneBy(array('email' => $email));
-        $token = filter_var($app->request->post('token'), FILTER_SANITIZE_STRING);
 
         $hasErrors = false;
         $errors = [
-            'user' => [],
             'password' => [],
             'token' => []
         ];
 
-        if (!$user) {
-            array_push($errors['user'], i::__('Email inválido.', 'multipleLocal'));
-            $hasErrors = true;
-        } else {
-            $savedToken = $user->getMetadata('recover_token');
-        
-            if (!$savedToken || $savedToken != $token) {
-                array_push($errors['user'], i::__('Email ou token inválidos.', 'multipleLocal'));
-                $hasErrors = true;
-            }
+        $token = filter_var($app->request->post('token'), FILTER_SANITIZE_STRING);
+        $q = new \MapasCulturais\ApiQuery('MapasCulturais\\Entities\\User', ['recover_token' => 'EQ('.$token.')', '@select' => 'id, email, recover_token_time']);
+        $result = $q->getFindOneResult();
 
-            $recover_token_time = $user->getMetadata('recover_token_time');
+        if (!$result) {
+            array_push($errors['token'], i::__('Token não encontrado.', 'multipleLocal'));
+            $hasErrors = true;
+        }
+
+        $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
+        $pass_v = filter_var($app->request->post('confirm_password'), FILTER_SANITIZE_STRING);
+        $user = $app->repo("User")->find($result['id']);
+    
+        // check if token is still valid
+        $now = time();
+        $diff = $now - intval($result['recover_token_time']);
         
-            // check if token is still valid
-            $now = time();
-            $diff = $now - intval($recover_token_time);
-            
-            if ($diff > 60 * 60 * 24 * 30) {
-                array_push($errors['token'], i::__('Este token expirou.', 'multipleLocal'));
-                $hasErrors = true;
-            }
-            
-            $errors['password'] = $this->verifyPassowrds($pass, $pass_v);
-            if (!empty($errors['password'])) {
-                $hasErrors = true;
-            }
+        if ($diff > HOUR_IN_SECONDS) {            
+            $user->recover_token = null;
+            $user->recover_token_time = null;
+            $app->disableAccessControl();
+            $user->save(true); 
+            $app->enableAccessControl();
+
+            array_push($errors['token'], i::__('Este token expirou.', 'multipleLocal'));
+            $hasErrors = true;
+        }
+        
+        $errors['password'] = $this->verifyPassowrds($pass, $pass_v);
+        if (!empty($errors['password'])) {
+            $hasErrors = true;
         }
 
         if (!$hasErrors) {
@@ -772,6 +771,9 @@ class Provider extends \MapasCulturais\AuthProvider {
             $user->setMetadata(self::$passMetaName, $this->hashPassword($pass));
             $user->setMetadata(Provider::$accountIsActiveMetadata, '1');
             
+            $user->recover_token = null;
+            $user->recover_token_time = null;
+
             $app->disableAccessControl();
             $user->save(true); 
             $app->enableAccessControl();
@@ -829,7 +831,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             
             
             // build recover URL
-            $url = $app->createUrl('auth', 'index') . '?e=' . $user->email . '&t=' . $token;
+            $url = $app->createUrl('auth', 'index') . '?t=' . $token;
             
             $site_name = $app->view->dict('site: name', false);
             

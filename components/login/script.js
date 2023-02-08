@@ -24,7 +24,6 @@ app.component('login', {
             recoveryEmailSent: false,
             
             recoveryMode: $MAPAS.recoveryMode?.status ?? '',
-            recoveryEmail: $MAPAS.recoveryMode?.email ?? '',
             recoveryToken: $MAPAS.recoveryMode?.token ?? '',
         }
     },
@@ -92,7 +91,6 @@ app.component('login', {
             let api = new API();
                
             let dataPost = {
-                'email': this.recoveryEmail,
                 'password': this.password,
                 'confirm_password': this.confirmPassword,
                 'token': this.recoveryToken

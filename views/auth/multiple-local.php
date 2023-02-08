@@ -7,9 +7,8 @@ $app = App::i();
 
 $configs = json_encode($config);
 
-if (isset($_GET['e']) && $_GET['e'] != '' && isset($_GET['t']) && $_GET['t'] != '') {
+if (trim($_GET['t'] ?? '')) {
     $this->jsObject['recoveryMode']['status'] = true;
-    $this->jsObject['recoveryMode']['email'] = $_GET['e'];
     $this->jsObject['recoveryMode']['token'] = $_GET['t']; 
 }
 
