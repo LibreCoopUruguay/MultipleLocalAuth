@@ -87,10 +87,8 @@ $this->import('
                     <div class="col-12 header">
                         <label class="header__title"> <?= i::__('Alteração de senha') ?> </label>
                         <mc-icon name="circle-checked" class="header__icon"></mc-icon>
-                        <label class="header__label"> <?= i::__('Sua conta foi criada com sucesso!') ?> </label>
+                        <label class="header__label"> <?= i::__('Enviamos as instruções de alteração de senha para seu e-mail.') ?> </label>
                     </div>
-
-                    <p v-if="emailSent" class="emailSent col-12"> <?= i::__('Acesse seu e-mail de cadastro para confirmar a criação da sua conta no Mapas Culturais.') ?> </p>
 
                     <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('Não recebi o e-mail') ?> </button>
                     <a @click="recoveryEmailSent = false" class="col-12 button button--secondarylight button--large button--md"> <?= i::__('Voltar') ?> </a>
