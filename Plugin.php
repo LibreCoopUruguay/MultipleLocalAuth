@@ -27,6 +27,12 @@ class Plugin extends \MapasCulturais\Plugin {
             $app->view->enqueueStyle('app-v2', 'multipleLocal-v2', 'css/app.css');
         });
 
+        $app->hook('GET(auth.<<index|register>>)', function() use($app) {
+            if (env('GOOGLE_RECAPTCHA_SITEKEY', false)) {
+                $app->view->enqueueScript('app-v2', 'multipleLocal-v2', 'https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit');
+            }
+        });
+
         if (php_sapi_name() == "cli") {
             if (!isset($_SERVER['HTTP_HOST'])) {
                 $_SERVER['HTTP_HOST'] = 'localhost';
