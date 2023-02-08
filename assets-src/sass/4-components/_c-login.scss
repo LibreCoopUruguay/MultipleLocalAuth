@@ -1,60 +1,56 @@
-.controller-auth {
-    background-color: var(--mc-gray-100);
+.login {
+    max-width: 602px;
+    margin: 32px auto;
+    padding: 0 16px;
 
-    .login {
-        max-width: 570px;
-        margin: 32px auto;
-        padding: 0 16px;
-
-        .mapas-card {
-            padding: 24px 48px;
+    .field {
+        .recover {
+            color: var(--mc-primary-500);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 19px;
+            text-align: right;
+            text-decoration: none;
         }
+    }
 
-        .field {
-            .multiple-recover-link {
-                font-weight: 600;
-                font-size: 14px;
-                line-height: 19px;
-                text-align: right;
-                color: var(--mc-primary-500);
-                text-decoration: none;
-            }
-        }
+    .g-recaptcha {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        .g-recaptcha {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .divider {
+        width: 100%;
+        border-bottom: 1px solid #BBBBBB;
+    }
 
-        .divider {
-            width: 100%;
-            border-bottom: 1px solid #BBBBBB;
-        }
-
+    &__action {
         .social-login {
+            align-items: center;
             display: flex;
             flex-direction: column;
             gap: 16px;
-            align-items: center;
-
+    
             &--button {
-                text-align: center;
                 display: block;
+                text-align: center;
     
                 .img {
-                    width: 50px;
+                    align-items: center;
+                    display: flex;
                     float: left;
                     text-align: left;
-                    display: flex;
-                    align-items: center;
+                    width: 50px;
     
                     img {
-                        height: 16px;    
+                        height: 16px;
                     }
-
+    
                     @media (max-width: 500px) {
                         width: 39px;
+    
                         img {
                             height: 14px;
                         }
@@ -67,25 +63,65 @@
                 }
     
                 &.govbr {
-                    border: var(--mc-border-hairline) #1351B4;
                     background-color: #1351B4;
+                    border: var(--mc-border-hairline) #1351B4;
                     color: var(--mc-high-500);
                 }
-
-                @media (max-width: 380px)  {
-                    &.google,
-                    &.govbr {
+    
+                @media (max-width: 380px) {
+                    &.google, &.govbr {
                         font-size: 13px;
                     }
                 }
-            }
+            }        
+        }
 
-            .create {
+        .create {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+    }
+
+    &__recovery {
+        &--request {
+            .header {
                 display: flex;
                 flex-direction: column;
-                width: 100%;
-                gap: 8px;
                 align-items: center;
+                gap: 8px;
+
+                &__title {
+                    font-weight: 700;
+                    font-size: 24px;
+                    line-height: 28px;
+                }
+
+                &__icon {
+                    color: green;
+                    font-size: 96px;
+                }
+
+                &__label {
+                    font-weight: 400;
+                    font-size: 16px;
+                    line-height: 22px;
+                    text-align: center;
+                }
+            }
+        }
+
+        &--action {
+            .password {                
+                &-rules {
+                    font-size: 14px;
+                    line-height: 19px;
+                    strong {
+                        color: var(--mc-danger-500);
+                    }
+                }
             }
         }
     }
