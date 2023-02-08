@@ -78,7 +78,7 @@ $this->import('
                     <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('Continuar') ?> </button>
                 </form>
                 
-                <div class="divider col-12"></div>
+                <div v-if="configs.strategies.Google.visible || configs.strategies.govbr.visible" class="divider col-12"></div>
 
                 <div class="social-login col-12">
                     <a v-if="configs.strategies.govbr.visible" class="social-login--button button button--icon button--large button--md govbr" href="<?php echo $app->createUrl('auth', 'govbr') ?>">                                
@@ -115,7 +115,7 @@ $this->import('
                 <entity-field :entity="agent" classes="col-12" hide-required prop="shortDescription" label="<?php i::esc_attr_e("Descrição")?>"></entity-field>
                 <entity-terms :entity="agent" classes="col-12" :editable="true" :classes="areaClasses" taxonomy='area' title="<?php i::esc_attr_e("Selecione pelo menos uma área de atuação") ?>"></entity-terms>                
 
-                <VueRecaptcha v-if="configs['google-recaptcha-sitekey']" :sitekey="configs['google-recaptcha-sitekey']" @verify="verifyCaptcha" class="g-recaptcha col-12"></VueRecaptcha>
+                <VueRecaptcha v-if="configs['google-recaptcha-sitekey']" :sitekey="configs['google-recaptcha-sitekey']" @verify="verifyCaptcha" @expired="expiredCaptcha" @render="expiredCaptcha" @render="expiredCaptcha" class="g-recaptcha col-12"></VueRecaptcha>
 
                 <button class="col-12 button button--primary button--large button--md" @click="register()"> <?= i::__('Criar conta') ?></button>
             </div>
