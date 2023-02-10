@@ -22,6 +22,70 @@
 
 /* ----- 4: COMPONENTS ------- */
 
+.change-password {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 16px 0 13px;
+}
+
+.change-password__title {
+  line-height: 19px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.change-password__password {
+  align-items: center;
+  display: flex;
+  gap: 18px;
+}
+
+.change-password__password--fakePassword {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+}
+
+.change-password__password--fakePassword .dot {
+  background: black;
+  border-radius: 50%;
+  height: 8px;
+  width: 8px;
+}
+
+.change-password__password--edit {
+  align-items: center;
+  color: var(--mc-helper-500);
+  cursor: pointer;
+  display: flex;
+  gap: 6px;
+}
+
+.change-password__password--edit .iconify {
+  font-size: 15px;
+}
+
+.change-password__password--edit .label {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 19px;
+}
+
+.change-password__modal .modal-content {
+  max-width: 570px;
+}
+
+.change-password__modal .modal-content .password-rules {
+  font-size: 14px;
+  line-height: 19px;
+}
+
+.change-password__modal .modal-content .password-rules strong {
+  color: var(--mc-secondary-500);
+}
+
 .create-account {
   max-width: 602px;
   margin: 32px auto;
@@ -417,4 +481,39 @@
 }
 
 /* ----- 5: AREAS ------- */
+
+.confirm-email {
+  max-width: 602px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+.confirm-email .mapas-card {
+  margin: 80px 0;
+}
+
+.confirm-email .mapas-card .header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.confirm-email .mapas-card .header__title {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 28px;
+}
+
+.confirm-email .mapas-card .header__icon {
+  color: green;
+  font-size: 96px;
+}
+
+.confirm-email .mapas-card .header__label {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  text-align: center;
+}
 
