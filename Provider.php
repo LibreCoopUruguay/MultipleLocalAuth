@@ -401,38 +401,29 @@ class Provider extends \MapasCulturais\AuthProvider {
              * @var \MapasCulturais\Controller $this
              */
             
-            $requestRecover = $app->auth->doRecover();
+            $doRecover = $app->auth->doRecover();
 
-            if ($requestRecover['success']) {
+            if ($doRecover['success']) {
                 $this->json(['error' => false]);
             } else {
-                $this->errorJson($requestRecover['errors'], 200);
+                $this->errorJson($doRecover['errors'], 200);
             }
         });
 
-        
-        
-        /* $app->hook('POST(auth.recover)', function () use($app){        
-            $app->auth->recover();
-            $app->auth->renderForm($this);
-        
-        }); */
-        
-        $app->hook('GET(auth.recover-resetform)', function () use($app){        
-            $app->auth->renderRecoverForm($this);        
-        });
-        
-        $app->hook('POST(auth.recover-resetform)', function () use($app){
-        
-            if ($app->auth->dorecover()) {
-                $this->error_msg = i::__('Senha alterada com sucesso. Agora você pode fazer login', 'multipleLocal');
-                $app->auth->renderForm($this);
-            } else {
-                $app->auth->renderRecoverForm($this);
-            }
+        $app->hook('POST(auth.changepassword)', function () use($app){
+            /**
+             * @var \MapasCulturais\Controller $this
+             */
             
-        
+            $changePassword = $app->auth->changePassword();
+
+            if ($changePassword['success']) {
+                $this->json(['error' => false]);
+            } else {
+                $this->errorJson($changePassword['errors'], 200);
+            }
         });
+    
         
         $app->hook('panel.menu:after', function () use($app){
         
@@ -871,18 +862,60 @@ class Provider extends \MapasCulturais\AuthProvider {
                 return [ 
                     'success' => true
                 ];
-                // set feedback
-                // $this->feedback_success = true;
-                // $this->feedback_msg = i::__('Sucesso: Um e-mail foi enviado com instruções para recuperação da senha.', 'multipleLocal');
             } else {
                 array_push($errors['sendEmail'], i::__('Erro ao enviar email de recuperação. Entre em contato com os administradors do site.', 'multipleLocal'));
                 return [ 
                     'success' => false,
                     'errors' => $errors
                 ];
-                // $this->feedback_success = false;
-                // $this->feedback_msg = i::__('Erro ao enviar email de recuperação. Entre em contato com os administradors do site.', 'multipleLocal');
             }
+        } else {
+            return [ 
+                'success' => false,
+                'errors' => $errors
+            ];
+        }
+    }
+
+    function changePassword() {
+        $app = App::i();        
+        $user = $app->user;
+
+        $currentPassword    = filter_var($app->request->post('current_password'), FILTER_SANITIZE_STRING);
+        $newPassword        = filter_var($app->request->post('new_password'), FILTER_SANITIZE_STRING);
+        $confirmNewPassword = filter_var($app->request->post('confirm_new_password'), FILTER_SANITIZE_STRING);
+        
+        $hasErrors = false;
+        $errors = [
+            'password' => [],
+        ];
+
+        if ($newPassword != '') { 
+            $meta = self::$passMetaName;
+            $currentSavedPassword = $user->getMetadata($meta);
+
+            if (password_verify($currentPassword, $currentSavedPassword)) {                
+                $errors['password'] = $this->verifyPassowrds($newPassword, $confirmNewPassword);
+                if (!empty($errors['password'])) {
+                    $hasErrors = true;
+                } else {
+                    $user->setMetadata($meta, $app->auth->hashPassword($newPassword));
+                }                
+            } else {
+                array_push($errors['password'], i::__('Senha atual inválida.', 'multipleLocal'));
+                $hasErrors = true;
+            }  
+
+        } else {
+            array_push($errors['password'], i::__('Insira sua nova senha.', 'multipleLocal'));
+            $hasErrors = true;
+        }
+        
+        if (!$hasErrors) {
+            $user->save(true);
+            return [ 
+                'success' => true
+            ];
         } else {
             return [ 
                 'success' => false,
