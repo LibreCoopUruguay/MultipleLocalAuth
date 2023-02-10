@@ -33,6 +33,11 @@ class Plugin extends \MapasCulturais\Plugin {
             }
         });
 
+        $app->hook('template(panel.my-account.user-mail):end ', function() {
+            /** @var \MapasCulturais\Theme $this */
+            $this->part('password/change-password');
+        });
+
         if (php_sapi_name() == "cli") {
             if (!isset($_SERVER['HTTP_HOST'])) {
                 $_SERVER['HTTP_HOST'] = 'localhost';
