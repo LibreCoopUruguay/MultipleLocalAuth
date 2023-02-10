@@ -651,58 +651,6 @@ class Provider extends \MapasCulturais\AuthProvider {
     }
     
     
-    // MY ACCOUNT
-    
-    function processMyAccount() {
-        $app = App::i();
-        
-        $email = filter_var($app->request->post('email'), FILTER_SANITIZE_EMAIL);
-        $user = $app->user;
-        $emailChanged = false;
-        
-        if ($user->email != $email) { // we are changing the email
-            
-            if (Validator::email()->validate($email)) {
-                $user->email = $email;
-                $this->setFeedback(i::__('Email alterado com sucesso', 'multipleLocal'), true);
-                $emailChanged = true;
-            } else {
-                $this->setFeedback(i::__('Informe um email válido', 'multipleLocal'));
-            }
-            
-        }
-        
-        if ($app->request->post('new_pass') != '') { // We are changing the password
-            
-            $curr_pass =filter_var($app->request->post('current_pass'), FILTER_SANITIZE_STRING);
-            $new_pass = filter_var($app->request->post('new_pass'), FILTER_SANITIZE_STRING);
-            $confirm_new_pass = filter_var($app->request->post('confirm_new_pass'), FILTER_SANITIZE_STRING);
-            $meta = self::$passMetaName;
-            $curr_saved_pass = $user->getMetadata($meta);
-            
-            if (password_verify($curr_pass, $curr_saved_pass)) {
-                
-                if ($this->verifyPassowrds($new_pass, $confirm_new_pass)) {
-                    $user->setMetadata($meta, $app->auth->hashPassword($new_pass));
-                    $feedback_msg = $emailChanged ? i::__('Email e senha alterados com sucecsso', 'multipleLocal') : i::__('Senha alterada com sucesso', 'multipleLocal');
-                    $this->setFeedback($feedback_msg, true);
-                } else {
-                    return false; // verifyPassowrd setted feedback
-                }
-                
-            } else {
-                return $this->setFeedback(i::__('Senha inválida', 'multipleLocal'));
-            }
-            
-        }
-        
-        $user->save(true);
-        
-        return true;
-        
-    }
-    
-    
     // RECOVER PASSWORD
     
     function renderRecoverForm($theme) {
