@@ -39,15 +39,15 @@ $this->import('
                     <div class="divider col-12"></div>
 
                     <div class="social-login col-12">
-                        <a v-if="configs.strategies.govbr.visible" class="social-login--button button button--icon button--large button--md govbr" href="<?php echo $app->createUrl('auth', 'govbr') ?>">                                
+                        <a v-if="configs.strategies.govbr?.visible" class="social-login--button button button--icon button--large button--md govbr" href="<?php echo $app->createUrl('auth', 'govbr') ?>">                                
                             <div class="img"> <img height="16" class="br-sign-in-img" src="<?php $this->asset('img/govbr-white.png'); ?>" /> </div>                                
                             <?= i::__('Entrar com Gov.br') ?>                            
                         </a>
-                        <a v-if="configs.strategies.Google.visible" class="social-login--button button button--icon button--large button--md google" href="<?php echo $app->createUrl('auth', 'google') ?>">                                
+                        <a v-if="configs.strategies.Google?.visible" class="social-login--button button button--icon button--large button--md google" href="<?php echo $app->createUrl('auth', 'google') ?>">                                
                             <div class="img"> <img height="16" src="<?php $this->asset('img/g.png'); ?>" /> </div>                                
                             <?= i::__('Entrar com Google') ?>
                         </a>
-                        <h1 v-if="configs.strategies.Google.visible || configs.strategies.govbr.visible" class="col-12">OU</h1>
+                        <h1 v-if="configs.strategies.Google?.visible || configs.strategies.govbr?.visible" class="col-12">OU</h1>
                         <div class="create col-12">
                             <small> <?= i::__('Crie sua conta para começar a usar o Mapas agora mesmo.') ?> </small>    
                             <a class="col-12 button button--primary button--large button--md" href="<?php echo $app->createUrl('auth', 'register') ?>"> 
