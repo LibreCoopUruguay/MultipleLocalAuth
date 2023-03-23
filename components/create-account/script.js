@@ -12,11 +12,12 @@ app.component('create-account', {
     },
 
     data() {
+        const globalState = useGlobalState();
         const terms = $MAPAS.config.LGPD;
         const termsQtd = Object.entries(terms).length;
 
         return {
-            actualStep: 1,
+            actualStep: globalState['stepper'] ?? 0,
             totalSteps: termsQtd + 2,
             terms,
             passwordRules: {},
@@ -61,16 +62,16 @@ app.component('create-account', {
     },
 
     computed: {
-
-        step () {
-            if (this.actualStep >= this.totalSteps) {
-                this.actualStep = this.totalSteps;
-            } 
-
-            if (this.actualStep <= 1) {
-                this.actualStep = 1;
+        arraySteps() {
+            let steps = Object.entries(this.terms).length + 2;
+            let totalSteps = [];
+            for (let i = 0; i < steps; i++) {
+                totalSteps.push(i);
             }
+            return totalSteps;
+        },
 
+        step() {
             return this.actualStep;
         },
 
@@ -79,10 +80,10 @@ app.component('create-account', {
         },
 
         cpfMask() {
-            this.cpf = this.cpf.replace(/\D/g,"")
-            this.cpf = this.cpf.replace(/(\d{3})(\d)/,"$1.$2")
-            this.cpf = this.cpf.replace(/(\d{3})(\d)/,"$1.$2")
-            this.cpf = this.cpf.replace(/(\d{3})(\d{1,2})$/,"$1-$2")
+            this.cpf = this.cpf.replace(/\D/g, "")
+            this.cpf = this.cpf.replace(/(\d{3})(\d)/, "$1.$2")
+            this.cpf = this.cpf.replace(/(\d{3})(\d)/, "$1.$2")
+            this.cpf = this.cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2")
         },
 
         passwordStrongness() {
@@ -136,7 +137,7 @@ app.component('create-account', {
                 }
                 if (strongness >= 90 && strongness <= 100) {
                     this.strongnessClass = 'forte';
-                }   
+                }
 
                 return currentPercent.toFixed(0);
             } else {
@@ -155,36 +156,47 @@ app.component('create-account', {
 
         releaseAcceptButton() {
             setTimeout(() => {
-                let termArea = this.$refs.terms[this.step - 2];
+                let termArea = this.$refs.terms[this.step - 1];
                 /* Em caso do termo ser curto o suficiente para não aparecer o scroll */
                 if (termArea && termArea.offsetHeight < 600) {
-                    document.querySelector("#acceptTerm" + (this.step - 2)).classList.remove('disabled');
+                    document.querySelector("#acceptTerm" + (this.step - 1)).classList.remove('disabled');
                 }
             }, 1000);
         },
 
         async nextStep() {
-            if (this.step <= this.totalSteps) {          
-                
-                if(this.actualStep == 1) {                    
-                    if (await this.validateFields()) {
-                        ++this.actualStep;
-                    }                    
-                } else {
-                    if (this.step == this.totalSteps - 1) {
-                        this.startAgent();
-                    }
-                    ++this.actualStep;
-                    this.releaseAcceptButton();
-                }
-
-            }
+            this.goToStep(this.actualStep + 1);
         },
 
         previousStep() {
-            if (this.step > 1) {
-                --this.actualStep;
+            this.goToStep(this.actualStep - 1);
+        },
+
+        async goToStep(step) {
+            const globalState = useGlobalState();
+
+            if (this.actualStep == 0) {
+                if (await this.validateFields()) {
+                    this.actualStep = step;
+                    if (step == this.totalSteps - 1) {
+                        this.startAgent();
+                    }
+                }
+            } else {
+                if (step == this.totalSteps - 1) {
+                    this.startAgent();
+                }
+                this.actualStep = step;
+                this.releaseAcceptButton();
             }
+
+            if (this.actualStep >= this.totalSteps) {
+                this.actualStep = this.totalSteps;
+            } else if (this.actualStep <= 0) {
+                this.actualStep = 0;
+            }
+
+            globalState['stepper'] = this.actualStep;
         },
 
         /* Terms */
@@ -196,7 +208,7 @@ app.component('create-account', {
         async register() {
             let api = new API();
 
-            if (this.validateAgent()) {                
+            if (this.validateAgent()) {
                 let dataPost = {
                     'name': this.agent.name,
                     'email': this.email,
@@ -212,7 +224,7 @@ app.component('create-account', {
                     },
                 }
 
-                await api.POST($MAPAS.baseURL+"autenticacao/register", dataPost).then(response => response.json().then(dataReturn => {
+                await api.POST($MAPAS.baseURL + "autenticacao/register", dataPost).then(response => response.json().then(dataReturn => {
                     if (dataReturn.error) {
                         this.throwErrors(dataReturn.data);
                     } else {
@@ -235,9 +247,9 @@ app.component('create-account', {
             this.confirmPassword = '';
             this.agent = null;
         },
-        
-        /* Validações */    
-        
+
+        /* Validações */
+
         async verifyCaptcha(response) {
             this.recaptchaResponse = response;
         },
@@ -256,7 +268,7 @@ app.component('create-account', {
                 'confirm_password': this.confirmPassword,
                 'g-recaptcha-response': this.recaptchaResponse,
             }
-            await api.POST($MAPAS.baseURL+"autenticacao/validate", data).then(response => response.json().then(dataReturn => {
+            await api.POST($MAPAS.baseURL + "autenticacao/validate", data).then(response => response.json().then(dataReturn => {
                 if (dataReturn.error) {
                     this.throwErrors(dataReturn.data);
                     success = false;
@@ -270,29 +282,40 @@ app.component('create-account', {
 
         throwErrors(errors) {
             for (let key in errors) {
-                for (let val of errors[key]) {
-                    if (val instanceof Array) {
-                        for (let _val of val) {
-                            messages.error(val);
-                        }
-                    } else {
+                if (errors[key] instanceof Array) {
+                    for (let val of errors[key]) {
                         messages.error(val);
+                    }
+                }
+                if (!(errors[key] instanceof Array)) {
+                    for (let _key in errors[key]) {
+                        if (errors[key][_key] instanceof Array) {
+                            for (let _val of errors[key][_key]) {
+                                messages.error(_val);
+                            }
+                        } else {
+                            messages.error(errors[key][_key]);
+                        }
                     }
                 }
             }
         },
 
         validateAgent() {
+            let errors = {
+                'agent': [],
+            };
             if (!this.agent.name) {
-                messages.error(__('Nome obrigatório', 'create-account'));
-                return false;
+                errors.agent.push(__('Nome obrigatório', 'create-account'));
             }
             if (!this.agent.shortDescription) {
-                messages.error(__('Descrição obrigatória', 'create-account'));
-                return false;
+                errors.agent.push(__('Descrição obrigatória', 'create-account'));
             }
             if (this.agent.terms.area.length == 0) {
-                messages.error(__('Área de atuação obrigatória', 'create-account'));
+                errors.agent.push(__('Área de atuação obrigatória', 'create-account'));
+            }
+            if (errors.agent.length > 0) {
+                this.throwErrors(errors);
                 return false;
             }
             return true;

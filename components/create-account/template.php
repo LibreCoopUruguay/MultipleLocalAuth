@@ -12,6 +12,7 @@ $this->import('
     entity-terms
     mapas-card
     mc-icon
+    stepper
 ');
 ?>
 
@@ -25,15 +26,12 @@ $this->import('
     <!-- Creating account -->
     <mapas-card v-if="!created" class="no-title">        
         <template #content> 
-
-            <?php
-            /**
-             * @todo Criar componente timeline
-             */
-            ?>
+            <div class="create-account__timeline">
+                <stepper :steps="arraySteps" disable-navigation no-labels></stepper>
+            </div>
 
             <!-- First step -->
-            <div v-if="step==1" class="create-account__step grid-12">
+            <div v-if="step==0" class="create-account__step grid-12">
                 <label class="title col-12"><?= i::__('Crie sua conta no Mapas') ?></label>
 
                 <form class="col-12 grid-12" @submit.prevent="nextStep();">
@@ -93,7 +91,7 @@ $this->import('
             </div>
 
             <!-- Terms steps -->
-            <div v-show="step==index+2" v-for="(value, name, index) in terms" class="create-account__step grid-12">
+            <div v-show="step==index+1" v-for="(value, name, index) in terms" class="create-account__step grid-12">
                 <label class="title col-12"> {{value.title}} </label>
                 <div class="term col-12" v-html="value.text" :id="'term'+index" ref="terms"></div>
                 <div class="divider col-12"></div>                
@@ -102,7 +100,7 @@ $this->import('
             </div>
 
             <!-- Last step -->
-            <div v-if="step==totalSteps" class="create-account__step grid-12">
+            <div v-if="step==totalSteps-1" class="create-account__step grid-12">
                 <label class="title col-12">
                     <?= i::__('Criação de Agente') ?>
                     <div class="subtitle col-12">
@@ -115,7 +113,7 @@ $this->import('
                 <entity-field :entity="agent" classes="col-12" hide-required prop="shortDescription" label="<?php i::esc_attr_e("Descrição")?>"></entity-field>
                 <entity-terms :entity="agent" classes="col-12" :editable="true" :classes="areaClasses" taxonomy='area' title="<?php i::esc_attr_e("Selecione pelo menos uma área de atuação") ?>"></entity-terms>                
 
-                <VueRecaptcha v-if="configs['google-recaptcha-sitekey']" :sitekey="configs['google-recaptcha-sitekey']" @verify="verifyCaptcha" @expired="expiredCaptcha" @render="expiredCaptcha" @render="expiredCaptcha" class="g-recaptcha col-12"></VueRecaptcha>
+                <VueRecaptcha v-if="configs['google-recaptcha-sitekey']" :sitekey="configs['google-recaptcha-sitekey']" @verify="verifyCaptcha" @expired="expiredCaptcha" @render="expiredCaptcha" class="g-recaptcha col-12"></VueRecaptcha>
 
                 <button class="col-12 button button--primary button--large button--md" @click="register()"> <?= i::__('Criar conta') ?></button>
             </div>
