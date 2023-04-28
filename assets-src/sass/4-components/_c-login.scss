@@ -83,6 +83,24 @@
             gap: 8px;
             width: 100%;
         }
+
+        .password {
+            position: relative;
+            
+            .seePassword {
+                background: url('https://api.iconify.design/carbon/view-filled.svg');
+                background-repeat: no-repeat;
+                background-size: 22.5px;
+                background-position-x: center;
+                background-position-y: center;
+                content: "";
+                height: 48px;
+                position: absolute;
+                right: 0;
+                top: 27px;
+                width: 48px;
+            }
+        }
     }
 
     &__recovery {
@@ -114,10 +132,11 @@
         }
 
         &--action {
-            .password {                
+            .password {
                 &-rules {
                     font-size: 14px;
                     line-height: 19px;
+
                     strong {
                         color: var(--mc-danger-500);
                     }

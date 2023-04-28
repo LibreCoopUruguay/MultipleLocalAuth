@@ -28,10 +28,11 @@ $this->import('
                         <label for="email"> <?= i::__('E-mail ou CPF') ?> </label>
                         <input type="text" name="email" id="email" v-model="email" autocomplete="off" />
                     </div>
-                    <div class="field col-12">
+                    <div class="field col-12 password">
                         <label for="password"> <?= i::__('Senha') ?> </label>
                         <input type="password" name="password" id="password" v-model="password" autocomplete="off" />
                         <a id="multiple-login-recover" class="recover" @click="recoveryRequest = true"> <?= i::__('Esqueci minha senha') ?> </a>
+                        <div class="seePassword" @click="togglePassword('password', $event)"></div>
                     </div>                    
                     <VueRecaptcha v-if="configs['google-recaptcha-sitekey']" :sitekey="configs['google-recaptcha-sitekey']" @verify="verifyCaptcha" @expired="expiredCaptcha" @render="expiredCaptcha" class="g-recaptcha col-12"></VueRecaptcha>
                     <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('Entrar') ?> </button>

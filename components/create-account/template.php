@@ -56,6 +56,7 @@ $this->import('
                     <div class="field col-12 password">
                         <label for="pwd"> <?= i::__('Senha'); ?> </label>
                         <input autocomplete="off" id="pwd" type="password" name="password" v-model="password" />
+                        <div class="seePassword" @click="togglePassword('pwd', $event)"></div>
                         <span class="password-rules">
                             <strong><?= i::__('A senha deve ter:') ?></strong>
                             {{passwordRules.minimumPasswordLength}}<?= i::__(' caracteres, um número, um caractere especial (! @ # $ & *), pelo menos uma letra maiúscula e uma minúscula.') ?>
@@ -66,6 +67,7 @@ $this->import('
                             <?= i::__('Confirmar senha'); ?>
                         </label>
                         <input autocomplete="off" id="pwd-check" type="password" name="confirm_password" v-model="confirmPassword" />
+                        <div class="seePassword" @click="togglePassword('pwd-check', $event)"></div>
                     </div>                    
                     <div class="progressbar col-12">
                         <span> <?= i::__('Força da senha'); ?> </span>

@@ -26,6 +26,7 @@
     &__timeline {
         margin-bottom: 24px;
         width: 100%;
+        overflow: auto;
     }
 
     &__step {
@@ -57,11 +58,26 @@
             }
         }
 
-        .password {                
+        .password {     
+            position: relative;           
             &-rules {
                 font-size: 14px;
                 line-height: 19px;
                 color: var(--mc-secondary-500);
+            }
+
+            .seePassword {
+                background: url('https://api.iconify.design/carbon/view-filled.svg');
+                background-repeat: no-repeat;
+                background-size: 22.5px;
+                background-position-x: center;
+                background-position-y: center;
+                content: "";
+                height: 48px;
+                position: absolute;
+                right: 0;
+                top: 27px;
+                width: 48px;
             }
         }
 

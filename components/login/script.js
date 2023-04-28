@@ -124,5 +124,15 @@ app.component('login', {
                 }
             }
         },
+
+        togglePassword(id, event) {
+            if (document.getElementById(id).type == 'password') {
+                event.target.style.background = "url('https://api.iconify.design/carbon/view-off-filled.svg') no-repeat center center / 22.5px"
+                document.getElementById(id).type = 'text';
+            } else {
+                event.target.style.background = "url('https://api.iconify.design/carbon/view-filled.svg') no-repeat center center / 22.5px"
+                document.getElementById(id).type = 'password';
+            }
+        },
     },
 });
