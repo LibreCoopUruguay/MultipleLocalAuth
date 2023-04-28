@@ -76,14 +76,14 @@ $this->import('
                     <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('Continuar') ?> </button>
                 </form>
                 
-                <div v-if="configs.strategies.Google.visible || configs.strategies.govbr.visible" class="divider col-12"></div>
+                <div v-if="configs.strategies.Google?.visible || configs.strategies.govbr?.visible" class="divider col-12"></div>
 
                 <div class="social-login col-12">
-                    <a v-if="configs.strategies.govbr.visible" class="social-login--button button button--icon button--large button--md govbr" href="<?php echo $app->createUrl('auth', 'govbr') ?>">                                
+                    <a v-if="configs.strategies.govbr?.visible" class="social-login--button button button--icon button--large button--md govbr" href="<?php echo $app->createUrl('auth', 'govbr') ?>">                                
                         <div class="img"> <img height="16" class="br-sign-in-img" src="<?php $this->asset('img/govbr-white.png'); ?>" /> </div>                                
                         <?= i::__('Entrar com Gov.br') ?>                            
                     </a>                    
-                    <a v-if="configs.strategies.Google.visible" class="social-login--button button button--icon button--large button--md google" href="<?php echo $app->createUrl('auth', 'google') ?>">                                
+                    <a v-if="configs.strategies.Google?.visible" class="social-login--button button button--icon button--large button--md google" href="<?php echo $app->createUrl('auth', 'google') ?>">                                
                         <div class="img"> <img height="16" src="<?php $this->asset('img/g.png'); ?>" /> </div>                                
                         <?= i::__('Entrar com Google') ?>
                     </a>
@@ -111,7 +111,7 @@ $this->import('
                 
                 <entity-field :entity="agent" classes="col-12" hide-required label=<?php i::esc_attr_e("Nome")?> prop="name" fieldDescription="<?= i::__('As pessoas irão encontrar você por esse nome.') ?>"></entity-field>
                 <entity-field :entity="agent" classes="col-12" hide-required prop="shortDescription" label="<?php i::esc_attr_e("Descrição")?>"></entity-field>
-                <entity-terms :entity="agent" classes="col-12" :editable="true" :classes="areaClasses" taxonomy='area' title="<?php i::esc_attr_e("Selecione pelo menos uma área de atuação") ?>"></entity-terms>                
+                <entity-terms :entity="agent" classes="col-12" :editable="true" taxonomy='area' title="<?php i::esc_attr_e("Selecione pelo menos uma área de atuação") ?>"></entity-terms>                
 
                 <VueRecaptcha v-if="configs['google-recaptcha-sitekey']" :sitekey="configs['google-recaptcha-sitekey']" @verify="verifyCaptcha" @expired="expiredCaptcha" @render="expiredCaptcha" class="g-recaptcha col-12"></VueRecaptcha>
 
