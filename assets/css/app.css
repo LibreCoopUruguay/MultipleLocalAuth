@@ -115,6 +115,7 @@
 .create-account__timeline {
   margin-bottom: 24px;
   width: 100%;
+  overflow: auto;
 }
 
 .create-account__step .title {
@@ -145,10 +146,28 @@
   border: unset;
 }
 
+.create-account__step .password {
+  position: relative;
+}
+
 .create-account__step .password-rules {
   font-size: 14px;
   line-height: 19px;
   color: var(--mc-secondary-500);
+}
+
+.create-account__step .password .seePassword {
+  background: url("https://api.iconify.design/carbon/view-filled.svg");
+  background-repeat: no-repeat;
+  background-size: 22.5px;
+  background-position-x: center;
+  background-position-y: center;
+  content: "";
+  height: 48px;
+  position: absolute;
+  right: 0;
+  top: 27px;
+  width: 48px;
 }
 
 .create-account__step .progressbar {
@@ -389,6 +408,24 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
+}
+
+.login__action .password {
+  position: relative;
+}
+
+.login__action .password .seePassword {
+  background: url("https://api.iconify.design/carbon/view-filled.svg");
+  background-repeat: no-repeat;
+  background-size: 22.5px;
+  background-position-x: center;
+  background-position-y: center;
+  content: "";
+  height: 48px;
+  position: absolute;
+  right: 0;
+  top: 27px;
+  width: 48px;
 }
 
 .login__recovery--request .header {
