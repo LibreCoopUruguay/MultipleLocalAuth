@@ -1391,7 +1391,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $metadataFieldPhone = $this->getMetadataFieldPhone(); 
             $metadataFieldPhone = $this->getMetadataFieldPhone(); 
                 $metadataFieldPhone = $this->getMetadataFieldPhone(); 
-                $agent->setMetadata($metadataFieldPhone, $response['auth']['info']['phone_number']);
+                $agent->$metadataFieldPhone = $response['auth']['info']['phone_number'];
             }else{
                 $agent->name = '';
             }
@@ -1402,7 +1402,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();   
             $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();   
                 $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();   
-                $agent->setMetadata($metadataFieldCpf, $cpf);
+                $agent->$metadataFieldCpf =  $cpf;
             }
 
             $agent->status = $config['statusCreateAgent'];
