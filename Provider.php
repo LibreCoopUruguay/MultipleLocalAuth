@@ -1387,13 +1387,15 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $agent->name = $response['auth']['info']['name'];
             }elseif(isset($response['auth']['info']['first_name']) && isset($response['auth']['info']['last_name'])){
                 $agent->name = $response['auth']['info']['first_name'] . ' ' . $response['auth']['info']['last_name'];
-            }if(isset($response['auth']['info']['phone_number'])){
-                $metadataFieldPhone = $this->getMetadataFieldPhone(); 
-            $metadataFieldPhone = $this->getMetadataFieldPhone(); 
-                $metadataFieldPhone = $this->getMetadataFieldPhone(); 
-                $agent->$metadataFieldPhone = $response['auth']['info']['phone_number'];
             }else{
                 $agent->name = '';
+            }
+            
+            if(isset($response['auth']['info']['phone_number'])){
+                $metadataFieldPhone = $this->getMetadataFieldPhone(); 
+                $metadataFieldPhone = $this->getMetadataFieldPhone(); 
+                $metadataFieldPhone = $this->getMetadataFieldPhone(); 
+                $agent->$metadataFieldPhone = $response['auth']['info']['phone_number'];
             }
 
             //cpf
