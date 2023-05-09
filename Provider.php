@@ -993,9 +993,13 @@ class Provider extends \MapasCulturais\AuthProvider {
 
 
             if(count($active_agent_users) > 1) {
-                return $this->setFeedback(i::__('Você possui 2 ou mais agente com o mesmo CPF ! Por favor entre em contato com o suporte.', 'multipleLocal'));
+                return $this->setFeedback(i::__('Você possui 2 ou mais agentes com o mesmo CPF! Por favor entre em contato com o suporte.', 'multipleLocal'));
             }
             
+            if(count($active_agent_users) == 0){
+                return $this->setFeedback(i::__('Você possui 2 ou mais agentes inativos com o mesmo CPF! Por favor entre em contato com o suporte.', 'multipleLocal'));
+            }
+
             $user = $app->repo("User")->findOneBy(array('id' => $foundAgent[0]->owner->user->id));
 
             if($user->profile->id != $foundAgent[0]->owner->id) {
