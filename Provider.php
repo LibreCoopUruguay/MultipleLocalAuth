@@ -1438,6 +1438,13 @@ class Provider extends \MapasCulturais\AuthProvider {
             else{
                 $agent->name = '';
             }
+            
+            if(isset($response['auth']['info']['phone_number'])){
+                $metadataFieldPhone = $this->getMetadataFieldPhone(); 
+                $metadataFieldPhone = $this->getMetadataFieldPhone(); 
+                $metadataFieldPhone = $this->getMetadataFieldPhone(); 
+                $agent->$metadataFieldPhone = $response['auth']['info']['phone_number'];
+            }
 
             if(isset($response['auth']['agentData']['shortDescription'])){
                 $agent->shortDescription = $response['auth']['agentData']['shortDescription'];
@@ -1456,7 +1463,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             $cpf = (isset($response['auth']['info']['cpf']) && $response['auth']['info']['cpf'] != "") ? $this->mask($response['auth']['info']['cpf'],'###.###.###-##') : null;
             if(!empty($cpf)){
                 $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();   
-                $agent->setMetadata($metadataFieldCpf, $cpf);
+                $agent->$metadataFieldCpf =  $cpf;
             }
 
             $agent->status = $config['statusCreateAgent'];
