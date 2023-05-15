@@ -86,10 +86,28 @@
   color: var(--mc-secondary-500);
 }
 
+.mapas-breadcrumb li {
+  display: flex;
+  color: var(--mc-primary-500);
+}
+
+.mapas-breadcrumb li::before {
+  content: url("https://api.iconify.design/fe/arrow-left.svg?width=16&height=16");
+  height: 16px;
+  -webkit-margin-end: 5px;
+          margin-inline-end: 5px;
+  width: 16px;
+  color: var(--mc-primary-500);
+}
+
 .create-account {
   max-width: 602px;
   margin: 32px auto;
   padding: 0 16px;
+}
+
+.create-account .mapas-card {
+  padding: 24px;
 }
 
 .create-account .mapas-card.card-created {
@@ -98,6 +116,12 @@
 
 .create-account__title {
   margin: 35px 0;
+}
+
+@media (max-width: 760px) {
+  .create-account__title {
+    margin: 58px 0 35px;
+  }
 }
 
 .create-account__title label {
@@ -115,7 +139,27 @@
 .create-account__timeline {
   margin-bottom: 24px;
   width: 100%;
-  overflow: auto;
+}
+
+.create-account__timeline .stepper {
+  overflow: hidden;
+  margin: 0px -3.7%;
+  width: 108%;
+}
+
+@media (max-width: 560px) {
+  .create-account__timeline .stepper .step {
+    min-width: unset;
+  }
+
+  .create-account__timeline .stepper .step::before {
+    top: 16px;
+  }
+
+  .create-account__timeline .stepper .step .count {
+    width: 32px;
+    height: 32px;
+  }
 }
 
 .create-account__step .title {

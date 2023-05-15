@@ -1,9 +1,26 @@
+.mapas-breadcrumb {
+    li {
+        display: flex;
+        color: var(--mc-primary-500);
+
+        &::before {
+            content: url('https://api.iconify.design/fe/arrow-left.svg?width=16&height=16');
+            height: 16px;
+            margin-inline-end: 5px;
+            width: 16px;
+            color: var(--mc-primary-500);
+        }
+    }
+}
+
 .create-account {
     max-width: 602px;
     margin: 32px auto;
     padding: 0 16px;
 
     .mapas-card {
+        padding: 24px;
+        
         &.card-created {
             margin: 80px 0;
         }
@@ -11,11 +28,17 @@
     
     &__title {
         margin: 35px 0;
+
+        @media (max-width: 760px) {
+            margin: 58px 0 35px;
+        }
+
         label {
             font-weight: 700;
             font-size: 24px;
             line-height: 28px;
         }
+
         p {
             margin: 8px 0 0;
             font-size: 14px;
@@ -26,7 +49,29 @@
     &__timeline {
         margin-bottom: 24px;
         width: 100%;
-        overflow: auto;
+        
+        .stepper {
+            overflow: hidden;
+            margin: 0px -3.7%;
+            width: 108%;
+        }
+
+        @media (max-width: 560px) {
+            .stepper {
+                .step {
+                    min-width: unset;
+
+                    &::before {
+                        top: 16px;
+                    }
+                    
+                    .count {
+                        width: 32px;
+                        height: 32px;
+                    }
+                }
+            }
+        }
     }
 
     &__step {

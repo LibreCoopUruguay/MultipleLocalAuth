@@ -13,7 +13,7 @@ $this->import('
 ');
 
 $this->breadcrumb = [
-    ['label'=> i::__('Voltar para entrar na conta'), 'url' => $app->createUrl('auth')],
+    ['label'=> i::__('Voltar'), 'url' => $app->createUrl('auth')],
 ];
 ?>
 
