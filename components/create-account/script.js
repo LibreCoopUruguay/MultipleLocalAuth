@@ -239,13 +239,14 @@ app.component('create-account', {
 
         /* Cancel register */
         cancel() {
-            this.actualStep = 1;
             this.strongnessClass = 'fraco';
             this.email = '';
             this.cpf = '';
             this.password = '';
             this.confirmPassword = '';
             this.agent = null;
+            this.slugs = [];
+            this.goToStep(0);
         },
 
         /* Validações */

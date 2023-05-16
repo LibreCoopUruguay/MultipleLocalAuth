@@ -336,6 +336,30 @@
   border-radius: var(--mc-border-radius-pill);
 }
 
+@media (max-width: 500px) {
+  .create-account__step .term ol {
+    padding: 0;
+    margin-top: 16px;
+    padding-left: 16px;
+  }
+
+  .create-account__step .term ol:first-child {
+    margin-top: 0;
+  }
+
+  .create-account__step .term ol li {
+    margin-top: 16px;
+  }
+
+  .create-account__step .term ol li:first-child {
+    margin-top: 0;
+  }
+
+  .create-account__step .term ul {
+    padding-left: 25px;
+  }
+}
+
 .create-account__step .button--text {
   color: var(--mc-primary-500);
 }

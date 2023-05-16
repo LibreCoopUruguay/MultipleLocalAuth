@@ -246,6 +246,31 @@
                 background-color: #6C6C6C;
                 border-radius: var(--mc-border-radius-pill);
             }
+
+
+            @media (max-width: 500px) {
+                ol {
+                    padding: 0;
+                    margin-top: 16px;
+                    padding-left: 16px;
+
+                    &:first-child {
+                        margin-top: 0;
+                    }
+
+                    li {
+                        margin-top: 16px;
+
+                        &:first-child {
+                            margin-top: 0;
+                        }
+                    }
+                }
+
+                ul {
+                    padding-left: 25px;
+                }
+            }
         }
 
         .button--text {
