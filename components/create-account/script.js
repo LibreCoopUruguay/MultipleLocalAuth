@@ -178,6 +178,7 @@ app.component('create-account', {
             }
 
             globalState['stepper'] = this.actualStep;
+            window.scrollTo(0, 0);
         },
 
         /* Terms */
@@ -213,6 +214,7 @@ app.component('create-account', {
                         if (dataReturn.emailSent) {
                             this.emailSent = true;
                         }
+                        window.scrollTo(0, 0);
                     }
                 }));
             }
