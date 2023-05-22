@@ -47,14 +47,6 @@ app.component('create-account', {
         api.GET($MAPAS.baseURL + "auth/passwordvalidationinfos").then(async response => response.json().then(validations => {
             this.passwordRules = validations.passwordRules;
         }));
-
-        Object.entries(this.terms).forEach(function (term, index) {
-            document.querySelector("#term" + index).addEventListener('scroll', function () {
-                if (Math.ceil(this.scrollTop + this.offsetHeight) >= this.scrollHeight) {
-                    document.querySelector("#acceptTerm" + index).classList.remove('disabled');
-                }
-            });
-        });
     },
 
     destroyed() {
@@ -154,16 +146,6 @@ app.component('create-account', {
             this.agent.terms = { area: [] }
         },
 
-        releaseAcceptButton() {
-            setTimeout(() => {
-                let termArea = this.$refs.terms[this.step - 1];
-                /* Em caso do termo ser curto o suficiente para não aparecer o scroll */
-                if (termArea && termArea.offsetHeight < 600) {
-                    document.querySelector("#acceptTerm" + (this.step - 1)).classList.remove('disabled');
-                }
-            }, 1000);
-        },
-
         async nextStep() {
             this.goToStep(this.actualStep + 1);
         },
@@ -187,7 +169,6 @@ app.component('create-account', {
                     this.startAgent();
                 }
                 this.actualStep = step;
-                this.releaseAcceptButton();
             }
 
             if (this.actualStep >= this.totalSteps) {

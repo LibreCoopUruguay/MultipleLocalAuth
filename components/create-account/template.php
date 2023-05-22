@@ -97,7 +97,7 @@ $this->import('
                 <label class="title col-12"> {{value.title}} </label>
                 <div class="term col-12" v-html="value.text" :id="'term'+index" ref="terms"></div>
                 <div class="divider col-12"></div>                
-                <button class="col-12 button button--primary button--large button--md disabled" :id="'acceptTerm'+index" @click="nextStep(); acceptTerm(name)"> {{value.buttonText}} </button>
+                <button class="col-12 button button--primary button--large button--md" :id="'acceptTerm'+index" @click="nextStep(); acceptTerm(name)"> {{value.buttonText}} </button>
                 <button class="col-12 button button--text" @click="cancel()"> <?= i::__('Voltar e excluir minhas informações') ?> </button>
             </div>
 
