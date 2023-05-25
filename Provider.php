@@ -996,7 +996,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                 return $this->setFeedback(i::__('Você possui 2 ou mais agentes com o mesmo CPF! Por favor entre em contato com o suporte.', 'multipleLocal'));
             }
             
-            if(count($active_agent_users) == 0){
+            if(count($foundAgent) > 1 && count($active_agent_users) == 0){
                 return $this->setFeedback(i::__('Você possui 2 ou mais agentes inativos com o mesmo CPF! Por favor entre em contato com o suporte.', 'multipleLocal'));
             }
 
