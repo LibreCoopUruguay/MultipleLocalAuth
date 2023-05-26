@@ -3,6 +3,10 @@
     margin: 32px auto;
     padding: 0 16px;
 
+    @media (max-width: 500px) {
+        margin: 24px auto;
+    }
+
     .field {
         .recover {
             color: var(--mc-primary-500);
@@ -27,6 +31,13 @@
     }
 
     &__action {
+
+        .mapas-card {
+            @media (max-width: 500px) {
+                padding: 16px;
+            }
+        }
+
         .social-login {
             align-items: center;
             display: flex;

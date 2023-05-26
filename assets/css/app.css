@@ -315,12 +315,7 @@
 }
 
 .create-account__step .term {
-  max-height: 600px;
-  overflow-y: scroll;
   padding-right: 20px;
-  /* entire scrollbar */
-  /* tracking area */
-  /* scroll thumb */
 }
 
 .create-account__step .term::-webkit-scrollbar {
@@ -397,6 +392,12 @@
   padding: 0 16px;
 }
 
+@media (max-width: 500px) {
+  .login {
+    margin: 24px auto;
+  }
+}
+
 .login .field .recover {
   color: var(--mc-primary-500);
   cursor: pointer;
@@ -416,6 +417,12 @@
 .login .divider {
   width: 100%;
   border-bottom: 1px solid #BBBBBB;
+}
+
+@media (max-width: 500px) {
+  .login__action .mapas-card {
+    padding: 16px;
+  }
 }
 
 .login__action .social-login {
