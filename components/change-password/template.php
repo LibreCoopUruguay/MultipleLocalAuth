@@ -8,10 +8,9 @@
 use MapasCulturais\i;
 
 $this->import('
-    modal
+    mc-modal
 ');
 ?>
-
 <div class="change-password">
     <label class="change-password__title"> <?= i::__('Senha:') ?> </label>
 
@@ -20,7 +19,7 @@ $this->import('
             <div v-for="n in 12" class="dot"></div>
         </div>
 
-        <modal title="<?= i::esc_attr__('Alteração de senha') ?>" classes="change-password__modal">
+        <mc-modal title="<?= i::esc_attr__('Alteração de senha') ?>" classes="change-password__modal">
             <template #default>
                 <form class="grid-12" @submit.prevent="changePassword(modal);">
 
@@ -57,6 +56,6 @@ $this->import('
                 <button class="button button--primary" @click="changePassword(modal)"> <?= i::__('Alterar senha') ?> </button>
                 <button class="button button--text button--text-del" @click="cancel(modal)"><?= i::__("Cancelar") ?></button>
             </template>
-        </modal>
+        </mc-modal>
     </div>
 </div>

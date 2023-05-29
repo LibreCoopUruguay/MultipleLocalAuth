@@ -1,11 +1,11 @@
 .controller-auth {
     background-color: var(--mc-gray-100);
 
-    .mapas-card {
+    .mc-card {
         padding: 25px 45px;
 
         &.no-title {
-            .mapas-card__title {
+            .mc-card__title {
                 display: none;
             }
         }

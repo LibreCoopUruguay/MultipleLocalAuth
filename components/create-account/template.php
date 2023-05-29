@@ -10,9 +10,9 @@ use MapasCulturais\i;
 $this->import('
     entity-field
     entity-terms
-    mapas-card
+    mc-card
     mc-icon
-    stepper
+    mc-stepper
 ');
 ?>
 
@@ -24,10 +24,10 @@ $this->import('
     </div>
 
     <!-- Creating account -->
-    <mapas-card v-if="!created" class="no-title">        
+    <mc-card v-if="!created" class="no-title">        
         <template #content> 
             <div class="create-account__timeline">
-                <stepper :steps="arraySteps" disable-navigation no-labels></stepper>
+                <mc-stepper :steps="arraySteps" disable-navigation no-labels></mc-stepper>
             </div>
 
             <!-- First step -->
@@ -120,10 +120,10 @@ $this->import('
                 <button class="col-12 button button--primary button--large button--md" @click="register()"> <?= i::__('Criar conta') ?></button>
             </div>
         </template>
-    </mapas-card>
+    </mc-card>
     
     <!-- Account created -->            
-    <mapas-card v-if="created" class="no-title card-created">
+    <mc-card v-if="created" class="no-title card-created">
         <template #content>
             <div class="create-account__created grid-12">
                 <div class="col-12 title">
@@ -137,5 +137,5 @@ $this->import('
                 <a href="<?= $app->createUrl('auth') ?>" class="col-12 button button--large button--primary"> <?php i::_e('Entrar na minha conta') ?> </a>
             </div>
         </template>
-    </mapas-card>
+    </mc-card>
 </div>

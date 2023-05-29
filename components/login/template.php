@@ -8,7 +8,7 @@
 use MapasCulturais\i;
 
 $this->import('
-    mapas-card
+    mc-card
 ');
 ?>
 
@@ -17,7 +17,7 @@ $this->import('
     <!-- Login action -->
 
     <div v-if="!recoveryRequest && !recoveryMode" class="login__action">
-        <mapas-card>
+        <mc-card>
             <template #title>
                 <label> <?= i::__('Boas vindas!') ?> </label>
                 <p> <?= i::__('Entre na sua conta do ' .$app->view->dict('site: name', false)) ?> </p>
@@ -58,13 +58,13 @@ $this->import('
                     </div>
                 </form>
             </template>
-        </mapas-card>
+        </mc-card>
     </div>
 
     <!-- Recovery request -->
 
     <div v-if="recoveryRequest" class="login__recovery--request">
-        <mapas-card v-if="!recoveryEmailSent">
+        <mc-card v-if="!recoveryEmailSent">
             <template #title>
                 <label> <?= i::__('Alteração de senha') ?> </label>
                 <p> <?= i::__('Se você esqueceu a senha, não se preocupe, todo mundo passa por isso.') ?> <br> <?= i::__('Digite seu e-mail para criar uma nova.') ?> </p>
@@ -80,9 +80,9 @@ $this->import('
                     <a @click="recoveryRequest = false" class="col-12 button button--secondarylight button--large button--md"> <?= i::__('Voltar') ?> </a>
                 </form>
             </template>
-        </mapas-card>
+        </mc-card>
 
-        <mapas-card class="no-title" v-if="recoveryEmailSent">
+        <mc-card class="no-title" v-if="recoveryEmailSent">
             <template #content>
                 <div class="grid-12">
                     <div class="col-12 header">
@@ -95,13 +95,13 @@ $this->import('
                     <a @click="recoveryEmailSent = false" class="col-12 button button--secondarylight button--large button--md"> <?= i::__('Voltar') ?> </a>
                 </div>
             </template>
-        </mapas-card>
+        </mc-card>
     </div>
 
     <!-- Recovery action -->
 
     <div v-if="recoveryMode" class="login__recovery--action">
-        <mapas-card>
+        <mc-card>
             <template #title>
                 <label> <?= i::__('Redefinir senha de acesso') ?> </label>
             </template>
@@ -125,7 +125,7 @@ $this->import('
                     <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('Redefinir senha') ?> </button>
                 </form>
             </template>
-        </mapas-card>
+        </mc-card>
     </div>
 
 </div>

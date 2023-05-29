@@ -8,12 +8,12 @@
 use MapasCulturais\i;
 
 $this->import('
-    mapas-card
+    mc-card
 ');
 ?>
 
 <div class="confirm-email">
-    <mapas-card class="no-title">
+    <mc-card class="no-title">
         <template #content>
             <div class="grid-12">
                 <div class="col-12 header">
@@ -25,5 +25,5 @@ $this->import('
                 <a class="col-12 button button--primary button--large button--md" href="<?= $app->createUrl('auth') ?>" type="submit"> <?= i::__('Entrar na minha conta') ?> </a>
             </div>
         </template>
-    </mapas-card>
+    </mc-card>
 </div>

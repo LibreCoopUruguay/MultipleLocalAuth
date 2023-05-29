@@ -6,7 +6,7 @@
     margin: 32px auto;
     padding: 0 16px;
   }
-  .controller-auth .login .mapas-card {
+  .controller-auth .login .mc-card {
     padding: 24px 48px;
   }
   .controller-auth .login .field .multiple-recover-link {
@@ -267,7 +267,7 @@
   .controller-auth .register__step .button--text {
     color: var(--mc-primary-500);
   }
-  .controller-auth .register .mapas-card {
+  .controller-auth .register .mc-card {
     padding: 24px 48px;
   }
   .controller-auth .v-popper__inner {
