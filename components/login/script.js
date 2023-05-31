@@ -6,7 +6,6 @@ app.component('login', {
     },
 
     setup() {
-        const messages = useMessages();
         const text = Utils.getTexts('login')
         return { text }
     },
@@ -100,6 +99,7 @@ app.component('login', {
                 if (dataReturn.error) {
                     this.throwErrors(dataReturn.data);
                 } else {
+                    const messages = useMessages();
                     messages.success('Senha alterada com sucesso!');
                     setTimeout(() => {
                         window.location.href = $MAPAS.baseURL+'autenticacao';
@@ -118,6 +118,7 @@ app.component('login', {
         },
 
         throwErrors(errors) {
+            const messages = useMessages();
             for (let key in errors) {
                 for (let val of errors[key]) {
                     messages.error(val);
