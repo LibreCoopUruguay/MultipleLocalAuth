@@ -19,8 +19,8 @@ $this->import('
     <div v-if="!recoveryRequest && !recoveryMode" class="login__action">
         <mc-card>
             <template #title>
-                <label> <?= i::__('Boas vindas!') ?> </label>
-                <p> <?= i::__('Entre na sua conta do ' .$app->view->dict('site: name', false)) ?> </p>
+                <label> <?= $this->text('welcome', i::__('Boas vindas!')) ?> </label>
+                <p> <?= $this->text('greeting', sprintf(i::__('Entre na sua conta do %s'), $app->siteName)) ?> </p>
             </template>
             <template #content>
                 <form class="grid-12" @submit.prevent="doLogin();">
