@@ -1041,6 +1041,11 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $hasErrors = true;
             }
             
+            if(count($foundAgent) > 1 && count($active_agent_users) == 0){
+                array_push($errors['login'], i::__('Você possui 2 ou mais agentes inativos com o mesmo CPF! Por favor entre em contato com o suporte.', 'multipleLocal'));
+                $hasErrors = true;
+            }
+
             $user = $app->repo("User")->findOneBy(array('id' => $foundAgent[0]->owner->user->id));
             if($user->profile->id != $foundAgent[0]->owner->id) {
                 array_push($errors['login'], i::__('CPF ou senha incorreta. Utilize o CPF do seu agente principal.', 'multipleLocal'));
