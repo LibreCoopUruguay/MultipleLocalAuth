@@ -772,8 +772,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             // build recover URL
             $url = $app->createUrl('auth', 'index') . '?t=' . $token;
             
-            $site_name = $app->view->dict('site: name', false);
-            
+            $site_name = $app->siteName;
 
             // send email
             $email_subject = sprintf(i::__('Pedido de recuperação de senha para %s', 'multipleLocal'), $site_name);
@@ -1158,7 +1157,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             //ATENÇÃO !! Se for necessario "padronizar" os emails com header/footers, é necessario adapatar o 'mustache', e criar uma mini estrutura de pasta de emails em 'MultipleLocalAuth\views'
             $mustache = new \Mustache_Engine();
-            $site_name = $app->view->dict('site: name', false);
+            $site_name = $app->siteName;
             $content = $mustache->render(
                 file_get_contents(
                     __DIR__.
