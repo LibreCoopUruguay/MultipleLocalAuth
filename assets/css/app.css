@@ -86,12 +86,12 @@
   color: var(--mc-secondary-500);
 }
 
-.mapas-breadcrumb li {
+.mc-breadcrumb li {
   display: flex;
   color: var(--mc-primary-500);
 }
 
-.mapas-breadcrumb li::before {
+.mc-breadcrumb li::before {
   content: url("https://api.iconify.design/fe/arrow-left.svg?width=16&height=16");
   height: 16px;
   -webkit-margin-end: 5px;

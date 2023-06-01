@@ -9,7 +9,7 @@ $configs = json_encode($config);
 
 $this->import('
     create-account
-    mapas-breadcrumb
+    mc-breadcrumb
 ');
 
 $this->breadcrumb = [
@@ -17,6 +17,6 @@ $this->breadcrumb = [
 ];
 ?>
 
-<mapas-breadcrumb></mapas-breadcrumb>
+<mc-breadcrumb></mc-breadcrumb>
 
 <create-account config='<?= $configs; ?>'></create-account>
