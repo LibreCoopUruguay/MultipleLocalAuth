@@ -33,7 +33,7 @@ class Plugin extends \MapasCulturais\Plugin {
             }
         });
 
-        $app->hook('template(panel.my-account.user-mail):end ', function() {
+        $app->hook('template(panel.<<my-account|user-detail>>.user-mail):end ', function() {
             /** @var \MapasCulturais\Theme $this */
             $this->part('password/change-password');
         });
