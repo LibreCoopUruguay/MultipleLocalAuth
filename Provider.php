@@ -460,7 +460,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             $active = $this->template == 'panel/my-account' ? 'class="active"' : '';
             $user = $app->user;
             $email = $user->email ? $user->email : '';
-            $this->render('my-account',[
+            $this->render('multiple-local-auth--my-account',[
                 'email' => $email,
                 'form_action' => $app->createUrl('panel', 'my-account'),
                 'feedback_success'        => $app->auth->feedback_success,
