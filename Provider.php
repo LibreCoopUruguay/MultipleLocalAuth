@@ -146,16 +146,18 @@ class Provider extends \MapasCulturais\AuthProvider {
             $this->json(array("passwordRules"=>$passwordRules));
         });
 
-        $app->hook('GET(auth.confirma-email)', function () use($app){
+        /**
+         * @todo refatorar confirma-email
+         */
 
+        $app->hook('GET(auth.confirma-email)', function () use($app){
             $app = App::i();
             $token = filter_var($app->request->get('token'), FILTER_SANITIZE_STRING);
 
             $usermeta = $app->repo("UserMeta")->findOneBy(array('key' => Provider::$tokenVerifyAccountMetadata, 'value' => $token));
 
             if (!$usermeta) {
-               $errorMsg = i::__('Token inválidos', 'multipleLocal');   
-            //    $app->auth->render('confirm-email',['msg'=>'TEM MSG NAO']);                         
+               $errorMsg = i::__('Token inválidos', 'multipleLocal');                         
                $this->render('confirm-email',['msg'=>$errorMsg]);   
             }
 
@@ -166,15 +168,11 @@ class Provider extends \MapasCulturais\AuthProvider {
             $user->saveMetadata(true);
             $app->enableAccessControl();
             $app->em->flush();
-            
-            $msg = i::__('Email validado com sucesso', 'multipleLocal');  
-            $this->render('confirm-email',['msg'=> $msg ]);
-
+            $this->render('confirm-email');
         });
 
 
-        $app->hook('POST(auth.adminchangeuserpassword)',function () use ($app) {
-            
+        $app->hook('POST(auth.adminchangeuserpassword)',function () use ($app) {            
             $new_pass = $this->data['password'];
             $email = $this->data['email'];
             $user = $app->auth->getUserFromDB($email);
@@ -189,11 +187,9 @@ class Provider extends \MapasCulturais\AuthProvider {
             $app->em->flush();
 
             $this->json (array("password"=>$new_pass,"user"=>$user,"password"=>$app->auth->hashPassword($new_pass)));
-
         });
 
         $app->hook('adminchangeuserpassword', function ($userEmail) use($app){
-
             if(!$app->user->is('admin')) {
                 return;
             }
@@ -214,7 +210,6 @@ class Provider extends \MapasCulturais\AuthProvider {
         });
 
         $app->hook('POST(auth.adminchangeuseremail)',function () use ($app) {
-
             $new_email = $this->data['new_email'];
             $email = $this->data['email'];
  
@@ -242,9 +237,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $this->json (array("new_email"=>$new_email));
             } else {
                 $this->json (array("error"=>"Informe um email válido"));
-            }
-            
-
+            }            
         });
 
         $app->hook('adminchangeuseremail', function ($userEmail) use($app){
@@ -267,6 +260,8 @@ class Provider extends \MapasCulturais\AuthProvider {
             </div>
             ';
         });
+
+        /* /refatorar/ */
 
         
         
@@ -421,6 +416,20 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $this->json(['error' => false]);
             } else {
                 $this->errorJson($changePassword['errors'], 200);
+            }
+        });
+
+        $app->hook('POST(auth.newpassword)', function () use($app){
+            /**
+             * @var \MapasCulturais\Controller $this
+             */
+            
+            $newPassword = $app->auth->newPassword();
+
+            if ($newPassword['success']) {
+                $this->json(['error' => false]);
+            } else {
+                $this->errorJson($newPassword['errors'], 200);
             }
         });
     
@@ -816,6 +825,45 @@ class Provider extends \MapasCulturais\AuthProvider {
                     'errors' => $errors
                 ];
             }
+        } else {
+            return [ 
+                'success' => false,
+                'errors' => $errors
+            ];
+        }
+    }
+
+    function newPassword() {
+        $app = App::i();        
+        $user = $app->user;
+
+        $newPassword        = filter_var($app->request->post('new_password'), FILTER_SANITIZE_STRING);
+        $confirmNewPassword = filter_var($app->request->post('confirm_new_password'), FILTER_SANITIZE_STRING);
+        
+        $hasErrors = false;
+        $errors = [
+            'password' => [],
+        ];
+
+        if ($newPassword != '') { 
+            $meta = self::$passMetaName;            
+            $errors['password'] = $this->verifyPassowrds($newPassword, $confirmNewPassword);
+
+            if (!empty($errors['password'])) {
+                $hasErrors = true;
+            } else {
+                $user->setMetadata($meta, $app->auth->hashPassword($newPassword));
+            }
+        } else {
+            array_push($errors['password'], i::__('Insira sua nova senha.', 'multipleLocal'));
+            $hasErrors = true;
+        }
+        
+        if (!$hasErrors) {
+            $user->save(true);
+            return [ 
+                'success' => true
+            ];
         } else {
             return [ 
                 'success' => false,
@@ -1389,7 +1437,7 @@ class Provider extends \MapasCulturais\AuthProvider {
     
     public function _requireAuthentication() {
         $app = App::i();
-        if($app->request->isAjax()){
+        if($app->request->isAjax() || $app->request()->headers()->get('Content-Type') === 'application/json'){
             $app->halt(401, i::__('É preciso estar autenticado para realizar esta ação', 'multipleLocal'));
         }else{
             $this->_setRedirectPath($app->request->getPathInfo());

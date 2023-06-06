@@ -22,12 +22,6 @@ $this->import('
         <mc-modal title="<?= i::esc_attr__('Alteração de senha') ?>" classes="change-password__modal">
             <template #default>
                 <form class="grid-12" @submit.prevent="changePassword(modal);">
-
-                    <div class="field col-12 password">
-                        <label for="currentPassword"> <?= i::__('Senha atual'); ?> </label>
-                        <input autocomplete="off" id="currentPassword" type="password" name="currentPassword" v-model="currentPassword" />
-                    </div>
-
                     <div class="field col-12 password">
                         <label for="newPassword"> <?= i::__('Senha'); ?> </label>
                         <input autocomplete="off" id="newPassword" type="password" name="newPassword" v-model="newPassword" />

@@ -8,7 +8,7 @@ app.component('change-password', {
     setup() {
         const messages = useMessages();
         const text = Utils.getTexts('change-password')
-        return { text }
+        return { text, messages }
     },
 
     data() {
@@ -31,15 +31,14 @@ app.component('change-password', {
         async changePassword(modal) {
             let api = new API();
             let data = {
-                'current_password': this.currentPassword,
                 'new_password': this.newPassword,
                 'confirm_new_password': this.confirmNewPassword
             }
-            await api.POST($MAPAS.baseURL+"autenticacao/changepassword", data).then(response => response.json().then(dataReturn => {
+            await api.POST($MAPAS.baseURL+"autenticacao/newpassword", data).then(response => response.json().then(dataReturn => {
                 if (dataReturn.error) {
                     this.throwErrors(dataReturn.data);
                 } else {
-                    messages.success('Senha alterada com sucesso!');
+                    this.messages.success('Senha alterada com sucesso!');
                     this.cancel(modal);
                 }
             }));
@@ -55,7 +54,7 @@ app.component('change-password', {
         throwErrors(errors) {
             for (let key in errors) {
                 for (let val of errors[key]) {
-                    messages.error(val);
+                    this.messages.error(val);
                 }
             }
         },
