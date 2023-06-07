@@ -9,4 +9,4 @@ $this->import('
 ');
 ?>
 
-<change-password></change-password>
+<change-password :entity="entity"></change-password>

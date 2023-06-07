@@ -171,44 +171,6 @@ class Provider extends \MapasCulturais\AuthProvider {
             $this->render('confirm-email');
         });
 
-
-        $app->hook('POST(auth.adminchangeuserpassword)',function () use ($app) {            
-            $new_pass = $this->data['password'];
-            $email = $this->data['email'];
-            $user = $app->auth->getUserFromDB($email);
-            
-            $user->setMetadata('localAuthenticationPassword', $app->auth->hashPassword($new_pass));
-            
-            // save
-            $app->disableAccessControl();
-            $user->saveMetadata(true);
-            $app->enableAccessControl();
-            $user->save(true);
-            $app->em->flush();
-
-            $this->json (array("password"=>$new_pass,"user"=>$user,"password"=>$app->auth->hashPassword($new_pass)));
-        });
-
-        $app->hook('adminchangeuserpassword', function ($userEmail) use($app){
-            if(!$app->user->is('admin')) {
-                return;
-            }
-
-            echo
-            '
-            <a class="btn btn-primary js-open-dialog" data-dialog="#admin-change-user-password" data-dialog-block="true">
-                Criar nova senha para: '.$userEmail.'
-            </a>
-
-            <div id="admin-change-user-password" class="js-dialog" title="Alterar senha">
-                <label for="admin-set-user-password">Nova senha:</label><br>
-                <input type="text" id="admin-set-user-password" name="admin-set-user-password" ><br>
-                <input type="hidden" id="email-to-admin-set-password" value='.$userEmail.' />
-                <button class="btn add" id="user-managerment-adminChangePassword" > Atualizar </button>
-            </div>
-            ';
-        });
-
         $app->hook('POST(auth.adminchangeuseremail)',function () use ($app) {
             $new_email = $this->data['new_email'];
             $email = $this->data['email'];
@@ -430,6 +392,20 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $this->json(['error' => false]);
             } else {
                 $this->errorJson($newPassword['errors'], 200);
+            }
+        });
+
+        $app->hook('POST(auth.adminchangeuserpassword)',function () use ($app) {  
+            /**
+             * @var \MapasCulturais\Controller $this
+             */
+            
+            $adminchangeuserpassword = $app->auth->adminchangeuserpassword();
+
+            if ($adminchangeuserpassword['success']) {
+                $this->json(['error' => false]);
+            } else {
+                $this->errorJson($adminchangeuserpassword['errors'], 200);
             }
         });
     
@@ -833,26 +809,27 @@ class Provider extends \MapasCulturais\AuthProvider {
         }
     }
 
-    function newPassword() {
-        $app = App::i();        
-        $user = $app->user;
+    function adminchangeuserpassword() {
+        $app = App::i();
 
-        $newPassword        = filter_var($app->request->post('new_password'), FILTER_SANITIZE_STRING);
-        $confirmNewPassword = filter_var($app->request->post('confirm_new_password'), FILTER_SANITIZE_STRING);
-        
+        $new_pass = $app->request->post('new_password');
+        $confirm_new_pass = $app->request->post('confirm_new_password');
+        $email = $app->request->post('email');
+
+        $user = $app->auth->getUserFromDB($email);
+
         $hasErrors = false;
         $errors = [
             'password' => [],
         ];
 
-        if ($newPassword != '') { 
-            $meta = self::$passMetaName;            
-            $errors['password'] = $this->verifyPassowrds($newPassword, $confirmNewPassword);
+        if ($new_pass != '') {  
+            $errors['password'] = $this->verifyPassowrds($new_pass, $confirm_new_pass);
 
             if (!empty($errors['password'])) {
                 $hasErrors = true;
             } else {
-                $user->setMetadata($meta, $app->auth->hashPassword($newPassword));
+                $user->setMetadata('localAuthenticationPassword', $app->auth->hashPassword($new_pass));
             }
         } else {
             array_push($errors['password'], i::__('Insira sua nova senha.', 'multipleLocal'));
@@ -860,7 +837,11 @@ class Provider extends \MapasCulturais\AuthProvider {
         }
         
         if (!$hasErrors) {
+            $app->disableAccessControl();
+            $user->saveMetadata(true);
+            $app->enableAccessControl();
             $user->save(true);
+            $app->em->flush();
             return [ 
                 'success' => true
             ];

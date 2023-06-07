@@ -14,9 +14,16 @@ app.component('change-password', {
     data() {
         return { 
             passwordRules: {},
-            currentPassword: '',
-            newPassword: '',
-            confirmNewPassword: ''
+            currentPassword: null,
+            newPassword: null,
+            confirmNewPassword: null
+        }
+    },
+
+    props: {
+        entity: {
+            type: Entity,
+            required: true
         }
     },
 
@@ -30,22 +37,38 @@ app.component('change-password', {
     methods: {
         async changePassword(modal) {
             let api = new API();
-            let data = {
-                'new_password': this.newPassword,
-                'confirm_new_password': this.confirmNewPassword
-            }
-            await api.POST($MAPAS.baseURL+"autenticacao/newpassword", data).then(response => response.json().then(dataReturn => {
-                if (dataReturn.error) {
-                    this.throwErrors(dataReturn.data);
-                } else {
-                    this.messages.success('Senha alterada com sucesso!');
-                    this.cancel(modal);
+            if (this.$refs.currentPassword) {
+                let data = {
+                    'current_password': this.currentPassword,
+                    'new_password': this.newPassword,
+                    'confirm_new_password': this.confirmNewPassword,
                 }
-            }));
+                await api.POST($MAPAS.baseURL+"autenticacao/changepassword", data).then(response => response.json().then(dataReturn => {
+                    if (dataReturn.error) {
+                        this.throwErrors(dataReturn.data);
+                    } else {
+                        this.messages.success('Senha alterada com sucesso!');
+                        this.cancel(modal);
+                    }
+                }));
+            } else {
+                let data = {
+                    'new_password': this.newPassword,
+                    'confirm_new_password': this.confirmNewPassword,
+                    'email': this.entity.email,
+                }
+                await api.POST($MAPAS.baseURL+"autenticacao/adminchangeuserpassword", data).then(response => response.json().then(dataReturn => {
+                    if (dataReturn.error) {
+                        this.throwErrors(dataReturn.data);
+                    } else {
+                        this.messages.success('Senha alterada com sucesso!');
+                        this.cancel(modal);
+                    }
+                }));
+            }
         },
 
         cancel(modal) {
-            this.currentPassword = '';
             this.newPassword = '';
             this.confirmNewPassword = '';
             modal.close();
