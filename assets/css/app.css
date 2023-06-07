@@ -77,6 +77,10 @@
   max-width: 570px;
 }
 
+.change-password__modal .modal-content .password {
+  position: relative;
+}
+
 .change-password__modal .modal-content .password-rules {
   font-size: 14px;
   line-height: 19px;
@@ -84,6 +88,20 @@
 
 .change-password__modal .modal-content .password-rules strong {
   color: var(--mc-secondary-500);
+}
+
+.change-password__modal .modal-content .password .seePassword {
+  background: url("https://api.iconify.design/carbon/view-filled.svg");
+  background-repeat: no-repeat;
+  background-size: 22.5px;
+  background-position-x: center;
+  background-position-y: center;
+  content: "";
+  height: 48px;
+  position: absolute;
+  right: 0;
+  top: 27px;
+  width: 48px;
 }
 
 .mc-breadcrumb li {
@@ -316,6 +334,9 @@
 
 .create-account__step .term {
   padding-right: 20px;
+  /* entire scrollbar */
+  /* tracking area */
+  /* scroll thumb */
 }
 
 .create-account__step .term::-webkit-scrollbar {

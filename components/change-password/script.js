@@ -24,7 +24,11 @@ app.component('change-password', {
         entity: {
             type: Entity,
             required: true
-        }
+        },
+        myAccount: {
+            type: Boolean,
+            required: false
+        },
     },
 
     mounted() {        
@@ -37,7 +41,7 @@ app.component('change-password', {
     methods: {
         async changePassword(modal) {
             let api = new API();
-            if (this.$refs.currentPassword) {
+            if (this.myAccount) {
                 let data = {
                     'current_password': this.currentPassword,
                     'new_password': this.newPassword,
@@ -79,6 +83,16 @@ app.component('change-password', {
                 for (let val of errors[key]) {
                     this.messages.error(val);
                 }
+            }
+        },
+
+        togglePassword(id, event) {
+            if (document.getElementById(id).type == 'password') {
+                event.target.style.background = "url('https://api.iconify.design/carbon/view-off-filled.svg') no-repeat center center / 22.5px"
+                document.getElementById(id).type = 'text';
+            } else {
+                event.target.style.background = "url('https://api.iconify.design/carbon/view-filled.svg') no-repeat center center / 22.5px"
+                document.getElementById(id).type = 'password';
             }
         },
     },

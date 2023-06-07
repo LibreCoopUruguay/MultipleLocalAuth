@@ -9,4 +9,8 @@ $this->import('
 ');
 ?>
 
-<change-password :entity="entity"></change-password>
+<?php if($this->controller->action == 'my-account'): ?>
+    <change-password :entity="entity" my-account></change-password>
+<?php else :?>
+    <change-password :entity="entity"></change-password>
+<?php endif; ?>
