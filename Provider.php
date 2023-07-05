@@ -4,9 +4,8 @@ use MapasCulturais\App;
 use MapasCulturais\Entities;
 use MapasCulturais\Entities\Agent;
 use MapasCulturais\i;
-use MapasCulturais\Validator;
 use Mustache\Mustache;
-
+use Respect\Validation\Validator;
 
 class Provider extends \MapasCulturais\AuthProvider {
     protected $opauth;
@@ -152,7 +151,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         $app->hook('GET(auth.confirma-email)', function () use($app){
             $app = App::i();
-            $token = filter_var($app->request->get('token'), FILTER_SANITIZE_STRING);
+            $token = $app->request->get('token');
 
             $usermeta = $app->repo("UserMeta")->findOneBy(array('key' => Provider::$tokenVerifyAccountMetadata, 'value' => $token));
 
@@ -550,10 +549,10 @@ class Provider extends \MapasCulturais\AuthProvider {
         $config = $this->_config;
         $hasErrors = false;
 
-        $cpf = filter_var($app->request->post('cpf'), FILTER_SANITIZE_STRING);
+        $cpf = $app->request->post('cpf');
         $email = filter_var( $app->request->post('email') , FILTER_SANITIZE_EMAIL);
-        $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
-        $pass_v = filter_var($app->request->post('confirm_password'), FILTER_SANITIZE_STRING);
+        $pass = $app->request->post('password');
+        $pass_v = $app->request->post('confirm_password');
         $this->triedEmail = $email;
 
         $errors = [
@@ -641,7 +640,7 @@ class Provider extends \MapasCulturais\AuthProvider {
     function renderRecoverForm($theme) {
         $app = App::i();
         $theme->render('pass-recover', [
-            'form_action' => $app->createUrl('auth', 'dorecover') . '?t=' . filter_var($app->request->get('t'),FILTER_SANITIZE_STRING),
+            'form_action' => $app->createUrl('auth', 'dorecover') . '?t=' . $app->request->get('t'),
             'feedback_success' => $app->auth->feedback_success,
             'feedback_msg' => $app->auth->feedback_msg,   
             'triedEmail' => $app->auth->triedEmail,
@@ -657,7 +656,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             'token' => []
         ];
 
-        $token = filter_var($app->request->post('token'), FILTER_SANITIZE_STRING);
+        $token = $app->request->post('token');
         $q = new \MapasCulturais\ApiQuery('MapasCulturais\\Entities\\User', ['recover_token' => 'EQ('.$token.')', '@select' => 'id, email, recover_token_time']);
         $result = $q->getFindOneResult();
 
@@ -666,8 +665,8 @@ class Provider extends \MapasCulturais\AuthProvider {
             $hasErrors = true;
         }
 
-        $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
-        $pass_v = filter_var($app->request->post('confirm_password'), FILTER_SANITIZE_STRING);
+        $pass = $app->request->post('password');
+        $pass_v = $app->request->post('confirm_password');
         $user = $app->repo("User")->find($result['id']);
     
         // check if token is still valid
@@ -718,7 +717,7 @@ class Provider extends \MapasCulturais\AuthProvider {
     function recover() {
         $app = App::i();
         $config = $app->_config;
-        $email = filter_var($app->request->post('email'), FILTER_SANITIZE_STRING);
+        $email = filter_var($app->request->post('email'), FILTER_VALIDATE_EMAIL);
         $user = $app->repo("User")->findOneBy(array('email' => $email));
 
         $hasErrors = false;
@@ -781,8 +780,8 @@ class Provider extends \MapasCulturais\AuthProvider {
                     "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
                 ));
             
-            $app->applyHook('multipleLocalAuth.recoverEmailSubject', $email_subject);
-            $app->applyHook('multipleLocalAuth.recoverEmailBody', $content);
+            $app->applyHook('multipleLocalAuth.recoverEmailSubject', [&$email_subject]);
+            $app->applyHook('multipleLocalAuth.recoverEmailBody', [&$content]);
             
             if ($app->createAndSendMailMessage([
                     'from' => $app->config['mailer.from'],
@@ -857,9 +856,9 @@ class Provider extends \MapasCulturais\AuthProvider {
         $app = App::i();        
         $user = $app->user;
 
-        $currentPassword    = filter_var($app->request->post('current_password'), FILTER_SANITIZE_STRING);
-        $newPassword        = filter_var($app->request->post('new_password'), FILTER_SANITIZE_STRING);
-        $confirmNewPassword = filter_var($app->request->post('confirm_new_password'), FILTER_SANITIZE_STRING);
+        $currentPassword    = $app->request->post('current_password');
+        $newPassword        = $app->request->post('new_password');
+        $confirmNewPassword = $app->request->post('confirm_new_password');
         
         $hasErrors = false;
         $errors = [
@@ -1031,7 +1030,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             }
         }
         
-        $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
+        $pass = $app->request->post('password');
 
         // verifica se esta habilitado 'enableLoginByCPF' em conf.php && esta tentando fazer login com CPF
         if ($this->validateCPF($email) && $config['enableLoginByCPF']) {
@@ -1147,9 +1146,9 @@ class Provider extends \MapasCulturais\AuthProvider {
         $validateFields = $this->validateRegisterFields();
 
         if ($validateFields['success']) {            
-            $pass = filter_var($app->request->post('password'), FILTER_SANITIZE_STRING);
+            $pass = $app->request->post('password');
                         
-            $cpf = filter_var($app->request->post('cpf'), FILTER_SANITIZE_STRING);
+            $cpf = $app->request->post('cpf');
             $cpf = str_replace("-","",$cpf); // remove "-"
             $cpf = str_replace(".","",$cpf); // remove "."
 
@@ -1166,7 +1165,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     'uid' => filter_var($app->request->post('email'), FILTER_SANITIZE_EMAIL),
                     'info' => [
                         'email' => filter_var($app->request->post('email'), FILTER_SANITIZE_EMAIL),
-                        'name' => filter_var($app->request->post('name'), FILTER_SANITIZE_STRING),
+                        'name' => $app->request->post('name'),
                         'cpf' => $cpf,
                         'token' => $token
                     ],
@@ -1418,11 +1417,11 @@ class Provider extends \MapasCulturais\AuthProvider {
     
     public function _requireAuthentication() {
         $app = App::i();
-        if($app->request->isAjax() || $app->request()->headers()->get('Content-Type') === 'application/json'){
+        if($app->request->isAjax()){
             $app->halt(401, i::__('É preciso estar autenticado para realizar esta ação', 'multipleLocal'));
         }else{
             $this->_setRedirectPath($app->request->getPathInfo());
-            $app->redirect($app->controller('auth')->createUrl(''), 401);
+            $app->redirect($app->controller('auth')->createUrl(''), 302);
         }
     }
     
