@@ -61,7 +61,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE'),
 
             'urlTermsOfUse' => env('LINK_TERMOS', $app->createUrl('auth', 'termos-e-condicoes')),
-            'statusCreateAgent' => env('STATUS_CREATE_AGENT', Agent::STATUS_ENABLED),
+            'statusCreateAgent' => env('STATUS_CREATE_AGENT', Agent::STATUS_DRAFT),
             'strategies' => [
                 'Facebook' => [
                     'visible' => env('AUTH_FACEBOOK_CLIENT_ID', false),

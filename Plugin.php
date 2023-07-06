@@ -38,6 +38,14 @@ class Plugin extends \MapasCulturais\Plugin {
             $this->part('password/change-password');
         });
 
+        $app->hook('entity(User).permissionsList,doctrine.emum(permission_action).values', function (&$permissions) {
+            $permissions[] = 'changePassword';
+        });
+
+        $app->hook('module(UserManagement).permissionsLabels', function(&$labels) {
+            $labels['changePassword'] = i::__('modificar senha');
+        });
+
         if (php_sapi_name() == "cli") {
             if (!isset($_SERVER['HTTP_HOST'])) {
                 $_SERVER['HTTP_HOST'] = 'localhost';
