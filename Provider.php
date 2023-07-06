@@ -58,7 +58,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             'urlSupportEmail' => env('AUTH_SUPPORT_EMAIL', ''),
             'textSupportSite' => env('AUTH_SUPPORT_TEXT', ''),
             'urlSupportSite' => env('AUTH_SUPPORT_SITE', ''),
-            'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE' ,'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRqLRsBSuwp4VBxBlIAqytRgieI_7nHjrDxyQ&usqp=CAU'),
+            'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE'),
 
             'urlTermsOfUse' => env('LINK_TERMOS', $app->createUrl('auth', 'termos-e-condicoes')),
             'statusCreateAgent' => env('STATUS_CREATE_AGENT', Agent::STATUS_ENABLED),
@@ -777,7 +777,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     "urlSupportEmail" => $this->_config['urlSupportEmail'],
                     "urlSupportSite" => $this->_config['urlSupportSite'],
                     "textSupportSite" => $this->_config['textSupportSite'],
-                    "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
+                    "urlImageToUseInEmails" => $this->getImageImageURl(),
                 ));
             
             $app->applyHook('multipleLocalAuth.recoverEmailSubject', [&$email_subject]);
@@ -1201,7 +1201,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     "urlSupportEmail" => $this->_config['urlSupportEmail'],
                     "urlSupportSite" => $this->_config['urlSupportSite'],
                     "textSupportSite" => $this->_config['textSupportSite'],
-                    "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
+                    "urlImageToUseInEmails" => $this->getImageImageURl(),
                 )
             );
 
@@ -1236,7 +1236,16 @@ class Provider extends \MapasCulturais\AuthProvider {
                 'errors' => $validateFields['errors']
             ];
         }
-    }    
+    }
+
+    function getImageImageURl () {
+        if($this->_config['urlImageToUseInEmails']) {
+            return $this->_config['urlImageToUseInEmails'];
+        } else {
+            $app = App::i();
+            return $app->view->asset('img/mail-image.png', false);
+        }
+    }
     
     
     /********************************************************************************/
