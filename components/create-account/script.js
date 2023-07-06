@@ -6,7 +6,6 @@ app.component('create-account', {
     },
 
     setup() {
-        const messages = useMessages();
         const text = Utils.getTexts('create-account')
         return { text }
     },
@@ -265,6 +264,8 @@ app.component('create-account', {
         },
 
         throwErrors(errors) {
+            const messages = useMessages();
+
             for (let key in errors) {
                 if (errors[key] instanceof Array) {
                     for (let val of errors[key]) {
