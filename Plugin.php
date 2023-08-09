@@ -19,12 +19,8 @@ class Plugin extends \MapasCulturais\Plugin {
         i::load_textdomain( 'multipleLocal', __DIR__ . "/translations" );
         
         // Load JS & CSS
-        $app->hook('<<GET|POST>>(auth.<<*>>)', function() use ($app) {
-            $app->view->enqueueStyle('app-v2', 'multipleLocal-v2', 'css/app.css');
-        });
-        
-        $app->hook('<<GET|POST|ALL>>(panel.<<*>>):before', function() use ($app) {
-            $app->view->enqueueStyle('app-v2', 'multipleLocal-v2', 'css/app.css');
+        $app->hook('GET(<<auth|panel>>.<<*>>):before', function() use ($app) {
+            $app->view->enqueueStyle('app-v2', 'multipleLocal-v2', 'css/multiple-local-auth.css');
         });
 
         $app->hook('GET(auth.<<index|register>>)', function() use($app) {
