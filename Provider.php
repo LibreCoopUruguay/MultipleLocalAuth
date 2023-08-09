@@ -1276,7 +1276,7 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         switch($this->opauth->env['callback_transport']) {
             case 'session':
-                $response = key_exists('opauth', $_SESSION) ? $_SESSION['opauth'] : null;
+                $response = $_SESSION['opauth'] ?? null;
                 break;
             case 'post':
                 $response = unserialize(base64_decode( $_POST['opauth'] ));
@@ -1507,7 +1507,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $agent->$metadataFieldCpf =  $cpf;
             }
 
-            $agent->status = $config['statusCreateAgent'];
+            $agent->status = (int) $config['statusCreateAgent'] ?? '0';
             $agent->emailPrivado = $user->email;
             
             $agent->save();
@@ -1516,6 +1516,9 @@ class Provider extends \MapasCulturais\AuthProvider {
             $user->profile = $agent;
             
             $user->save(true);
+
+            $user->createPermissionsCacheForUsers([$user]);
+            $agent->createPermissionsCacheForUsers([$user]);
         }
         
         $app->enableAccessControl();
