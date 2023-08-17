@@ -119,6 +119,12 @@ app.component('login', {
 
         throwErrors(errors) {
             const messages = useMessages();
+
+            if (this.recaptchaResponse !== '') {
+                grecaptcha.reset();
+                this.expiredCaptcha();
+            }
+            
             for (let key in errors) {
                 for (let val of errors[key]) {
                     messages.error(val);
