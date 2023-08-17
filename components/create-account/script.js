@@ -266,6 +266,11 @@ app.component('create-account', {
         throwErrors(errors) {
             const messages = useMessages();
 
+            if (this.recaptchaResponse !== '') {
+                grecaptcha.reset();
+                this.expiredCaptcha();
+            }
+
             for (let key in errors) {
                 if (errors[key] instanceof Array) {
                     for (let val of errors[key]) {
