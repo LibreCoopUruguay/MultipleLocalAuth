@@ -88,7 +88,7 @@ $this->import('
         <div class="login__card" v-if="!recoveryEmailSent">
             <div class="login__card__header">
                 <h3> <?= i::__('Alteração de senha') ?> </h3>
-                <h6> <?= i::__('Se você esqueceu a senha, não se preocupe, todo mundo passa por isso.') ?> <br> <?= i::__('Digite seu e-mail para criar uma nova.') ?> </p>
+                <h6> <?= i::__('Se você esqueceu a senha, não se preocupe, todo mundo passa por isso.') ?> <br> <?= i::__('Digite seu e-mail para criar uma nova.') ?> </h6>
             </div>
 
             <div class="login__card__content">
