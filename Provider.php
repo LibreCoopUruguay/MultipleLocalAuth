@@ -589,14 +589,16 @@ class Provider extends \MapasCulturais\AuthProvider {
             $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
 
             // creates an array with agents with status == 1, because the user can have, for example, 3 agents, but 2 have status == 0
-            $activeAgents  = [];
-            foreach ($foundAgent as $agentMeta) {
-                if($agentMeta->owner->status === 1) {
-                    $activeAgents[] = $agentMeta;
+            $existAgent  = [];
+            if($foundAgent){
+                foreach ($foundAgent as $agentMeta) {
+                    if($agentMeta->owner->status >= 0) {
+                        $existAgent[] = $agentMeta;
+                    }
                 }
             }
 
-            if(count($activeAgents) > 0) {
+            if(count($existAgent) > 0) {
                 array_push($errors['user']['cpf'], i::__('Este CPF já esta em uso. Tente recuperar a sua senha.', 'multipleLocal'));
                 $hasErrors = true;
             }
