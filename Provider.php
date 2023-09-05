@@ -546,6 +546,9 @@ class Provider extends \MapasCulturais\AuthProvider {
      */
     function validateRegisterFields() {
         $app = App::i();
+        $em = $app->em;
+        $conn = $em->getConnection();
+
         $config = $this->_config;
         $hasErrors = false;
 
