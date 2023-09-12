@@ -45,6 +45,10 @@ app.component('login', {
         configs() {
             return JSON.parse(this.config);
         },
+
+        multiple() {
+            return this.configs.strategies.Google?.visible && this.configs.strategies.govbr?.visible;
+        }
     },
 
     methods: {

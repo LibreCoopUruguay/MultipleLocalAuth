@@ -49,7 +49,7 @@ $this->import('
                             <span class="divider__text"> <?= i::__('Ou entre com') ?> </span>
                         </div>
 
-                        <div class="login__social-buttons">
+                        <div class="login__social-buttons" :class="{'login__social-buttons--multiple': multiple}">
                             <a v-if="configs.strategies.govbr?.visible" class="social-login--button button button--icon button--large button--md govbr" href="<?php echo $app->createUrl('auth', 'govbr') ?>">                                
                                 <div class="img"> <img height="16" class="br-sign-in-img" src="<?php $this->asset('img/govbr-white.png'); ?>" /> </div>                                
                                 <?= i::__('Entrar com Gov.br') ?>                            
@@ -60,14 +60,6 @@ $this->import('
                                 <?= i::__('Entrar com Google') ?>
                             </a>
 
-                            <a v-if="configs.strategies.govbr?.visible" class="social-login--button button button--md button--large govbr" href="<?php echo $app->createUrl('auth', 'govbr') ?>">                                
-                                <div class="img"> <img height="16" class="br-sign-in-img" src="<?php $this->asset('img/govbr-white.png'); ?>" /> </div>                        
-                            </a>
-
-                            <a v-if="configs.strategies.Google?.visible" class="social-login--button button button--icon button--md button--large google" href="<?php echo $app->createUrl('auth', 'google') ?>">                                
-                                <div class="img"> <img height="16" src="<?php $this->asset('img/g.png'); ?>" /> </div>                                
-                                <?= i::__('Google') ?>
-                            </a>
                         </div>
                     </div>
 
