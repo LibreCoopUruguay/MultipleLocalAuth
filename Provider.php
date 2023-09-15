@@ -567,7 +567,10 @@ class Provider extends \MapasCulturais\AuthProvider {
         // validate captcha
         if (!$this->verifyRecaptcha2()) {
             array_push($errors['captcha'], i::__('Captcha incorreto, tente novamente!', 'multipleLocal'));
-            $hasErrors = true;
+            return [
+                'success' => false,
+                'errors' => $errors
+            ];
         }
 
         // validates cpf only if login by cpf is enabled
@@ -729,16 +732,19 @@ class Provider extends \MapasCulturais\AuthProvider {
             'sendEmail' => []
         ];
         
+        if (!$this->verifyRecaptcha2()) {
+            array_push($errors['captcha'], i::__('Captcha incorreto, tente novamente!', 'multipleLocal'));
+            return [
+                'success' => false,
+                'errors' => $errors
+            ];
+        }
+        
         if (!$user) {
             array_push($errors['email'], i::__('Email não encontrado', 'multipleLocal'));
             $hasErrors = true;
         }
 
-        if (!$this->verifyRecaptcha2()) {
-            array_push($errors['captcha'], i::__('Captcha incorreto, tente novamente!', 'multipleLocal'));
-            $hasErrors = true;
-        }
-        
         if (!$hasErrors) {
             // generate the hash
             $source = rand(3333, 8888);
@@ -1017,7 +1023,10 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         if (!$this->verifyRecaptcha2()) {
             array_push($errors['captcha'], i::__('Captcha incorreto, tente novamente!', 'multipleLocal'));
-            $hasErrors = true;
+            return [
+                'success' => false,
+                'errors' => $errors
+            ];
         }
 
         $email = filter_var($app->request->post('email'), FILTER_SANITIZE_EMAIL);
