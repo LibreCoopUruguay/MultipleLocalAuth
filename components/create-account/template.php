@@ -13,6 +13,7 @@ $this->import('
     mc-card
     mc-icon
     mc-stepper
+    password-strongness
 ');
 ?>
 
@@ -57,22 +58,16 @@ $this->import('
                         <label for="pwd"> <?= i::__('Senha'); ?> </label>
                         <input autocomplete="off" id="pwd" type="password" name="password" v-model="password" />
                         <div class="seePassword" @click="togglePassword('pwd', $event)"></div>
-                        <span class="password-rules">
-                            <strong><?= i::__('A senha deve ter:') ?></strong>
-                            {{passwordRules.minimumPasswordLength}}<?= i::__(' caracteres, um número, um caractere especial (! @ # $ & *), pelo menos uma letra maiúscula e uma minúscula.') ?>
-                        </span>
                     </div>
                     <div class="field col-12 password">
                         <label for="pwd-check">
-                            <?= i::__('Confirmar senha'); ?>
+                            <?= i::__('Confirme sua senha'); ?>
                         </label>
                         <input autocomplete="off" id="pwd-check" type="password" name="confirm_password" v-model="confirmPassword" />
                         <div class="seePassword" @click="togglePassword('pwd-check', $event)"></div>
-                    </div>                    
-                    <div class="progressbar col-12">
-                        <span> <?= i::__('Força da senha'); ?> </span>
-                        <progress id="progress" :class="strongnessClass" :value="passwordStrongness" max="100"></progress>
-                        <span id="progresslabel">{{passwordStrongness}}%</span>
+                    </div>
+                    <div class="col-12">
+                        <password-strongness :password="password"></password-strongness>
                     </div>
                     <VueRecaptcha v-if="configs['google-recaptcha-sitekey']" :sitekey="configs['google-recaptcha-sitekey']" @verify="verifyCaptcha" @expired="expiredCaptcha" class="g-recaptcha col-12"></VueRecaptcha>
                     <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('Continuar') ?> </button>

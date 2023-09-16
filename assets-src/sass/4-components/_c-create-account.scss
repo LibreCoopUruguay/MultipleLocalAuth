@@ -106,9 +106,12 @@
         .password {     
             position: relative;           
             &-rules {
+                margin-top:1em;
                 font-size: 14px;
                 line-height: 19px;
-                color: var(--mc-secondary-500);
+                >strong{
+                    color: var(--mc-secondary-500);
+                }
             }
 
             .seePassword {
@@ -126,45 +129,7 @@
             }
         }
 
-        .progressbar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-
-            progress[value] {
-                appearance: none;
-                height: 8px;
-                width: 210px;
-
-                &::-webkit-progress-bar {
-                    background-color: var(--mc-low-300);
-                    border-radius: var(--mc-border-radius-sm);
-                }
-
-                &::-webkit-progress-value {                       
-                    border-radius: var(--mc-border-radius-sm);
-                    transition: 1s;
-                }
-
-                &.fraco {
-                    &::-webkit-progress-value {
-                        background: red;    
-                    }
-                }
-
-                &.medio {
-                    &::-webkit-progress-value {
-                        background: yellow;   
-                    }
-                }
-
-                &.forte {
-                    &::-webkit-progress-value {
-                        background: green;    
-                    }
-                }
-            }
-        }
+        
 
         .g-recaptcha {
             display: flex;
@@ -305,4 +270,44 @@
         }
     }
 
+}
+
+.progressbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    progress[value] {
+        appearance: none;
+        height: 8px;
+        width: 210px;
+
+        &::-webkit-progress-bar {
+            background-color: var(--mc-low-300);
+            border-radius: var(--mc-border-radius-sm);
+        }
+
+        &::-webkit-progress-value {                       
+            border-radius: var(--mc-border-radius-sm);
+            transition: 1s;
+        }
+
+        &.fraco {
+            &::-webkit-progress-value {
+                background: red;    
+            }
+        }
+
+        &.medio {
+            &::-webkit-progress-value {
+                background: yellow;   
+            }
+        }
+
+        &.forte {
+            &::-webkit-progress-value {
+                background: green;    
+            }
+        }
+    }
 }

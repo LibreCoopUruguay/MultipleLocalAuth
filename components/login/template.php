@@ -9,6 +9,7 @@ use MapasCulturais\i;
 
 $this->import('
     mc-card
+    password-strongness
 ');
 ?>
 
@@ -17,7 +18,6 @@ $this->import('
     <!-- Login action -->
 
     <div v-if="!recoveryRequest && !recoveryMode" class="login__action">
-
         <div class="login__card">
             <div class="login__card__header">
                 <h3> <?= $this->text('welcome', i::__('Boas vindas!')) ?> </h3>
@@ -114,7 +114,7 @@ $this->import('
 
     <!-- Recovery action -->
     <div v-if="recoveryMode" class="login__recovery--action">
-        <div class="login__card" v-if="recoveryEmailSent">
+        <div class="login__card">
             <div class="login__card__header">
                 <h3> <?= i::__('Redefinir senha de acesso') ?> </h3>
             </div>
@@ -124,15 +124,16 @@ $this->import('
                     <div class="field col-12 password">
                         <label for="pwd"> <?= i::__('Senha'); ?> </label>
                         <input autocomplete="off" id="pwd" type="password" name="password" v-model="password" />
-                        <span class="password-rules">
-                            <?= i::__('A senha deve ter:') ?>
-                            <strong> {{passwordRules.minimumPasswordLength}}<?= i::__(' caracteres, um número, um caractere especial (! @ # $ & *), pelo menos uma letra maiúscula e uma minúscula.') ?></strong>
-                        </span>
+                        
                     </div>
 
                     <div class="field col-12 password">
-                        <label for="pwd"> <?= i::__('Senha'); ?> </label>
+                        <label for="pwd"> <?= i::__('Confirme sua nova senha'); ?> </label>
                         <input autocomplete="off" id="pwd" type="password" name="confirmPassword" v-model="confirmPassword" />
+                    </div>
+
+                    <div class="col-12">
+                        <password-strongness :password="password"></password-strongness>
                     </div>
 
                     <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('Redefinir senha') ?> </button>
