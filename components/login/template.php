@@ -21,7 +21,7 @@ $this->import('
         <div class="login__card">
             <div class="login__card__header">
                 <h3> <?= $this->text('welcome', i::__('Boas vindas!')) ?> </h3>
-                <h6> <?= $this->text('greeting', sprintf(i::__('Entre na sua conta do %s'), $app->siteName)) ?> </h6>
+                <h6> <?= sprintf($this->text('greeting', i::__('Entre na sua conta do %s')), $app->siteName) ?> </h6>
             </div>
 
             <div class="login__card__content">
@@ -64,10 +64,10 @@ $this->import('
                     </div>
 
                     <div class="create ">
-                        <h5 class="bold"> <?= $this->text('register', sprintf(i::__('Ainda não tem cadastro no %s? Realize seu cadastro agora!'), $app->siteName)) ?> </h5>
+                        <h5 class="bold"> <?= sprintf($this->text('register', i::__('Ainda não tem cadastro no %s? Realize seu cadastro agora!')), $app->siteName) ?> </h5>
 
                         <a class=" button button--primary button--large button--md" href="<?php echo $app->createUrl('auth', 'register') ?>"> 
-                            <?= i::__('Criar conta') ?>
+                            <?= $this->text('fazer-cadastro', i::__('Fazer cadastro')) ?>
                         </a>
                     </div>
                 </form>

@@ -20,8 +20,8 @@ $this->import('
 <div class="create-account"> 
 
     <div v-if="!created" class="create-account__title">
-        <label> <?= i::__('Criar uma conta') ?> </label>
-        <p> <?= i::__('Siga os passos para criar o seu cadastro no Mapa da Cultura Brasileira.') ?> </p>
+        <label><?= $this->text('title', i::__('Novo cadastro')) ?> </label>
+        <p><?= sprintf($this->text('description', i::__('Siga os passos para criar o seu cadastro no %s.')), $app->siteName) ?> </p>
     </div>
 
     <!-- Creating account -->
@@ -33,8 +33,6 @@ $this->import('
 
             <!-- First step -->
             <div v-if="step==0" class="create-account__step grid-12">
-                <label class="title col-12"><?= i::__('Crie sua conta no Mapas') ?></label>
-
                 <form class="col-12 grid-12" @submit.prevent="nextStep();">
                     <div class="field col-12">
                         <label for="email"> <?= i::__('E-mail') ?> </label>
@@ -99,20 +97,19 @@ $this->import('
             <!-- Last step -->
             <div v-if="step==totalSteps-1" class="create-account__step grid-12">
                 <label class="title col-12">
-                    <?= i::__('Criação de Agente') ?>
                     <div class="subtitle col-12">
                         <span> <?= i::__('Falta pouco para finalizar o seu cadastro!') ?> </span>
-                        <span> <?= i::__('Dê um nome e faça uma breve descrição do seu Agente.') ?> </span>
+                        <span> <?= i::__('Dê um nome e faça uma breve descrição sua.') ?> </span>
                     </div>
                 </label>
                 
                 <entity-field :entity="agent" classes="col-12" hide-required label=<?php i::esc_attr_e("Nome")?> prop="name" fieldDescription="<?= i::__('As pessoas irão encontrar você por esse nome.') ?>"></entity-field>
-                <entity-field :entity="agent" classes="col-12" hide-required prop="shortDescription" label="<?php i::esc_attr_e("Descrição")?>"></entity-field>
+                <entity-field :entity="agent" classes="col-12" hide-required prop="shortDescription" label="<?php i::esc_attr_e("Mini Bio")?>"></entity-field>
                 <entity-terms :entity="agent" classes="col-12" :editable="true" taxonomy='area' title="<?php i::esc_attr_e("Área de atuação") ?>"></entity-terms>                
 
                 <VueRecaptcha v-if="configs['google-recaptcha-sitekey']" :sitekey="configs['google-recaptcha-sitekey']" @verify="verifyCaptcha" @expired="expiredCaptcha" @render="expiredCaptcha" class="g-recaptcha col-12"></VueRecaptcha>
 
-                <button class="col-12 button button--primary button--large button--md" @click="register()"> <?= i::__('Criar conta') ?></button>
+                <button class="col-12 button button--primary button--large button--md" @click="register()"> <?= i::__('Criar cadastro') ?></button>
             </div>
         </template>
     </mc-card>
@@ -124,12 +121,12 @@ $this->import('
                 <div class="col-12 title">
                     <mc-icon name="circle-checked" class="title__icon"></mc-icon>
                     <label v-if="emailSent" class="col-12 title__label"> <?= i::__('E-mail de confirmação enviado!') ?> </label>
-                    <label v-if="!emailSent" class="col-12 title__label"> <?= i::__('Sua conta foi criada com sucesso!') ?> </label>
+                    <label v-if="!emailSent" class="col-12 title__label"> <?= i::__('Seu cadastro foi criado com sucesso!') ?> </label>
                 </div>
 
-                <p v-if="emailSent" class="emailSent col-12"> <?= i::__('Acesse seu e-mail de cadastro para confirmar a criação da sua conta no Mapas Culturais.') ?> </p>
+                <p v-if="emailSent" class="emailSent col-12"> <?= sprintf($this->text('email-sent', i::__('Acesse seu e-mail para confirmar a criação de seu cadastro no %s.')), $app->siteName) ?> </p>
 
-                <a href="<?= $app->createUrl('auth') ?>" class="col-12 button button--large button--primary"> <?php i::_e('Entrar na minha conta') ?> </a>
+                <a href="<?= $app->createUrl('auth') ?>" class="col-12 button button--large button--primary"> <?php i::_e('Acessar meu cadastro') ?> </a>
             </div>
         </template>
     </mc-card>
