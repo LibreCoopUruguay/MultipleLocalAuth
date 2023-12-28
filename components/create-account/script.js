@@ -209,6 +209,9 @@ app.component('create-account', {
                     if (dataReturn.error) {
                         this.throwErrors(dataReturn.data);
                     } else {
+                        if (dataReturn.redirectTo) {
+                            window.location = dataReturn.redirectTo;
+                        }
                         this.created = true;
                         if (dataReturn.emailSent) {
                             this.emailSent = true;

@@ -35,6 +35,8 @@ class Provider extends \MapasCulturais\AuthProvider {
         $config += [
             'salt' => env('AUTH_SALT', null),
             'timeout' => env('AUTH_TIMEOUT', '24 hours'),
+
+            'loginOnRegister' => env('AUTH_LOGIN_ON_REGISTER', false),
     
             'enableLoginByCPF' => env('AUTH_LOGIN_BY_CPF', true),
             'passwordMustHaveCapitalLetters' => env('AUTH_PASS_CAPITAL_LETTERS', true),
@@ -318,7 +320,8 @@ class Provider extends \MapasCulturais\AuthProvider {
             $registration = $app->auth->doRegister();
 
             if ($registration['success']) {
-                $this->json(['error' => false, 'emailSent' => $registration['emailSent']]);
+                $registration['error'] = false;
+                $this->json($registration);
             } else {
                 $this->errorJson($registration['errors'], 200);
             }
@@ -332,7 +335,10 @@ class Provider extends \MapasCulturais\AuthProvider {
             $login = $app->auth->doLogin();
 
             if ($login['success']) {
-                $this->json(['error' => false]);
+                $this->json([
+                    'error' => false, 
+                    'redirectTo' => $app->auth->getRedirectPath()
+                ]);
             } else {
                 $this->errorJson($login['errors'], 200);
             }
@@ -1231,8 +1237,16 @@ class Provider extends \MapasCulturais\AuthProvider {
             $user->save();
             $app->enableAccessControl();
 
+
+            $authenticated = false;
+            if ($this->_config['loginOnRegister']) {
+                $this->authenticateUser($user);
+                $authenticated = true;
+            }
             return [ 
                 'success' => true,
+                'authenticated' => $authenticated,
+                'redirectTo' => $authenticated ? $this->getRedirectPath() : '',
                 'emailSent' => (
                     isset($config['auth.config']) && 
                     isset($config['auth.config']['userMustConfirmEmailToUseTheSystem']) && 
@@ -1401,7 +1415,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $user = $this->createUser($response);
 
                 $profile = $user->profile;
-                $this->_setRedirectPath($profile->editUrl);
+                // $this->_setRedirectPath($profile->editUrl);
             }
             $this->_setAuthenticatedUser($user);
 
@@ -1533,9 +1547,12 @@ class Provider extends \MapasCulturais\AuthProvider {
         }
         
         $app->enableAccessControl();
-        $redirectUrl = $agent->editUrl;
+        $redirectUrl = $agent->status == Agent::STATUS_DRAFT ? $agent->editUrl : $this->getRedirectPath();
         $app->applyHookBoundTo($this, 'auth.createUser:redirectUrl', [&$redirectUrl]);
-        $this->_setRedirectPath($redirectUrl);
+
+        if ($redirectUrl) {
+            $this->_setRedirectPath($redirectUrl);
+        }
         
         return $user;
     }

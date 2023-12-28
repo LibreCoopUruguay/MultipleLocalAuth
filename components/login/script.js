@@ -67,7 +67,11 @@ app.component('login', {
                 if (dataReturn.error) {
                     this.throwErrors(dataReturn.data);
                 } else {
-                    window.location.href = $MAPAS.baseURL+'panel';
+                    if(dataReturn.redirectTo) {
+                        window.location.href = dataReturn.redirectTo;
+                    } else {
+                        window.location.href = Utils.createUrl('panel', 'index');
+                    }
                 }
             }));
         },
