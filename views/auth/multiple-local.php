@@ -52,7 +52,10 @@ function showStrategy($name, $config) {
                     <?php i::_e('Se você já possui uma conta no ' .$app->view->dict('site: name', false). ', comece pelo login. Caso tenha esquecido sua senha, clique em "esqueci a senha".', 'multipleLocal'); ?>
                     </h6>
                     <div class="login-options">
+                        <?php $this->applyTemplateHook("form-login", "before");?>
                         <form action="<?php echo $login_form_action; ?>" method="POST">
+                            <?php $this->applyTemplateHook("form-login", "begin");?>
+
                             <input type="hidden" name="redirectUrl" value="<?php echo isset($redirectUrl) ? $redirectUrl : ''; ?>" />
 
                             <fieldset>
@@ -77,13 +80,19 @@ function showStrategy($name, $config) {
                                 <div class="g-recaptcha" data-sitekey="<?php echo $config['google-recaptcha-sitekey']; ?>"></div>
                             <?php endif; ?>
 
+                            <?php $this->applyTemplateHook("form-login-button", "before");?>
                             <div class="submit-options">
                                 <a id="multiple-login-recover" class="multiple-recover-link"><?php i::_e('esqueci a senha', 'multipleLocal'); ?></a>
                                 <input type="submit" value="<?php i::esc_attr_e('Entrar', 'multipleLocal'); ?>" />
                             </div>
-                        </form>
+                            <?php $this->applyTemplateHook("form-login-button", "after");?>
 
-                        <?php if (showStrategy('Facebook', $config) || showStrategy('Google', $config) || showStrategy('LinkedIn', $config) || showStrategy('LoginCidadao', $config)) : ?>
+                            <?php $this->applyTemplateHook("form-login", "end");?>
+                        </form>
+                        <?php $this->applyTemplateHook("form-login", "after");?>
+                        
+
+                        <?php if (showStrategy('Facebook', $config) || showStrategy('Google', $config) || showStrategy('LinkedIn', $config) || showStrategy('LoginCidadao', $config) || showStrategy('govbr', $config)) : ?>
                             <div class="social-login">
                                 <div class="social-login--title">
                                     <?php i::_e('Ou conecte usando sua conta em', 'multipleLocal'); ?>
@@ -113,6 +122,12 @@ function showStrategy($name, $config) {
                                             <img src="<?php $this->asset('img/lc-login.png'); ?>" />
                                             Login Cidadão
                                         </a>
+                                    <?php endif; ?>
+                                    <?php if (showStrategy('govbr', $config)) : ?>
+                                        <a class="br-sign-in" href="<?php echo $app->createUrl('auth', 'govbr') ?>" style="background-color: #eee;color: black;">
+                                            <img class="br-sign-in-img" src="<?php $this->asset('img/sing-in-govbr.png'); ?>" style="margin-left: 6px;width: 30% !important;-webkit-filter: none !important;filter: none !important;color:#000;"/>
+                                        </a>
+
                                     <?php endif; ?>
                                 </div>
                                 <?php $app->applyHook('multipleLocalAuth.loginPage:end'); ?>
@@ -221,23 +236,6 @@ function showStrategy($name, $config) {
                         <input autocomplete="off" id="in-repassword" type="password" name="confirm_password" value="" />
                     </fieldset>
 
-                    <div class="registro__container__form__field" name="terminos" style="min-height: 0px;">
-                        <div class="render-field checkbox-field">
-                            <p>
-                                <input onchange="this.setCustomValidity(validity.valueMissing ? 'Please indicate that you accept the Terms and Conditions' : '');" id="field_terms" type="checkbox" required name="terms">
-                                <label class="caption" for="field_terms">
-                                    <span> <?php i::_e('Aceito a', 'multipleLocal'); ?>
-                                        <a aria-current="false" target="_blank" href="<?= $config['urlTermsOfUse'] ?>"> 
-                                        <?php i::_e('Politica de Privacidade e termos de condições de uso', 'multipleLocal'); ?></a>
-                                        <?php i::_e('do MapasCulturais', 'multipleLocal'); ?>
-                                    </span>
-                                </label>
-                            </p>
-
-                        </div>
-
-                    </div>
-
                     <?php if (isset($config['google-recaptcha-sitekey'])) : ?>
                         <div class="g-recaptcha" data-sitekey="<?php echo $config['google-recaptcha-sitekey']; ?>"></div>
                     <?php endif; ?>
@@ -247,10 +245,6 @@ function showStrategy($name, $config) {
                     </div>
                 </form>
             </div>
-
-            <script type="text/javascript">
-                document.getElementById("field_terms").setCustomValidity("Por favor, indique que aceita os Termos e condições de uso");
-            </script>
         </div>
 
     </div>

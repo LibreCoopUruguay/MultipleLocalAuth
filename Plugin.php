@@ -8,6 +8,7 @@ include('Facebook/FacebookStrategy.php');
 include('Google/GoogleStrategy.php');
 include('LinkedIn/LinkedInStrategy.php');
 include('LoginCidadao/LoginCidadaoStrategy.php');
+include('GovBr/GovBrStrategy.php');
 
 class Plugin extends \MapasCulturais\Plugin {
     
@@ -19,19 +20,22 @@ class Plugin extends \MapasCulturais\Plugin {
         
         // Load JS & CSS
         $app->hook('<<GET|POST>>(auth.<<*>>)', function() use ($app) {
-            //$app->view->enqueueScript('app', 'multipleLocal', 'js/multipleLocal.js');
-            //s$app->view->enqueueStyle('app', 'multipleLocal', 'css/multipleLocal.css');
-            
             $app->view->enqueueScript('app', 'multipleLocal', 'js/app.js');
             $app->view->enqueueStyle('app', 'multipleLocal', 'css/app.css');
             $app->view->enqueueStyle('app', 'fontawesome', 'https://use.fontawesome.com/releases/v5.8.2/css/all.css');
+            $app->view->enqueueStyle('app', 'multipleLocal-govbr', 'css/govbr.css');
         });
         
         $app->hook('<<GET|POST|ALL>>(panel.<<*>>):before', function() use ($app) {
             $app->view->enqueueStyle('app', 'multipleLocal', 'css/multipleLocal.css');
             $app->view->enqueueStyle('app', 'multipleLocal', 'css/app.css');
         });
-        
+
+        if (php_sapi_name() == "cli") {
+            if (!isset($_SERVER['HTTP_HOST'])) {
+                $_SERVER['HTTP_HOST'] = 'localhost';
+            }
+        }
     }
     
     public function register() {
@@ -42,9 +46,6 @@ class Plugin extends \MapasCulturais\Plugin {
         $this->registerUserMetadata(Provider::$accountIsActiveMetadata, ['label' => i::__('Conta ativa?')]);
         $this->registerUserMetadata(Provider::$tokenVerifyAccountMetadata, ['label' => i::__('Token de verificação')]);
         $this->registerUserMetadata(Provider::$loginAttempMetadata, ['label' => i::__('Número de tentativas de login')]);
-        $this->registerUserMetadata(Provider::$timeBlockedloginAttempMetadata, ['label' => i::__('Tempo de bloquei por excesso de tentativas')]);
-
-        
+        $this->registerUserMetadata(Provider::$timeBlockedloginAttempMetadata, ['label' => i::__('Tempo de bloquei por excesso de tentativas')]);        
     }
-    
 }

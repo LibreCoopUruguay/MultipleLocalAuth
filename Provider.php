@@ -2,6 +2,7 @@
 namespace MultipleLocalAuth;
 use MapasCulturais\App;
 use MapasCulturais\Entities;
+use MapasCulturais\Entities\Agent;
 use MapasCulturais\i;
 use MapasCulturais\Validator;
 use Mustache\Mustache;
@@ -52,14 +53,16 @@ class Provider extends \MapasCulturais\AuthProvider {
             'timeBlockedloginAttemp' => env('AUTH_BLOCK_TIME', 900), // tempo de bloqueio do usuario em segundos
     
             'metadataFieldCPF' => env('AUTH_METADATA_FIELD_DOCUMENT', 'documento'),
+            'metadataFieldPhone' => env('AUTH_METADATA_FIELD_PHONE', 'telefone1'),
 
             'urlSupportChat' => env('AUTH_SUPPORT_CHAT', ''),
             'urlSupportEmail' => env('AUTH_SUPPORT_EMAIL', ''),
+            'textSupportSite' => env('AUTH_SUPPORT_TEXT', ''),
             'urlSupportSite' => env('AUTH_SUPPORT_SITE', ''),
             'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE' ,'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRqLRsBSuwp4VBxBlIAqytRgieI_7nHjrDxyQ&usqp=CAU'),
 
             'urlTermsOfUse' => env('LINK_TERMOS', $app->createUrl('auth', 'termos-e-condicoes')),
-
+            'statusCreateAgent' => env('STATUS_CREATE_AGENT', Agent::STATUS_ENABLED),
             'strategies' => [
                 'Facebook' => [
                     'visible' => env('AUTH_FACEBOOK_CLIENT_ID', false),
@@ -80,12 +83,31 @@ class Provider extends \MapasCulturais\AuthProvider {
                     'client_id' => env('AUTH_GOOGLE_CLIENT_ID', null),
                     'client_secret' => env('AUTH_GOOGLE_CLIENT_SECRET', null),
                     'redirect_uri' => $app->getBaseUrl() . 'autenticacao/google/oauth2callback',
-                    'scope' => env('AUTH_GOOGLE_SCOPE', 'email'),
+                    'scope' => env('AUTH_GOOGLE_SCOPE', 'email profile'),
                 ],
                 'Twitter' => [
                     'visible' => env('AUTH_TWITTER_CLIENT_ID', false),
                     'app_id' => env('AUTH_TWITTER_APP_ID', null),
                     'app_secret' => env('AUTH_TWITTER_APP_SECRET', null),
+                ],
+                'govbr' => [
+                    'visible' => env('AUTH_GOV_BR_ID', false),
+                    'response_type' => 'code',
+                    'client_id' => env('AUTH_CLIENT_ID', null),
+                    'client_secret' => env('AUTH_SECRET', null),
+                    'scope' => env('AUTH_SCOPE', null),
+                    'redirect_uri' => env('AUTH_REDIRECT_URI', null), 
+                    'auth_endpoint' => env('AUTH_AUTH_ENDPOINT', null),
+                    'token_endpoint' => env('AUTH_TOKEN_ENDPOINT', null),
+                    'nonce' => null,
+                    'code_verifier' => env('AUTH_CODE_VERIFIER', null),
+                    'code_challenge' => env('AUTH_CHALLENGE', null),
+                    'code_challenge_method' => env('AUTH_CHALLENGE_METHOD', null),
+                    'userinfo_endpoint' => env('AUTH_USERINFO_ENDPOINT', null),
+                    'state_salt' => env('AUTH_STATE_SALT', null),
+                    'applySealId' => env('AUTH_APPLY_SEAL_ID', null),
+                    'menssagem_authenticated' => env('AUTH_MENSSAGEM_AUTHENTICATED','Usuário já se autenticou pelo GovBr'),
+                    'dic_agent_fields_update' => []
                 ]
             ]
         ];
@@ -328,6 +350,9 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $app->applyHook('auth.successful');
                 
                 $redirectUrl = $app->request->post('redirectUrl') ?: $app->auth->getRedirectPath();
+
+                $app->applyHookBoundTo($this, 'auth.successful:redirectUrl', [&$redirectUrl]);
+
                 unset($_SESSION['mapasculturais.auth.redirect_path']);
                 
                 $app->redirect($redirectUrl);
@@ -372,21 +397,40 @@ class Provider extends \MapasCulturais\AuthProvider {
         
         });
         
-        $app->hook('ALL(panel.my-account)', function () use($app){
+        $app->hook('ALL(panel.my-account)', function () use($app,$config){
         
             $email = filter_var($app->request->post('email'),FILTER_SANITIZE_EMAIL);
             if ($email) {
                 $app->auth->processMyAccount();
             }
+            
+            $has_seal_govbr = false;
+            if($config['strategies']['govbr']['visible']){
                 
+                $agent = $app->user->profile;
+                $relations = $agent->getSealRelations();
+                $sealId = $config['strategies']['govbr']['applySealId'];
+
+                foreach($relations as $relation){
+                    if($relation->seal->id == $sealId){
+                        $has_seal_govbr = true;
+                        break;
+                    }
+                }
+            }
+            
             $active = $this->template == 'panel/my-account' ? 'class="active"' : '';
             $user = $app->user;
             $email = $user->email ? $user->email : '';
-            $this->render('my-account', [
+            $this->render('my-account',[
                 'email' => $email,
                 'form_action' => $app->createUrl('panel', 'my-account'),
                 'feedback_success'        => $app->auth->feedback_success,
-                'feedback_msg'    => $app->auth->feedback_msg,  
+                'feedback_msg'    => $app->auth->feedback_msg,
+                'config' => $config,
+                'has_seal_govbr' => $has_seal_govbr,
+                'menssagem_authenticated' => $config['strategies']['govbr']['menssagem_authenticated']
+
             ]);
         
         });
@@ -732,6 +776,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                 "urlSupportChat" => $this->_config['urlSupportChat'],
                 "urlSupportEmail" => $this->_config['urlSupportEmail'],
                 "urlSupportSite" => $this->_config['urlSupportSite'],
+                "textSupportSite" => $this->_config['textSupportSite'],
                 "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
             ));
         
@@ -932,22 +977,29 @@ class Provider extends \MapasCulturais\AuthProvider {
             //cria um array com os agentes que estão com status == 1, pois o usuario pode ter, por exemplo, 3 agentes, mas 2 estão com status == 0
             $activeAgents  = [];
             $active_agent_users = [];
-            foreach ($foundAgent as $agentMeta) {
-                if($agentMeta->owner->status === 1) {
-                    $activeAgents[] = $agentMeta;
-                    if (!in_array($agentMeta->owner->user->id, $active_agent_users)) {
-                        $active_agent_users[] = $agentMeta->owner->user->id;
+            if(count($foundAgent) > 1){
+                foreach ($foundAgent as $agentMeta) {
+                    if($agentMeta->owner->status === 1) {
+                        $activeAgents[] = $agentMeta;
+                        if (!in_array($agentMeta->owner->user->id, $active_agent_users)) {
+                            $active_agent_users[] = $agentMeta->owner->user->id;
+                        }
                     }
                 }
+                
+                //aqui foi feito um "jogo de atribuição" de variaveis para que o restando do fluxo do codigo continue funcionando normalmente
+                $foundAgent = $activeAgents;
             }
 
-            //aqui foi feito um "jogo de atribuição" de variaveis para que o restando do fluxo do codigo continue funcionando normalmente
-            $foundAgent = $activeAgents;
 
             if(count($active_agent_users) > 1) {
-                return $this->setFeedback(i::__('Você possui 2 ou mais agente com o mesmo CPF ! Por favor entre em contato com o suporte.', 'multipleLocal'));
+                return $this->setFeedback(i::__('Você possui 2 ou mais agentes com o mesmo CPF! Por favor entre em contato com o suporte.', 'multipleLocal'));
             }
             
+            if(count($foundAgent) > 1 && count($active_agent_users) == 0){
+                return $this->setFeedback(i::__('Você possui 2 ou mais agentes inativos com o mesmo CPF! Por favor entre em contato com o suporte.', 'multipleLocal'));
+            }
+
             $user = $app->repo("User")->findOneBy(array('id' => $foundAgent[0]->owner->user->id));
 
             if($user->profile->id != $foundAgent[0]->owner->id) {
@@ -1080,6 +1132,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     "urlSupportChat" => $this->_config['urlSupportChat'],
                     "urlSupportEmail" => $this->_config['urlSupportEmail'],
                     "urlSupportSite" => $this->_config['urlSupportSite'],
+                    "textSupportSite" => $this->_config['textSupportSite'],
                     "urlImageToUseInEmails" => $this->_config['urlImageToUseInEmails'],
                 ));
 
@@ -1126,15 +1179,7 @@ class Provider extends \MapasCulturais\AuthProvider {
     protected function _setRedirectPath($redirect_path){
         parent::_setRedirectPath($redirect_path);
     }
-    /**
-     * Returns the URL to redirect after authentication
-     * @return string
-     */
-    public function getRedirectPath(){
-        $path = key_exists('mapasculturais.auth.redirect_path', $_SESSION) ?
-                    $_SESSION['mapasculturais.auth.redirect_path'] : App::i()->createUrl('site','');
-        return $path;
-    }
+    
     /**
      * Returns the Opauth authentication response or null if the user not tried to authenticate
      * @return array|null
@@ -1207,6 +1252,10 @@ class Provider extends \MapasCulturais\AuthProvider {
         return $this->_config['metadataFieldCPF'];
     }
 
+    public function getMetadataFieldPhone() {
+        return $this->_config['metadataFieldPhone'];
+    }
+
     public function _getAuthenticatedUser() {
         if (is_object($this->_authenticatedUser)) {
             return $this->_authenticatedUser;
@@ -1229,9 +1278,10 @@ class Provider extends \MapasCulturais\AuthProvider {
             $cpf = (isset($response['auth']['raw']['cpf'])) ? $this->mask($response['auth']['raw']['cpf'],'###.###.###-##') : null;
             if (!empty($cpf)) {        
                 $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();       
-                $agent = $app->repo('Agent')->findByMetadata($metadataFieldCpf, $cpf);
-                if(!empty($agent)) {
-                    $user = $agent[0]->user;
+                $agent_meta = $app->repo('AgentMeta')->findOneBy(["key" => $metadataFieldCpf, "value" => $cpf]);
+                
+                if(!empty($agent_meta)) {
+                    $user = $agent_meta->owner->user;
                 }
             }
 
@@ -1254,14 +1304,27 @@ class Provider extends \MapasCulturais\AuthProvider {
         if($this->_validateResponse()){
             // e ainda não existe um usuário no sistema
             $user = $this->_getAuthenticatedUser();
+            $response = $this->_getResponse();
             if(!$user){
-                $response = $this->_getResponse();
                 $user = $this->createUser($response);
 
                 $profile = $user->profile;
                 $this->_setRedirectPath($profile->editUrl);
             }
             $this->_setAuthenticatedUser($user);
+
+            if($provider_class = $response['auth']['provider']."Strategy"){
+                if(method_exists($provider_class, "verifyUpdateData")){
+                    $provider_class::verifyUpdateData($user, $response);
+                }
+            }
+
+            if($provider_class = $response['auth']['provider']."Strategy"){
+                if(method_exists($provider_class, "applySeal")){
+                    $provider_class::applySeal($user, $response);
+                }
+            }
+
             return true;
         } else {
             $this->_setAuthenticatedUser();
@@ -1300,42 +1363,65 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         $app->disableAccessControl();
 
-        // cria o usuário
-        $user = new Entities\User;
-        $user->authProvider = $response['auth']['provider'];
-        $user->authUid = $response['auth']['uid'];
-        $user->email = $response['auth']['info']['email'];
+        $config = $this->_config;
 
-        $app->em->persist($user);
-
-        // cria um agente do tipo user profile para o usuário criado acima
-        $agent = new Entities\Agent($user);
-
-        if(isset($response['auth']['info']['name'])){
-            $agent->name = $response['auth']['info']['name'];
-        }elseif(isset($response['auth']['info']['first_name']) && isset($response['auth']['info']['last_name'])){
-            $agent->name = $response['auth']['info']['first_name'] . ' ' . $response['auth']['info']['last_name'];
-        }else{
-            $agent->name = '';
+        $user = null;
+        if($provider_class = $response['auth']['provider']."Strategy"){
+            if(method_exists($provider_class, "newAccountCheck")){
+                if($user = $provider_class::newAccountCheck($response)){
+                    $agent = $user->profile;
+                }
+            }
         }
 
-        //cpf
-        $cpf = (isset($response['auth']['info']['cpf']) && $response['auth']['info']['cpf'] != "") ? $this->mask($response['auth']['info']['cpf'],'###.###.###-##') : null;
-        if(!empty($cpf)){
+        if(!$user){
+
+            // cria o usuário
+            $user = new Entities\User;
+            $user->authProvider = $response['auth']['provider'];
+            $user->authUid = $response['auth']['uid'];
+            $user->email = $response['auth']['info']['email'];
+
+            $app->em->persist($user);
+            
+            // cria um agente do tipo user profile para o usuário criado acima
+            $agent = new Entities\Agent($user);
+
+            if(isset($response['auth']['info']['name'])){
+                $agent->name = $response['auth']['info']['name'];
+            }elseif(isset($response['auth']['info']['first_name']) && isset($response['auth']['info']['last_name'])){
+                $agent->name = $response['auth']['info']['first_name'] . ' ' . $response['auth']['info']['last_name'];
+            }else{
+                $agent->name = '';
+            }
+            
+            if(isset($response['auth']['info']['phone_number'])){
+                $metadataFieldPhone = $this->getMetadataFieldPhone(); 
+                $metadataFieldPhone = $this->getMetadataFieldPhone(); 
+                $metadataFieldPhone = $this->getMetadataFieldPhone(); 
+                $agent->$metadataFieldPhone = $response['auth']['info']['phone_number'];
+            }
+
+            //cpf
+            $cpf = (isset($response['auth']['info']['cpf']) && $response['auth']['info']['cpf'] != "") ? $this->mask($response['auth']['info']['cpf'],'###.###.###-##') : null;
+            if(!empty($cpf)){
+                $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();   
             $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();   
-            $agent->setMetadata($metadataFieldCpf, $cpf);
+                $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();   
+                $agent->$metadataFieldCpf =  $cpf;
+            }
+
+            $agent->status = $config['statusCreateAgent'];
+            $agent->emailPrivado = $user->email;
+            
+            $agent->save();
+            $app->em->flush();
+
+
+            $user->profile = $agent;
+            
+            $user->save(true);
         }
-
-        $agent->emailPrivado = $user->email;
-        $agent->emailPublico = $user->email;
-
-        //$app->em->persist($agent);    
-        $agent->save();
-        $app->em->flush();
-
-        $user->profile = $agent;
-        
-        $user->save(true);
         
         $app->enableAccessControl();
         $redirectUrl = $agent->editUrl;
