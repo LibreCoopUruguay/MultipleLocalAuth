@@ -93,14 +93,14 @@ class Provider extends \MapasCulturais\AuthProvider {
                 ],
                 'govbr' => [
                     'visible' => env('AUTH_GOV_BR_ID', false),
-                    'response_type' => 'code',
+                    'response_type' => env('AUTH_GOV_BR_RESPONSE_TYPE', 'code'),
                     'client_id' => env('AUTH_GOV_BR_CLIENT_ID', null),
                     'client_secret' => env('AUTH_GOV_BR_SECRET', null),
                     'scope' => env('AUTH_GOV_BR_SCOPE', null),
                     'redirect_uri' => env('AUTH_GOV_BR_REDIRECT_URI', null), 
                     'auth_endpoint' => env('AUTH_GOV_BR_ENDPOINT', null),
                     'token_endpoint' => env('AUTH_GOV_BR_TOKEN_ENDPOINT', null),
-                    'nonce' => null,
+                    'nonce' => env('AUTH_GOV_BR_NONCE', null),
                     'code_verifier' => env('AUTH_GOV_BR_CODE_VERIFIER', null),
                     'code_challenge' => env('AUTH_GOV_BR_CHALLENGE', null),
                     'code_challenge_method' => env('AUTH_GOV_BR_CHALLENGE_METHOD', null),
@@ -108,7 +108,7 @@ class Provider extends \MapasCulturais\AuthProvider {
                     'state_salt' => env('AUTH_GOV_BR_STATE_SALT', null),
                     'applySealId' => env('AUTH_GOV_BR_APPLY_SEAL_ID', null),
                     'menssagem_authenticated' => env('AUTH_GOV_BR_MENSSAGEM_AUTHENTICATED','Usuário já se autenticou pelo GovBr'),
-                    'dic_agent_fields_update' => []
+                    'dic_agent_fields_update' => env('AUTH_GOV_BR_DICT_AGENT_FIELDS_UPDATE','[]')
                 ]
             ]
         ];
