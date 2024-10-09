@@ -70,13 +70,6 @@ app.component('create-account', {
             return JSON.parse(this.config);
         },
 
-        cpfMask() {
-            this.cpf = this.cpf.replace(/\D/g, "")
-            this.cpf = this.cpf.replace(/(\d{3})(\d)/, "$1.$2")
-            this.cpf = this.cpf.replace(/(\d{3})(\d)/, "$1.$2")
-            this.cpf = this.cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2")
-        },
-
         passwordStrongness() {
             if (this.password) {
                 let passwordMustHaveCapitalLetters = /[A-Z]/;
