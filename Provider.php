@@ -552,6 +552,9 @@ class Provider extends \MapasCulturais\AuthProvider {
      */
     function validateRegisterFields() {
         $app = App::i();
+        $em = $app->em;
+        $conn = $em->getConnection();
+
         $config = $this->_config;
         $hasErrors = false;
 
@@ -588,14 +591,10 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $hasErrors = true;
             }
             
+            $foundAgent = [];
             $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();
-            // check if cpf (with "-" and ".") exists
-            $findUserByCpfMetadata1 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
-            // check if cpf (without "-" and ".") exists
-            $cpf = str_replace("-","",$cpf); // remove "-"
-            $cpf = str_replace(".","",$cpf); // remove "."
-            $findUserByCpfMetadata2 = $app->repo("AgentMeta")->findBy(array('key' => $metadataFieldCpf, 'value' => $cpf));
-            $foundAgent = $findUserByCpfMetadata1 ? $findUserByCpfMetadata1 : $findUserByCpfMetadata2;
+            $_cpf = implode("','", [$cpf, preg_replace('/[^0-9]/i', '', $cpf)]);
+            $foundAgent = $conn->fetchAll("SELECT * FROM agent_meta WHERE key IN ('{$metadataFieldCpf}', 'cpf') AND value IN ('{$_cpf}')");
 
             // creates an array with agents with status == 1, because the user can have, for example, 3 agents, but 2 have status == 0
             $existAgent  = [];
