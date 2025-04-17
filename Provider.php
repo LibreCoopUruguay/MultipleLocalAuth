@@ -39,6 +39,8 @@ class Provider extends \MapasCulturais\AuthProvider {
             'loginOnRegister' => env('AUTH_LOGIN_ON_REGISTER', false),
     
             'enableLoginByCPF' => env('AUTH_LOGIN_BY_CPF', true),
+            'requireCpf' => env('AUTH_REQUIRED_CPF', true),
+
             'passwordMustHaveCapitalLetters' => env('AUTH_PASS_CAPITAL_LETTERS', true),
             'passwordMustHaveLowercaseLetters' => env('AUTH_PASS_LOWERCASE_LETTERS', true),
             'passwordMustHaveSpecialCharacters' => env('AUTH_PASS_SPECIAL_CHARS', true),
@@ -63,7 +65,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE'),
 
             'urlTermsOfUse' => env('LINK_TERMOS', $app->createUrl('auth', 'termos-e-condicoes')),
-            'statusCreateAgent' => env('STATUS_CREATE_AGENT', Agent::STATUS_DRAFT),
+            'statusCreateAgent' => env('STATUS_CREATE_AGENT', Agent::STATUS_ENABLED),
             'strategies' => [
                 'Facebook' => [
                     'visible' => env('AUTH_FACEBOOK_CLIENT_ID', false),
@@ -548,29 +550,32 @@ class Provider extends \MapasCulturais\AuthProvider {
         if($config['enableLoginByCPF']) {
 
             // validate cpf
-            if(empty($cpf) || !$this->validateCPF($cpf)) {
+            if($config['requireCpf'] && !$this->validateCPF($cpf)) {
                 array_push($errors['user']['cpf'], i::__('Por favor, informe um cpf válido.', 'multipleLocal'));
                 $hasErrors = true;
             }
             
-            $foundAgent = [];
-            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();
-            $_cpf = implode("','", [$cpf, preg_replace('/[^0-9]/i', '', $cpf)]);
-            $foundAgent = $conn->fetchAll("SELECT * FROM agent_meta WHERE key IN ('{$metadataFieldCpf}', 'cpf') AND value IN ('{$_cpf}')");
+            if($this->validateCPF($cpf)) {
+                $foundAgent = [];
+                $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();
+                
+                $_cpf = implode("','", [$cpf, preg_replace('/[^0-9]/i', '', $cpf)]);
+                $foundAgent = $conn->fetchAll("SELECT * FROM agent_meta WHERE key IN ('{$metadataFieldCpf}', 'cpf') AND value IN ('{$_cpf}')");
 
-            // creates an array with agents with status == 1, because the user can have, for example, 3 agents, but 2 have status == 0
-            $existAgent  = [];
-            if($foundAgent){
-                foreach ($foundAgent as $agentMeta) {
-                    if($agentMeta->owner->status >= 0) {
-                        $existAgent[] = $agentMeta;
+                // creates an array with agents with status == 1, because the user can have, for example, 3 agents, but 2 have status == 0
+                $existAgent  = [];
+                if($foundAgent){
+                    foreach ($foundAgent as $agentMeta) {
+                        if($agentMeta->owner->status >= 0) {
+                            $existAgent[] = $agentMeta;
+                        }
                     }
                 }
-            }
 
-            if(count($existAgent) > 0) {
-                array_push($errors['user']['cpf'], i::__('Este CPF já esta em uso. Tente recuperar a sua senha.', 'multipleLocal'));
-                $hasErrors = true;
+                if(count($existAgent) > 0) {
+                    array_push($errors['user']['cpf'], i::__('Este CPF já esta em uso. Tente recuperar a sua senha.', 'multipleLocal'));
+                    $hasErrors = true;
+                }
             }
 
         }
