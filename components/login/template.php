@@ -23,7 +23,7 @@ $this->import('
                 <h3> <?= $this->text('welcome', i::__('Boas vindas!')) ?> </h3>
 <!--                <h6> <?= sprintf($this->text('greeting', i::__('Entre na sua conta do %s')), $app->siteName) ?> </h6> -->
 
-                <h6> <?= sprintf($this->text('greeting', i::__('Ingrese en su cuenta en  %s')), $app->siteName) ?> </h6>
+                <h6> <?= sprintf($this->text('greeting', i::__('Ingrese _a_ su cuenta en  %s')), $app->siteName) ?> </h6>
             </div>
 
             <div class="login__card__content">
