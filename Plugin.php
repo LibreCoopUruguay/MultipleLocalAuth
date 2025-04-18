@@ -50,12 +50,12 @@ class Plugin extends \MapasCulturais\Plugin {
     }
     
     public function register() {
-        $this->registerUserMetadata(Provider::$passMetaName, ['label' => i::__('Senha')]);
-        $this->registerUserMetadata(Provider::$recoverTokenMetadata, ['label' => i::__('Token para recuperação de senha')]);
-        $this->registerUserMetadata(Provider::$recoverTokenTimeMetadata, ['label' => i::__('Timestamp do token para recuperação de senha')]);
-        $this->registerUserMetadata(Provider::$accountIsActiveMetadata, ['label' => i::__('Conta ativa?')]);
-        $this->registerUserMetadata(Provider::$tokenVerifyAccountMetadata, ['label' => i::__('Token de verificação')]);
+        $this->registerUserMetadata(Provider::$passMetaName, ['label' => i::__('Contraseña')]);
+        $this->registerUserMetadata(Provider::$recoverTokenMetadata, ['label' => i::__('Token para recuperación de contraseña')]);
+        $this->registerUserMetadata(Provider::$recoverTokenTimeMetadata, ['label' => i::__('Timestamp del token para recuperación de contraseña')]);
+        $this->registerUserMetadata(Provider::$accountIsActiveMetadata, ['label' => i::__('¿Cuenta activa?')]);
+        $this->registerUserMetadata(Provider::$tokenVerifyAccountMetadata, ['label' => i::__('Token de verificación')]);
         $this->registerUserMetadata(Provider::$loginAttempMetadata, ['label' => i::__('Número de tentativas de login')]);
-        $this->registerUserMetadata(Provider::$timeBlockedloginAttempMetadata, ['label' => i::__('Tempo de bloqueio por excesso de tentativas')]);        
+        $this->registerUserMetadata(Provider::$timeBlockedloginAttempMetadata, ['label' => i::__('Tiempo de bloqueio por exceso de tentativas')]);        
     }
 }
