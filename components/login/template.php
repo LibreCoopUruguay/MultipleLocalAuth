@@ -21,14 +21,17 @@ $this->import('
         <div class="login__card">
             <div class="login__card__header">
                 <h3> <?= $this->text('welcome', i::__('Boas vindas!')) ?> </h3>
-                <h6> <?= sprintf($this->text('greeting', i::__('Entre na sua conta do %s')), $app->siteName) ?> </h6>
+<!--                <h6> <?= sprintf($this->text('greeting', i::__('Entre na sua conta do %s')), $app->siteName) ?> </h6> -->
+
+                <h6> <?= sprintf($this->text('greeting', i::__('Ingrese en su cuenta en  %s')), $app->siteName) ?> </h6>
             </div>
 
             <div class="login__card__content">
                 <form class="login__form" @submit.prevent="doLogin();">
                     <div class="login__fields">
                         <div class="field">
-                            <label for="email"> <?= i::__('E-mail ou CPF') ?> </label>
+<!--                            <label for="email"> <?= i::__('E-mail ou CPF') ?> </label>  -->
+                            <label for="email"> <?= i::__('E-mail') ?> </label>
                             <input type="text" name="email" id="email" v-model="email" autocomplete="off" />
                         </div>
 
@@ -64,10 +67,12 @@ $this->import('
                     </div>
 
                     <div class="create ">
-                        <h5 class="bold"> <?= sprintf($this->text('register', i::__('Ainda não tem cadastro no %s? Realize seu cadastro agora!')), $app->siteName) ?> </h5>
+<!--                        <h5 class="bold"> <?= sprintf($this->text('register', i::__('Ainda não tem cadastro no %s? Realize seu cadastro agora!')), $app->siteName) ?> </h5>  -->
+                        <h5 class="bold"> <?= sprintf($this->text('register', i::__('No tiene cuenta en %s? Registrese ahora!')), $app->siteName) ?> </h5>
 
                         <a class=" button button--primary button--large button--md" href="<?php echo $app->createUrl('auth', 'register') ?>"> 
-                            <?= $this->text('fazer-cadastro', i::__('Fazer cadastro')) ?>
+<!--                            <?= $this->text('fazer-cadastro', i::__('Fazer cadastro')) ?> -->
+                            <?= $this->text('fazer-cadastro', i::__('Crer cuenta')) ?>
                         </a>
                     </div>
                 </form>
@@ -79,33 +84,41 @@ $this->import('
     <div v-if="recoveryRequest" class="login__recovery--request">
         <div class="login__card" v-if="!recoveryEmailSent">
             <div class="login__card__header">
-                <h3> <?= i::__('Alteração de senha') ?> </h3>
+<!--                <h3> <?= i::__('Alteração de senha') ?> </h3>
                 <h6> <?= i::__('Se você esqueceu a senha, não se preocupe, todo mundo passa por isso.') ?> <br> <?= i::__('Digite seu e-mail para criar uma nova.') ?> </h6>
+-->
+                <h3> <?= i::__('Recuperar contraseña') ?> </h3>
+                <h6> <?= i::__('¿Olvidó la contraseña? ¡A todos nos pasa!') ?> <br> <?= i::__('Digite su email para recuperarla.') ?> </h6>
             </div>
 
             <div class="login__card__content">
                 <form class="grid-12" @submit.prevent="requestRecover();">
                     <div class="field col-12">
-                        <label for="email"> <?= i::__('E-mail') ?> </label>
+                        <label for="email"> <?= i::__('Email') ?> </label>
                         <input type="email" name="email" id="email" v-model="email" autocomplete="off" />
                     </div>
                     <VueRecaptcha v-if="configs['google-recaptcha-sitekey']" :sitekey="configs['google-recaptcha-sitekey']" @verify="verifyCaptcha" @expired="expiredCaptcha" @render="expiredCaptcha" class="g-recaptcha col-12"></VueRecaptcha>
-                    <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('Alterar senha') ?> </button>
+<!--                    <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('Alterar senha') ?> </button>  -->
+                    <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('Modificar contraseña') ?> </button>
                     <a @click="recoveryRequest = false" class="col-12 button button--secondarylight button--large button--md"> <?= i::__('Voltar') ?> </a>
                 </form>
             </div>
         </div>
 
+
         <div class="login__card" v-if="recoveryEmailSent">
             <div class="login__card__content">
                 <div class="grid-12">
                     <div class="col-12 header">
-                        <label class="header__title"> <?= i::__('Alteração de senha') ?> </label>
+<!--                        <label class="header__title"> <?= i::__('Alteração de senha') ?> </label>  -->
+                        <label class="header__title"> <?= i::__('Modificar contraseña') ?> </label>
                         <mc-icon name="circle-checked" class="header__icon"></mc-icon>
-                        <label class="header__label"> <?= i::__('Enviamos as instruções de alteração de senha para seu e-mail.') ?> </label>
+                        <label class="header__label"> <?= i::__('Enviamos las instruciones de modificación a su email.') ?> </label>
+<!--                        <label class="header__label"> <?= i::__('Enviamos as instruções de alteração de senha para seu e-mail.') ?> </label>  -->
                     </div>
 
-                    <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('Não recebi o e-mail') ?> </button>
+<!--                    <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('Não recebi o e-mail') ?> </button>  -->
+                    <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('No recibí el email') ?> </button>
                     <a @click="recoveryEmailSent = false" class="col-12 button button--secondarylight button--large button--md"> <?= i::__('Voltar') ?> </a>
                 </div>
             </div>

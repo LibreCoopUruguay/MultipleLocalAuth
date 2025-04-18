@@ -15,6 +15,6 @@ use MapasCulturais\i;
 </div>
 
 <div v-if="getErrors()" class="password-rules">
-    <?= i::__('A senha deve conter:') ?>
+    <?= i::__('Contraseña debe contener:') ?>
     <strong> {{getErrors()}}</strong>
 </div>

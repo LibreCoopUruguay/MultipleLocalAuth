@@ -20,8 +20,14 @@ $this->import('
 <div class="create-account"> 
 
     <div v-if="!created" class="create-account__title">
-        <label><?= $this->text('title', i::__('Novo cadastro')) ?> </label>
-        <p><?= sprintf($this->text('description', i::__('Siga os passos para criar o seu cadastro no %s.')), $app->siteName) ?> </p>
+
+<!--        <label><?= $this->text('title', i::__('Novo cadastro')) ?> </label> -->
+
+        <label><?= $this->text('title', i::__('Nuevo registro')) ?> </label>
+
+<!--        <p><?= sprintf($this->text('description', i::__('Siga os passos para criar o seu cadastro no %s.')), $app->siteName) ?> </p> -->
+
+        <p><?= sprintf($this->text('description', i::__('Siga los pasos para registrarse en %s.')), $app->siteName) ?> </p>
     </div>
 
     <!-- Creating account -->
@@ -38,6 +44,9 @@ $this->import('
                         <label for="email"> <?= i::__('E-mail') ?> </label>
                         <input type="text" name="email" id="email" v-model="email" />
                     </div>
+
+<!-- Comento la solicitud del campo CPF
+
                     <div class="field col-12">
                         <label class="document-label" for="cpf"> 
                             <?= i::__('CPF') ?> 
@@ -50,8 +59,10 @@ $this->import('
                                 </VMenu>
                             </div>
                         </label>
-                        <input type="text" name="cpf" id="cpf" v-model="cpf" v-maska data-maska="###.###.###-##" maxlength="14" /> 
+                        <input type="text" name="cpf" id="cpf" v-model="cpf" v-maska data-maska="#.###.###-#" maxlength="14" /> 
                     </div>
+ -->
+
                     <div class="field col-12 password">
                         <label for="pwd"> <?= i::__('Senha'); ?> </label>
                         <input autocomplete="off" id="pwd" type="password" name="password" v-model="password" />
@@ -59,7 +70,8 @@ $this->import('
                     </div>
                     <div class="field col-12 password">
                         <label for="pwd-check">
-                            <?= i::__('Confirme sua senha'); ?>
+<!--                            <?= i::__('Confirme sua senha'); ?> -->
+                            <?= i::__('Confirme contraseña'); ?>
                         </label>
                         <input autocomplete="off" id="pwd-check" type="password" name="confirm_password" v-model="confirmPassword" />
                         <div class="seePassword" @click="togglePassword('pwd-check', $event)"></div>
@@ -98,18 +110,25 @@ $this->import('
             <div v-if="step==totalSteps-1" class="create-account__step grid-12">
                 <label class="title col-12">
                     <div class="subtitle col-12">
+<!--
                         <span> <?= i::__('Falta pouco para finalizar o seu cadastro!') ?> </span>
                         <span> <?= i::__('Dê um nome e faça uma breve descrição sua.') ?> </span>
+
+-->
+                        <span> <?= i::__('Falta poco para finalizar su registro!') ?> </span>
+                        <span> <?= i::__('Ponga su nombre y un abreve descripción.') ?> </span>
                     </div>
                 </label>
                 
-                <entity-field :entity="agent" classes="col-12" hide-required label=<?php i::esc_attr_e("Nome")?> prop="name" fieldDescription="<?= i::__('As pessoas irão encontrar você por esse nome.') ?>"></entity-field>
+<!--                <entity-field :entity="agent" classes="col-12" hide-required label=<?php i::esc_attr_e("Nome")?> prop="name" fieldDescription="<?= i::__('As pessoas irão encontrar você por esse nome.') ?>"></entity-field>   -->
+                <entity-field :entity="agent" classes="col-12" hide-required label=<?php i::esc_attr_e("Nome")?> prop="name" fieldDescription="<?= i::__('La gente te encontrará por este nombre.') ?>"></entity-field>
                 <entity-field :entity="agent" classes="col-12" hide-required prop="shortDescription" label="<?php i::esc_attr_e("Mini Bio")?>"></entity-field>
                 <entity-terms :entity="agent" classes="col-12" :editable="true" taxonomy='area' title="<?php i::esc_attr_e("Área de atuação") ?>"></entity-terms>                
 
                 <VueRecaptcha v-if="configs['google-recaptcha-sitekey']" :sitekey="configs['google-recaptcha-sitekey']" @verify="verifyCaptcha" @expired="expiredCaptcha" @render="expiredCaptcha" class="g-recaptcha col-12"></VueRecaptcha>
 
-                <button class="col-12 button button--primary button--large button--md" @click="register()"> <?= i::__('Criar cadastro') ?></button>
+<!--                <button class="col-12 button button--primary button--large button--md" @click="register()"> <?= i::__('Criar cadastro') ?></button> -->
+                <button class="col-12 button button--primary button--large button--md" @click="register()"> <?= i::__('Crear cuenta') ?></button>
             </div>
         </template>
     </mc-card>
