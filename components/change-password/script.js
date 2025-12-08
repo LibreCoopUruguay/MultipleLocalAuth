@@ -48,25 +48,7 @@ app.component('change-password', {
     },
 
     methods: {
-        async toggleMFA() {
-            let api = new API();
-            let data = { enable: this.mfaEnabled };
 
-            // Revertir cambio visual hasta confirmar respuesta
-            // Pero como v-model actualiza antes, lo dejamos así y si falla revertimos.
-
-            await api.POST($MAPAS.baseURL + "auth/toggle_mfa", data).then(response => response.json().then(dataReturn => {
-                if (dataReturn.success) {
-                    this.messages.success(this.mfaEnabled ? 'MFA Activado' : 'MFA Desactivado');
-                } else {
-                    this.mfaEnabled = !this.mfaEnabled; // Revertir
-                    this.messages.error('Error al actualizar MFA');
-                }
-            })).catch(() => {
-                this.mfaEnabled = !this.mfaEnabled;
-                this.messages.error('Error de conexión');
-            });
-        },
         async changePassword(modal) {
             let api = new API();
             if (this.myAccount) {

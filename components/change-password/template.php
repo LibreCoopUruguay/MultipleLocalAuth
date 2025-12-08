@@ -15,24 +15,14 @@ $this->import('
     <div v-if="myAccount" class="mfa-section-wrapper" style="margin-bottom: 24px;">
         <label class="change-password__title" style="margin-bottom: 8px; display: block;"><?= i::__('Seguridad Extra') ?></label>
         <div class="field col-12 mfa-section" style="padding: 16px; background: #fff; border: 1px solid #eee; border-radius: 4px;">
-            <label class="switch-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                <input type="checkbox" v-model="mfaEnabled" @change="toggleMFA">
-                <span style="font-weight: 500; font-size: 14px;"><?= i::__('Activar Autenticación de Dos Factores (MFA) por Email') ?></span>
-                <span 
-                    v-if="mfaEnabled" 
-                    style="margin-left: auto; padding: 4px 12px; background: #28a745; color: white; border-radius: 12px; font-size: 12px; font-weight: 600;"
-                >
-                    <?= i::__('Activado') ?>
-                </span>
-                <span 
-                    v-else 
-                    style="margin-left: auto; padding: 4px 12px; background: #6c757d; color: white; border-radius: 12px; font-size: 12px; font-weight: 600;"
-                >
-                    <?= i::__('Desactivado') ?>
-                </span>
-            </label>
-            <p class="help-text" style="font-size: 13px; color: #666; margin: 8px 0 0 24px; line-height: 1.4;">
-                <?= i::__('Al activar esta opción, se le solicitará un código enviado a su email cada vez que inicie sesión.') ?>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="flex-grow: 1;">
+                    <span style="font-weight: 500; font-size: 14px; display: block;"><?= i::__('Autenticación de Dos Factores (MFA)') ?></span>
+                    <span style="font-size: 13px; color: #28a745; font-weight: 600;"><?= i::__('Activa y Obligatoria') ?></span>
+                </div>
+            </div>
+            <p class="help-text" style="font-size: 13px; color: #666; margin: 8px 0 0 0; line-height: 1.4;">
+                <?= i::__('Por políticas de seguridad, el uso de MFA es obligatorio para todas las cuentas. Se le enviará un código a su email al iniciar sesión.') ?>
             </p>
         </div>
     </div>

@@ -447,68 +447,22 @@ class Provider extends \MapasCulturais\AuthProvider {
                 exit;
             }
             
-            $mfaEnabled = $user->getMetadata(Provider::$mfaEnabledMetadata);
+            $mfaEnabled = true; // MFA Mandatory
             
             header('Content-Type: application/json');
             echo json_encode([
                 'success' => true,
-                'mfa_enabled' => $mfaEnabled == '1'
+                'mfa_enabled' => true,
+                'mfa_mandatory' => true
             ]);
             exit;
         });
 
         $app->hook('POST(auth.toggle_mfa)', function() use($app) {
-            try {
-                error_log("MFA Toggle: Step 1 - Init");
-                $user = $app->user;
-                
-                if (!$user || !$user->id) {
-                    error_log("MFA Toggle: Use not found");
-                    $this->json(['error' => true, 'data' => 'User not logged in']);
-                    return;
-                }
-    
-                error_log("MFA Toggle: Step 2 - Read Body");
-                // Usar input stream estándar para leer JSON
-                $body = file_get_contents('php://input');
-                error_log("MFA Toggle: Body length: " . strlen($body));
-                
-                $data = json_decode($body, true);
-                
-                $enable = false;
-                if (isset($data['enable'])) {
-                    $enable = (bool) $data['enable'];
-                } else {
-                    $enable = $app->request->post('enable') === 'true';
-                }
-                
-                error_log("MFA Toggle: Step 3 - Set Metadata (Enable=$enable)");
-    
-                $app->disableAccessControl();
-                
-                $metaKey = \MultipleLocalAuth\Provider::$mfaEnabledMetadata;
-                $user->setMetadata($metaKey, $enable ? '1' : '0');
-                
-                error_log("MFA Toggle: Step 4 - Save Metadata");
-                $user->saveMetadata(true);
-                
-                error_log("MFA Toggle: Step 5 - Success");
-                $app->enableAccessControl();
-    
-                // Bypassing framework response to avoid potential output buffering or header issues
-                header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'mfa_enabled' => $enable]);
-                exit;
-
-            } catch (\Throwable $e) {
-                error_log("MFA Toggle CRITICAL ERROR (" . get_class($e) . "): " . $e->getMessage());
-                error_log($e->getTraceAsString());
-                
-                header('HTTP/1.1 500 Internal Server Error');
-                header('Content-Type: application/json');
-                echo json_encode(['error' => true, 'data' => 'Server error: ' . $e->getMessage()]);
-                exit;
-            }
+            // MFA is now mandatory, disabling toggle endpoint
+            header('Content-Type: application/json');
+            echo json_encode(['error' => true, 'data' => 'MFA es obligatorio y no se puede desactivar.']);
+            exit;
         });
 
         $providers = [];
@@ -1375,8 +1329,8 @@ class Provider extends \MapasCulturais\AuthProvider {
             
             $this->middlewareLoginAttempts(true);
 
-            // Verificar si el usuario tiene MFA activado
-            if ($userToLogin->getMetadata(self::$mfaEnabledMetadata) == '1') {
+            // MFA OBLIGATORIO: Se fuerza el flujo MFA para todos los usuarios, independientemente de la config personal
+            if (true) {
                 try {
                     error_log("MFA Login: Starting MFA flow for user " . $userToLogin->id);
                     
