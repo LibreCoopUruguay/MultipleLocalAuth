@@ -31,7 +31,8 @@ $this->import('
                     <div class="login__fields">
                         <div class="field">
 <!--                            <label for="email"> <?= i::__('E-mail ou CPF') ?> </label>  -->
-                            <label for="email"> <?= i::__('E-mail') ?> </label>
+<!--                            <label for="email"> <?= i::__('E-mail') ?> </label> -->
+                            <label for="email"> <?= i::__('E-mail o Documento / CI') ?> </label>
                             <input type="text" name="email" id="email" v-model="email" autocomplete="off" />
                         </div>
 

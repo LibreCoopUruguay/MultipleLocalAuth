@@ -57,6 +57,13 @@ class Plugin extends \MapasCulturais\Plugin {
         $this->registerUserMetadata(Provider::$accountIsActiveMetadata, ['label' => i::__('¿Cuenta activa?')]);
         $this->registerUserMetadata(Provider::$tokenVerifyAccountMetadata, ['label' => i::__('Token de verificación')]);
         $this->registerUserMetadata(Provider::$loginAttempMetadata, ['label' => i::__('Número de tentativas de login')]);
-        $this->registerUserMetadata(Provider::$timeBlockedloginAttempMetadata, ['label' => i::__('Tiempo de bloqueio por exceso de tentativas')]);        
+        $this->registerUserMetadata(Provider::$timeBlockedloginAttempMetadata, ['label' => i::__('Tiempo de bloqueio por exceso de tentativas')]);
+        
+        // MFA Metadata Registration
+        $this->registerUserMetadata(Provider::$mfaEnabledMetadata, ['label' => i::__('MFA Habilitado')]);
+        $this->registerUserMetadata(Provider::$mfaCodeHashMetadata, ['label' => i::__('Hash Código MFA')]);
+        $this->registerUserMetadata(Provider::$mfaCodeExpiresMetadata, ['label' => i::__('Expira Código MFA')]);
+        $this->registerUserMetadata('mfa_temp_token', ['label' => i::__('Token Temporal MFA')]);
+        $this->registerUserMetadata('mfa_temp_token_expires', ['label' => i::__('Expira Token Temporal MFA')]);        
     }
 }

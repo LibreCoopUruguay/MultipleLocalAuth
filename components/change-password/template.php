@@ -12,6 +12,30 @@ $this->import('
 ');
 ?>
 <div class="change-password">
+    <div v-if="myAccount" class="mfa-section-wrapper" style="margin-bottom: 24px;">
+        <label class="change-password__title" style="margin-bottom: 8px; display: block;"><?= i::__('Seguridad Extra') ?></label>
+        <div class="field col-12 mfa-section" style="padding: 16px; background: #fff; border: 1px solid #eee; border-radius: 4px;">
+            <label class="switch-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" v-model="mfaEnabled" @change="toggleMFA">
+                <span style="font-weight: 500; font-size: 14px;"><?= i::__('Activar Autenticación de Dos Factores (MFA) por Email') ?></span>
+                <span 
+                    v-if="mfaEnabled" 
+                    style="margin-left: auto; padding: 4px 12px; background: #28a745; color: white; border-radius: 12px; font-size: 12px; font-weight: 600;"
+                >
+                    <?= i::__('Activado') ?>
+                </span>
+                <span 
+                    v-else 
+                    style="margin-left: auto; padding: 4px 12px; background: #6c757d; color: white; border-radius: 12px; font-size: 12px; font-weight: 600;"
+                >
+                    <?= i::__('Desactivado') ?>
+                </span>
+            </label>
+            <p class="help-text" style="font-size: 13px; color: #666; margin: 8px 0 0 24px; line-height: 1.4;">
+                <?= i::__('Al activar esta opción, se le solicitará un código enviado a su email cada vez que inicie sesión.') ?>
+            </p>
+        </div>
+    </div>
     <label class="change-password__title"> <?= i::__('Senha:') ?> </label>
 
     <div class="change-password__password">
@@ -22,6 +46,8 @@ $this->import('
         <mc-modal title="<?= i::esc_attr__('Alteração de senha') ?>" classes="change-password__modal">
             <template #default>
                 <form class="grid-12" @submit.prevent="changePassword(modal);">
+
+
 
                     <div v-if="myAccount" class="field col-12 password">
                         <label for="currentPassword"> <?= i::__('Senha atual'); ?> </label>

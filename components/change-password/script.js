@@ -12,11 +12,12 @@ app.component('change-password', {
     },
 
     data() {
-        return { 
+        return {
             passwordRules: {},
             currentPassword: null,
             newPassword: null,
-            confirmNewPassword: null
+            confirmNewPassword: null,
+            mfaEnabled: false
         }
     },
 
@@ -31,14 +32,41 @@ app.component('change-password', {
         },
     },
 
-    mounted() {        
+    mounted() {
         let api = new API();
         api.GET($MAPAS.baseURL + "auth/passwordvalidationinfos").then(async response => response.json().then(validations => {
             this.passwordRules = validations.passwordRules;
         }));
+
+        if (this.myAccount) {
+            api.GET($MAPAS.baseURL + "auth/get_mfa_status").then(async response => response.json().then(data => {
+                if (data.success) {
+                    this.mfaEnabled = data.mfa_enabled;
+                }
+            }));
+        }
     },
 
     methods: {
+        async toggleMFA() {
+            let api = new API();
+            let data = { enable: this.mfaEnabled };
+
+            // Revertir cambio visual hasta confirmar respuesta
+            // Pero como v-model actualiza antes, lo dejamos así y si falla revertimos.
+
+            await api.POST($MAPAS.baseURL + "auth/toggle_mfa", data).then(response => response.json().then(dataReturn => {
+                if (dataReturn.success) {
+                    this.messages.success(this.mfaEnabled ? 'MFA Activado' : 'MFA Desactivado');
+                } else {
+                    this.mfaEnabled = !this.mfaEnabled; // Revertir
+                    this.messages.error('Error al actualizar MFA');
+                }
+            })).catch(() => {
+                this.mfaEnabled = !this.mfaEnabled;
+                this.messages.error('Error de conexión');
+            });
+        },
         async changePassword(modal) {
             let api = new API();
             if (this.myAccount) {
@@ -47,7 +75,7 @@ app.component('change-password', {
                     'new_password': this.newPassword,
                     'confirm_new_password': this.confirmNewPassword,
                 }
-                await api.POST($MAPAS.baseURL+"autenticacao/changepassword", data).then(response => response.json().then(dataReturn => {
+                await api.POST($MAPAS.baseURL + "autenticacao/changepassword", data).then(response => response.json().then(dataReturn => {
                     if (dataReturn.error) {
                         this.throwErrors(dataReturn.data);
                     } else {
@@ -61,7 +89,7 @@ app.component('change-password', {
                     'confirm_new_password': this.confirmNewPassword,
                     'email': this.entity.email,
                 }
-                await api.POST($MAPAS.baseURL+"autenticacao/adminchangeuserpassword", data).then(response => response.json().then(dataReturn => {
+                await api.POST($MAPAS.baseURL + "autenticacao/adminchangeuserpassword", data).then(response => response.json().then(dataReturn => {
                     if (dataReturn.error) {
                         this.throwErrors(dataReturn.data);
                     } else {

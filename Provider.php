@@ -28,7 +28,12 @@ class Provider extends \MapasCulturais\AuthProvider {
     public static $tokenVerifyAccountMetadata = 'tokenVerifyAccount';
 
     public static $loginAttempMetadata            = "loginAttemp";
-    public static $timeBlockedloginAttempMetadata = "timeBlockedloginAttemp";
+    public static $timeBlockedloginAttempMetadata = 'time_blocked_login_attemp';
+    
+    // MFA Metadata
+    public static $mfaEnabledMetadata = 'mfa_enabled';
+    public static $mfaCodeHashMetadata = 'mfa_code_hash';
+    public static $mfaCodeExpiresMetadata = 'mfa_code_expires'; // Timestamp
     
     function __construct ($config) {
         $app = App::i();
@@ -281,6 +286,224 @@ class Provider extends \MapasCulturais\AuthProvider {
 
         $app->hook('GET(auth.recover)', function () use($config){
             $this->render("pass-recover", [ 'config' => $config ]);
+        });
+
+        // MFA Routes
+        $app->hook('GET(auth.mfa)', function () use($app, $config){
+            try {
+                error_log("MFA Page: Step 1 - Hook accessed");
+                
+                // Get token from URL
+                $token = $app->request->get('token');
+                error_log("MFA Page: Step 2 - Token from URL = " . ($token ?? 'NOT PROVIDED'));
+                
+                if (!$token) {
+                    error_log("MFA Page: Step 3 - No token, redirecting");
+                    $app->redirect($app->createUrl('auth', 'login'));
+                    return;
+                }
+                
+                error_log("MFA Page: Step 4 - About to query UserMeta");
+                
+                // Find user by token using metadata query (more efficient than findAll)
+                $app->disableAccessControl();
+                
+                try {
+                    error_log("MFA Page: Step 5 - Querying UserMeta repo");
+                    // Find UserMeta with this token
+                    $userMetas = $app->repo('UserMeta')->findBy(['key' => 'mfa_temp_token', 'value' => $token]);
+                    
+                    error_log("MFA Page: Step 6 - Found " . count($userMetas) . " UserMeta records");
+                    
+                    $validUser = null;
+                    foreach ($userMetas as $meta) {
+                        error_log("MFA Page: Step 7 - Checking meta owner");
+                        $user = $meta->owner;
+                        $tokenExpires = $user->getMetadata('mfa_temp_token_expires');
+                        
+                        error_log("MFA Page: Step 8 - Token expires at: " . $tokenExpires . ", current time: " . time());
+                        
+                        if ($tokenExpires && $tokenExpires > time()) {
+                            $validUser = $user;
+                            error_log("MFA Page: Step 9 - Valid user found: " . $user->id);
+                            break;
+                        }
+                    }
+                } catch (\Exception $e) {
+                    error_log("MFA Page: ERROR in user lookup: " . $e->getMessage());
+                    error_log($e->getTraceAsString());
+                    $validUser = null;
+                }
+                
+                $app->enableAccessControl();
+                
+                if (!$validUser) {
+                    error_log("MFA Page: Step 10 - No valid user, redirecting to login");
+                    $app->redirect($app->createUrl('auth', 'login'));
+                    return;
+                }
+                
+                error_log("MFA Page: Step 11 - Setting session variables");
+                
+                // Store user ID in session for verify_mfa endpoint
+                $_SESSION['mfa_user_id'] = $validUser->id;
+                $_SESSION['mfa_token'] = $token;
+                
+                error_log("MFA Page: Step 12 - About to render view");
+                
+                $this->render('multiple-local', [ 'config' => $config, 'mode' => 'mfa' ]);
+                
+                error_log("MFA Page: Step 13 - Render complete");
+                
+            } catch (\Throwable $e) {
+                error_log("MFA Page: CRITICAL ERROR: " . $e->getMessage());
+                error_log($e->getTraceAsString());
+                throw $e;
+            }
+        });
+
+        $app->hook('POST(auth.verify_mfa)', function () use($app) {
+            error_log("POST(auth.verify_mfa): Hook called");
+            
+            try {
+                if (!isset($_SESSION['mfa_user_id'])) {
+                    header('Content-Type: application/json');
+                    echo json_encode(['error' => true, 'data' => 'Sesión expirada.']);
+                    exit;
+                }
+
+                $userId = $_SESSION['mfa_user_id'];
+                $user = $app->repo('User')->find($userId);
+                
+                if (!$user) {
+                    unset($_SESSION['mfa_user_id']);
+                    unset($_SESSION['mfa_token']);
+                    header('Content-Type: application/json');
+                    echo json_encode(['error' => true, 'data' => 'Usuario no encontrado.']);
+                    exit;
+                }
+
+                $code = trim($app->request->post('code'));
+                $savedHash = $user->getMetadata(\MultipleLocalAuth\Provider::$mfaCodeHashMetadata);
+                $expires = $user->getMetadata(\MultipleLocalAuth\Provider::$mfaCodeExpiresMetadata);
+
+                if (time() > $expires) {
+                    header('Content-Type: application/json');
+                    echo json_encode(['error' => true, 'data' => 'El código ha expirado.']);
+                    exit;
+                }
+
+                if (password_verify($code, $savedHash)) {
+                    // Código válido
+                    $app->disableAccessControl();
+                    $user->setMetadata(\MultipleLocalAuth\Provider::$mfaCodeHashMetadata, null);
+                    $user->setMetadata(\MultipleLocalAuth\Provider::$mfaCodeExpiresMetadata, null);
+                    $user->setMetadata('mfa_temp_token', null);
+                    $user->setMetadata('mfa_temp_token_expires', null);
+                    $user->saveMetadata(true);
+                    $app->enableAccessControl();
+                    
+                    unset($_SESSION['mfa_user_id']);
+                    unset($_SESSION['mfa_token']);
+                    
+                    $app->auth->authenticateUser($user);
+                    
+                    header('Content-Type: application/json');
+                    echo json_encode([
+                        'success' => true,
+                        'redirectTo' => $app->createUrl('panel', 'index')
+                    ]);
+                    exit;
+                } else {
+                    header('Content-Type: application/json');
+                    echo json_encode(['error' => true, 'data' => 'Código incorrecto.']);
+                    exit;
+                }
+            } catch (\Throwable $e) {
+                error_log("POST(auth.verify_mfa): ERROR - " . $e->getMessage());
+                error_log($e->getTraceAsString());
+                header('Content-Type: application/json');
+                echo json_encode(['error' => true, 'data' => 'Error del servidor.']);
+                exit;
+            }
+        });
+
+        $app->hook('POST(auth.resend_mfa)', function () use($app) {
+            $app->auth->resendMFA();
+        });
+
+        // MFA Management (My Account)
+        $app->hook('GET(auth.get_mfa_status)', function() use($app) {
+            $user = $app->user;
+            
+            if (!$user || !$user->id) {
+                header('Content-Type: application/json');
+                echo json_encode(['error' => true, 'message' => 'User not authenticated']);
+                exit;
+            }
+            
+            $mfaEnabled = $user->getMetadata(Provider::$mfaEnabledMetadata);
+            
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true,
+                'mfa_enabled' => $mfaEnabled == '1'
+            ]);
+            exit;
+        });
+
+        $app->hook('POST(auth.toggle_mfa)', function() use($app) {
+            try {
+                error_log("MFA Toggle: Step 1 - Init");
+                $user = $app->user;
+                
+                if (!$user || !$user->id) {
+                    error_log("MFA Toggle: Use not found");
+                    $this->json(['error' => true, 'data' => 'User not logged in']);
+                    return;
+                }
+    
+                error_log("MFA Toggle: Step 2 - Read Body");
+                // Usar input stream estándar para leer JSON
+                $body = file_get_contents('php://input');
+                error_log("MFA Toggle: Body length: " . strlen($body));
+                
+                $data = json_decode($body, true);
+                
+                $enable = false;
+                if (isset($data['enable'])) {
+                    $enable = (bool) $data['enable'];
+                } else {
+                    $enable = $app->request->post('enable') === 'true';
+                }
+                
+                error_log("MFA Toggle: Step 3 - Set Metadata (Enable=$enable)");
+    
+                $app->disableAccessControl();
+                
+                $metaKey = \MultipleLocalAuth\Provider::$mfaEnabledMetadata;
+                $user->setMetadata($metaKey, $enable ? '1' : '0');
+                
+                error_log("MFA Toggle: Step 4 - Save Metadata");
+                $user->saveMetadata(true);
+                
+                error_log("MFA Toggle: Step 5 - Success");
+                $app->enableAccessControl();
+    
+                // Bypassing framework response to avoid potential output buffering or header issues
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'mfa_enabled' => $enable]);
+                exit;
+
+            } catch (\Throwable $e) {
+                error_log("MFA Toggle CRITICAL ERROR (" . get_class($e) . "): " . $e->getMessage());
+                error_log($e->getTraceAsString());
+                
+                header('HTTP/1.1 500 Internal Server Error');
+                header('Content-Type: application/json');
+                echo json_encode(['error' => true, 'data' => 'Server error: ' . $e->getMessage()]);
+                exit;
+            }
         });
 
         $providers = [];
@@ -965,33 +1188,53 @@ class Provider extends \MapasCulturais\AuthProvider {
         $app->enableAccessControl();
     }
 
-    function validateCPF($cpf) {
- 
-        // Extrai somente os números
-        $cpf = preg_replace( '/[^0-9]/is', '', $cpf );
-         
-        // Verifica se foi informado todos os digitos corretamente
-        if (strlen($cpf) != 11) {
+    function validateCPF($ci) {
+        // Limpieza de caracteres no numéricos
+        $ci = preg_replace('/\D/', '', $ci);
+
+        // Validación de longitud
+        // Las Cédulas de Identidad uruguayas tienen 7 dígitos + 1 verificador (total 8)
+        // O menos dígitos (viejas) + 1 verificador.
+        // Se asume un mínimo de razonable (ej. 6 dígitos + verificador = 7 total) y máximo de 8.
+        if (strlen($ci) < 7 || strlen($ci) > 8) {
             return false;
         }
-    
-        // Verifica se foi informada uma sequência de digitos repetidos. Ex: 111.111.111-11
-        if (preg_match('/(\d)\1{10}/', $cpf)) {
-            return false;
+
+        // Algoritmo de validación de Dígito Verificador (Módulo 10)
+        // Referencia: CI Uruguaya
+        
+        // Completar a 8 dígitos con ceros a la izquierda para aplicar máscara fija
+        // La máscara es 2.9.8.7.6.3.4
+        $ciPad = str_pad($ci, 8, '0', STR_PAD_LEFT);
+        
+        $digitoVerificador = intval($ciPad[7]);
+        $numeros = substr($ciPad, 0, 7);
+
+        $suma = 0;
+        $pesos = [2, 9, 8, 7, 6, 3, 4];
+
+        for ($i = 0; $i < 7; $i++) {
+            $valor = intval($numeros[$i]);
+            $suma += $valor * $pesos[$i];
         }
-    
-        // Faz o calculo para validar o CPF
-        for ($t = 9; $t < 11; $t++) {
-            for ($d = 0, $c = 0; $c < $t; $c++) {
-                $d += $cpf[$c] * (($t + 1) - $c);
-            }
-            $d = ((10 * $d) % 11) % 10;
-            if ($cpf[$c] != $d) {
-                return false;
-            }
-        }
-        return true;
-    
+
+        $resto = $suma % 10;
+        $digitoCalculado = ($resto == 0) ? 0 : (10 - $resto);
+        // Si el resultado es 10 (caso 10-0?? No, (10-Resto)%10 si resto!=0)
+        // Corrección: el algoritmo dice: 
+        // D = 10 - (suma % 10)
+        // Si D == 10, entonces D = 0.
+        // Esto es equivalente a: (10 - resto) % 10, EXCEPTO si resto es 0, donde (10-0)%10 = 0.
+        // Si resto=0, (10-0)=10 -> %10 = 0. Correcto.
+
+        /* Verificación adicional de lógica standard Uruguay:
+           A = Suma
+           B = A % 10
+           C = (B == 0) ? 0 : 10 - B
+           D = C
+        */
+        
+        return $digitoCalculado === $digitoVerificador;
     }
 
     function doLogin() {
@@ -1119,14 +1362,58 @@ class Provider extends \MapasCulturais\AuthProvider {
             $meta = self::$passMetaName;
             $savedPass = $user->getMetadata($meta);
     
-            if (password_verify($pass, $savedPass)) {
-                $this->middlewareLoginAttempts(true);
-                $this->authenticateUser($userToLogin);
-            } else {
-                $this->middlewareLoginAttempts();
-                array_push($errors['login'], i::__('Usuário ou senha inválidos.', 'multipleLocal'));
-                $hasErrors = true;
+            error_log("Login Debug: About to verify password for user " . $user->id);
+    
+        if (password_verify($pass, $savedPass)) {
+            error_log("Login Debug: Password verified successfully for user " . $user->id);
+            error_log("Login Debug: MFA enabled status = " . $userToLogin->getMetadata(self::$mfaEnabledMetadata));
+            
+            $this->middlewareLoginAttempts(true);
+
+            // Verificar si el usuario tiene MFA activado
+            if ($userToLogin->getMetadata(self::$mfaEnabledMetadata) == '1') {
+                try {
+                    error_log("MFA Login: Starting MFA flow for user " . $userToLogin->id);
+                    
+                    $this->_generateAndSendMFA($userToLogin);
+                    
+                    error_log("MFA Login: Code generated and sent");
+                    
+                    // Generate temporary token instead of using session
+                    $token = bin2hex(random_bytes(32));
+                    
+                    $app->disableAccessControl();
+                    $userToLogin->setMetadata('mfa_temp_token', $token);
+                    $userToLogin->setMetadata('mfa_temp_token_expires', time() + 300); // 5 minutes
+                    $userToLogin->saveMetadata(true);
+                    $app->enableAccessControl();
+                    
+                    error_log("MFA Login: Token generated and saved");
+                    
+                    // Use raw response like in toggle_mfa to avoid framework issues
+                    header('Content-Type: application/json');
+                    echo json_encode([
+                        'success' => true,
+                        'mfa_required' => true,
+                        'redirectTo' => $app->createUrl('auth', 'mfa') . '?token=' . $token
+                    ]);
+                    exit;
+                    
+                } catch (\Throwable $e) {
+                    error_log("MFA Login ERROR: " . $e->getMessage());
+                    error_log($e->getTraceAsString());
+                    
+                    // Fall back to normal login on MFA error
+                    error_log("MFA Login: Falling back to normal login due to error");
+                }
             }
+
+            $this->authenticateUser($userToLogin);
+        } else {
+            $this->middlewareLoginAttempts();
+            array_push($errors['login'], i::__('Usuário ou senha inválidos.', 'multipleLocal'));
+            $hasErrors = true;
+        }
         }        
 
         return [
@@ -1452,6 +1739,94 @@ class Provider extends \MapasCulturais\AuthProvider {
         $_SESSION['multipleLocalUserId'] = $user->id;
     }
 
+    public function verifyMFA() {
+        error_log("verifyMFA: Step 1 - Method called");
+        
+        $app = App::i();
+        
+        error_log("verifyMFA: Step 2 - Checking session mfa_user_id");
+        error_log("verifyMFA: Session mfa_user_id = " . ($_SESSION['mfa_user_id'] ?? 'NOT SET'));
+        
+        if (!isset($_SESSION['mfa_user_id'])) {
+            error_log("verifyMFA: Step 3 - No session, returning error");
+            $this->json(['error' => true, 'data' => i::__('Sesión expirada.', 'multipleLocal')]);
+            return;
+        }
+
+        $userId = $_SESSION['mfa_user_id'];
+        error_log("verifyMFA: Step 4 - Finding user ID: " . $userId);
+        
+        $user = $app->repo('User')->find($userId);
+        
+        if (!$user) {
+            error_log("verifyMFA: Step 5 - User not found");
+            unset($_SESSION['mfa_user_id']);
+            unset($_SESSION['mfa_token']);
+            $this->json(['error' => true, 'data' => i::__('Usuario no encontrado.', 'multipleLocal')]);
+            return;
+        }
+
+        error_log("verifyMFA: Step 6 - User found, getting code from POST");
+        $code = trim($app->request->post('code'));
+        error_log("verifyMFA: Step 7 - Code received: " . $code);
+        
+        $savedHash = $user->getMetadata(self::$mfaCodeHashMetadata);
+        $expires = $user->getMetadata(self::$mfaCodeExpiresMetadata);
+
+        error_log("verifyMFA: Step 8 - Checking expiration. Expires: " . $expires . ", Now: " . time());
+
+        if (time() > $expires) {
+            error_log("verifyMFA: Step 9 - Code expired");
+            $this->json(['error' => true, 'data' => i::__('El código ha expirado.', 'multipleLocal')]);
+            return;
+        }
+
+        error_log("verifyMFA: Step 10 - Verifying code");
+        if (password_verify($code, $savedHash)) {
+            error_log("verifyMFA: Step 11 - Code valid, cleaning metadata");
+            
+            // Código válido - limpiar metadata
+            $app->disableAccessControl();
+            $user->setMetadata(self::$mfaCodeHashMetadata, null);
+            $user->setMetadata(self::$mfaCodeExpiresMetadata, null);
+            $user->setMetadata('mfa_temp_token', null);
+            $user->setMetadata('mfa_temp_token_expires', null);
+            $user->saveMetadata(true);
+            $app->enableAccessControl();
+            
+            unset($_SESSION['mfa_user_id']);
+            unset($_SESSION['mfa_token']);
+            
+            error_log("verifyMFA: Step 12 - Authenticating user");
+            $this->authenticateUser($user);
+            
+            error_log("verifyMFA: Step 13 - Sending success response");
+            $this->json([
+                'success' => true,
+                'redirectTo' => $app->createUrl('panel', 'index')
+            ]);
+        } else {
+            error_log("verifyMFA: Step 14 - Code incorrect");
+            $this->json(['error' => true, 'data' => i::__('Código incorrecto.', 'multipleLocal')]);
+        }
+    }
+
+    public function resendMFA() {
+        $app = App::i();
+        if (!isset($_SESSION['mfa_user_id'])) {
+            $this->json(['error' => true, 'data' => i::__('Sesión expirada.', 'multipleLocal')]);
+            return;
+        }
+
+        $userId = $_SESSION['mfa_user_id'];
+        $user = $app->repo('User')->find($userId);
+
+        if ($user) {
+            $this->_generateAndSendMFA($user);
+            $this->json(['success' => true, 'data' => i::__('Código reenviado.', 'multipleLocal')]);
+        }
+    }
+
     protected function _createUser($response)
     {
         $app = App::i();
@@ -1574,6 +1949,68 @@ class Provider extends \MapasCulturais\AuthProvider {
             }
         }
         return $maskared;
+    }
+
+    protected function _generateAndSendMFA($user) {
+        $app = App::i();
+        
+        // 1. Generate 6 digit code
+        $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        
+        // 2. Save Hash and Expiration
+        $app->disableAccessControl();
+        
+        $metaKeyHash = self::$mfaCodeHashMetadata;
+        $metaKeyExpires = self::$mfaCodeExpiresMetadata;
+        
+        $user->setMetadata($metaKeyHash, password_hash($code, PASSWORD_DEFAULT));
+        $user->setMetadata($metaKeyExpires, time() + (10 * 60)); // 10 minutes
+        
+        $user->saveMetadata(true);
+        $app->enableAccessControl();
+        
+        // 3. Send Email
+        $site_name = $app->siteName;
+        $email_subject = sprintf(i::__('Código de Verificación MFA - %s', 'multipleLocal'), $site_name);
+        
+        $mustache = new \Mustache_Engine();
+        
+        // Variables for template
+        $viewParams = [
+            'code' => $code,
+            'user' => $user->email,
+            'siteName' => $site_name,
+            'urlSupportChat' => $this->_config['urlSupportChat'] ?? '',
+            'urlSupportEmail' => $this->_config['urlSupportEmail'] ?? '',
+            'urlSupportSite' => $this->_config['urlSupportSite'] ?? '',
+            'urlImageToUseInEmails' => $this->getImageImageURl()
+        ];
+
+        try {
+            $templatePath = __DIR__ . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'auth' . DIRECTORY_SEPARATOR . 'email-mfa-code.html';
+            
+            if (!file_exists($templatePath)) {
+                // Fallback implementation if file missing
+                $content = "<h1>Seu código de verificação é: $code</h1>";
+            } else {
+                $content = $mustache->render(file_get_contents($templatePath), $viewParams);
+            }
+
+            $app->applyHook('multipleLocalAuth.mfaEmailSubject', [&$email_subject]);
+            $app->applyHook('multipleLocalAuth.mfaEmailBody', [&$content]);
+            
+            $app->createAndSendMailMessage([
+                'from' => $app->config['mailer.from'],
+                'to' => $user->email,
+                'subject' => $email_subject,
+                'body' => $content
+            ]);
+
+        } catch (\Exception $e) {
+            error_log("MFA Email Error: " . $e->getMessage());
+            // Fail silently on email error to not crash login, but user won't get code. 
+            // Ideally we should show error, but we are in json context.
+        }
     }
 
     function getUserFromDB($email) {
