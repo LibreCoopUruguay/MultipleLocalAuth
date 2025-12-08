@@ -9,6 +9,7 @@ include('Google/GoogleStrategy.php');
 include('LinkedIn/LinkedInStrategy.php');
 include('LoginCidadao/LoginCidadaoStrategy.php');
 include('GovBr/GovBrStrategy.php');
+include('Decidim/DecidimStrategy.php');
 
 class Plugin extends \MapasCulturais\Plugin {
     

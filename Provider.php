@@ -1,11 +1,12 @@
 <?php
 namespace MultipleLocalAuth;
-use MapasCulturais\App;
-use MapasCulturais\Entities;
-use MapasCulturais\Entities\Agent;
+use Exception;
 use MapasCulturais\i;
 use Mustache\Mustache;
+use MapasCulturais\App;
+use MapasCulturais\Entities;
 use Respect\Validation\Validator;
+use MapasCulturais\Entities\Agent;
 
 class Provider extends \MapasCulturais\AuthProvider {
     protected $opauth;
@@ -39,6 +40,8 @@ class Provider extends \MapasCulturais\AuthProvider {
             'loginOnRegister' => env('AUTH_LOGIN_ON_REGISTER', false),
     
             'enableLoginByCPF' => env('AUTH_LOGIN_BY_CPF', true),
+            'requireCpf' => env('AUTH_REQUIRED_CPF', true),
+
             'passwordMustHaveCapitalLetters' => env('AUTH_PASS_CAPITAL_LETTERS', true),
             'passwordMustHaveLowercaseLetters' => env('AUTH_PASS_LOWERCASE_LETTERS', true),
             'passwordMustHaveSpecialCharacters' => env('AUTH_PASS_SPECIAL_CHARS', true),
@@ -63,7 +66,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE'),
 
             'urlTermsOfUse' => env('LINK_TERMOS', $app->createUrl('auth', 'termos-e-condicoes')),
-            'statusCreateAgent' => env('STATUS_CREATE_AGENT', Agent::STATUS_DRAFT),
+            'statusCreateAgent' => env('STATUS_CREATE_AGENT', Agent::STATUS_ENABLED),
             'strategies' => [
                 'Facebook' => [
                     'visible' => env('AUTH_FACEBOOK_CLIENT_ID', false),
@@ -109,6 +112,17 @@ class Provider extends \MapasCulturais\AuthProvider {
                     'applySealId' => env('AUTH_GOV_BR_APPLY_SEAL_ID', null),
                     'menssagem_authenticated' => env('AUTH_GOV_BR_MENSSAGEM_AUTHENTICATED','Usuário já se autenticou pelo GovBr'),
                     'dic_agent_fields_update' => env('AUTH_GOV_BR_DICT_AGENT_FIELDS_UPDATE','[]')
+                ],
+                'decidim' => [
+                    'visible' => env('AUTH_DECIDIM_CLIENT_ID', false),
+                    'client_id' => env('AUTH_DECIDIM_CLIENT_ID', null),
+                    'client_secret' => env('AUTH_DECIDIM_CLIENT_SECRET', null),
+                    'redirect_uri' => env('AUTH_DECIDIM_REDIRECT_URI', null),
+                    'scope' => env('AUTH_DECIDIM_SCOPE', null),
+                    'auth_endpoint' => env('AUTH_DECIDIM_AUTH_ENDPOINT', null),
+                    'token_endpoint' => env('AUTH_DECIDIM_TOKEN_ENDPOINT', null),
+                    'userinfo_endpoint' => env('AUTH_DECIDIM_USERINFO_ENDPOINT', null),
+                    'button_text' => env('AUTH_DECIDIM_BUTTON_TEXT', 'Entrar com Decidim'),
                 ]
             ]
         ];
@@ -548,29 +562,32 @@ class Provider extends \MapasCulturais\AuthProvider {
         if($config['enableLoginByCPF']) {
 
             // validate cpf
-            if(empty($cpf) || !$this->validateCPF($cpf)) {
+            if($config['requireCpf'] && !$this->validateCPF($cpf)) {
                 array_push($errors['user']['cpf'], i::__('Por favor, informe um cpf válido.', 'multipleLocal'));
                 $hasErrors = true;
             }
             
-            $foundAgent = [];
-            $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();
-            $_cpf = implode("','", [$cpf, preg_replace('/[^0-9]/i', '', $cpf)]);
-            $foundAgent = $conn->fetchAll("SELECT * FROM agent_meta WHERE key IN ('{$metadataFieldCpf}', 'cpf') AND value IN ('{$_cpf}')");
+            if($this->validateCPF($cpf)) {
+                $foundAgent = [];
+                $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();
+                
+                $_cpf = implode("','", [$cpf, preg_replace('/[^0-9]/i', '', $cpf)]);
+                $foundAgent = $conn->fetchAll("SELECT * FROM agent_meta WHERE key IN ('{$metadataFieldCpf}', 'cpf') AND value IN ('{$_cpf}')");
 
-            // creates an array with agents with status == 1, because the user can have, for example, 3 agents, but 2 have status == 0
-            $existAgent  = [];
-            if($foundAgent){
-                foreach ($foundAgent as $agentMeta) {
-                    if($agentMeta->owner->status >= 0) {
-                        $existAgent[] = $agentMeta;
+                // creates an array with agents with status == 1, because the user can have, for example, 3 agents, but 2 have status == 0
+                $existAgent  = [];
+                if($foundAgent){
+                    foreach ($foundAgent as $agentMeta) {
+                        if($agentMeta->owner->status >= 0) {
+                            $existAgent[] = $agentMeta;
+                        }
                     }
                 }
-            }
 
-            if(count($existAgent) > 0) {
-                array_push($errors['user']['cpf'], i::__('Este CPF já esta em uso. Tente recuperar a sua senha.', 'multipleLocal'));
-                $hasErrors = true;
+                if(count($existAgent) > 0) {
+                    array_push($errors['user']['cpf'], i::__('Este CPF já esta em uso. Tente recuperar a sua senha.', 'multipleLocal'));
+                    $hasErrors = true;
+                }
             }
 
         }
@@ -1161,6 +1178,15 @@ class Provider extends \MapasCulturais\AuthProvider {
 
             $baseUrl = $app->getBaseUrl();
 
+            if(!$user) {
+                $error['user']['createUser'] = i::__('Não foi possível criar o usuário. Entre em contato com suporte', 'multipleLocal');
+
+                return [ 
+                    'success' => false,
+                    'errors' => $error
+                ];
+            }   
+
             //ATENÇÃO !! Se for necessario "padronizar" os emails com header/footers, é necessario adapatar o 'mustache', e criar uma mini estrutura de pasta de emails em 'MultipleLocalAuth\views'
             $mustache = new \Mustache_Engine();
             $site_name = $app->siteName;
@@ -1195,7 +1221,8 @@ class Provider extends \MapasCulturais\AuthProvider {
             $user->{self::$tokenVerifyAccountMetadata} = $token; 
             $user->{self::$accountIsActiveMetadata} = '0'; 
             $app->modules['LGPD']->acceptTerms($app->request->post('slugs'), $user);
-            $user->save();
+            $user->save(true);
+
             $app->enableAccessControl();
 
 
@@ -1296,7 +1323,7 @@ class Provider extends \MapasCulturais\AuthProvider {
         // verifica se a resposta é um erro
         if (array_key_exists('error', $response)) {
 
-            $app->flash('auth error', 'Opauth returns error auth response');
+            // $app->flash('auth error', 'Opauth returns error auth response');
         } else {
             /**
             * Auth response validation
@@ -1424,24 +1451,33 @@ class Provider extends \MapasCulturais\AuthProvider {
         $this->_setAuthenticatedUser($user);
         $_SESSION['multipleLocalUserId'] = $user->id;
     }
-    
-    protected function _createUser($response) {
+
+    protected function _createUser($response)
+    {
         $app = App::i();
+
+        /** @var \MapasCulturais\Connection $conn */
+        $conn = $app->em->getConnection();
 
         $app->disableAccessControl();
 
         $config = $this->_config;
 
         $user = null;
-        if($provider_class = $response['auth']['provider']."Strategy"){
-            if(method_exists($provider_class, "newAccountCheck")){
-                if($user = $provider_class::newAccountCheck($response)){
+        if ($provider_class = $response['auth']['provider'] . "Strategy") {
+            if (method_exists($provider_class, "newAccountCheck")) {
+                if ($user = $provider_class::newAccountCheck($response)) {
                     $agent = $user->profile;
                 }
             }
         }
 
-        if(!$user){
+        if ($user) {
+            return $user;
+        }
+
+        try {
+            $app->em->beginTransaction();
             // cria o usuário
             $user = new Entities\User;
             $user->authProvider = $response['auth']['provider'];
@@ -1449,73 +1485,79 @@ class Provider extends \MapasCulturais\AuthProvider {
             $user->email = $response['auth']['info']['email'];
 
             $app->em->persist($user);
-            
+
             // cria um agente do tipo user profile para o usuário criado acima
             $agent = new Entities\Agent($user);
 
-            if(isset($response['auth']['info']['name'])){
+            if (isset($response['auth']['info']['name'])) {
                 $agent->name = $response['auth']['info']['name'];
-            }
-            elseif(isset($response['auth']['info']['first_name']) && isset($response['auth']['info']['last_name'])){
+            } elseif (isset($response['auth']['info']['first_name']) && isset($response['auth']['info']['last_name'])) {
                 $agent->name = $response['auth']['info']['first_name'] . ' ' . $response['auth']['info']['last_name'];
-            }
-            elseif(isset($response['auth']['agentData']['name'])){
+            } elseif (isset($response['auth']['agentData']['name'])) {
                 $agent->name = $response['auth']['agentData']['name'];
-            }
-            else{
+            } else {
                 $agent->name = '';
             }
-            
-            if(isset($response['auth']['info']['phone_number'])){
-                $metadataFieldPhone = $this->getMetadataFieldPhone(); 
-                $metadataFieldPhone = $this->getMetadataFieldPhone(); 
-                $metadataFieldPhone = $this->getMetadataFieldPhone(); 
+
+            if (isset($response['auth']['info']['phone_number'])) {
+                $metadataFieldPhone = $this->getMetadataFieldPhone();
+                $metadataFieldPhone = $this->getMetadataFieldPhone();
+                $metadataFieldPhone = $this->getMetadataFieldPhone();
                 $agent->$metadataFieldPhone = $response['auth']['info']['phone_number'];
             }
 
-            if(isset($response['auth']['agentData']['shortDescription'])){
+            if (isset($response['auth']['agentData']['shortDescription'])) {
                 $agent->shortDescription = $response['auth']['agentData']['shortDescription'];
             }
 
-            if(isset($response['auth']['agentData']['terms:area'])){
+            if (isset($response['auth']['agentData']['terms:area'])) {
                 $agent->terms['area']  = $response['auth']['agentData']['terms:area'];
             }
 
-            if(isset($response['auth']['info']['phone_number'])){
-                $metadataFieldPhone = $this->getMetadataFieldPhone();  
+            if (isset($response['auth']['info']['phone_number'])) {
+                $metadataFieldPhone = $this->getMetadataFieldPhone();
                 $agent->setMetadata($metadataFieldPhone, $response['auth']['info']['phone_number']);
             }
 
             //cpf
-            $cpf = (isset($response['auth']['info']['cpf']) && $response['auth']['info']['cpf'] != "") ? $this->mask($response['auth']['info']['cpf'],'###.###.###-##') : null;
-            if(!empty($cpf)){
-                $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();   
+            $cpf = (isset($response['auth']['info']['cpf']) && $response['auth']['info']['cpf'] != "") ? $this->mask($response['auth']['info']['cpf'], '###.###.###-##') : null;
+            if (!empty($cpf)) {
+                $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();
                 $agent->$metadataFieldCpf =  $cpf;
             }
 
             $agent->status = (int) $config['statusCreateAgent'] ?? '0';
             $agent->emailPrivado = $user->email;
-            
-            $agent->save();
-            $app->em->flush();
 
+            $agent->save(true);
+            
             $user->profile = $agent;
             
             $user->save(true);
 
+            if(!$conn->fetchScalar("SELECT profile_id FROM usr where id = {$user->id}")) {
+                throw new Exception("Error create agent");
+            }
+            
             $user->createPermissionsCacheForUsers([$user]);
             $agent->createPermissionsCacheForUsers([$user]);
-        }
-        
-        $app->enableAccessControl();
-        $redirectUrl = $agent->status == Agent::STATUS_DRAFT ? $agent->editUrl : $this->getRedirectPath();
-        $app->applyHookBoundTo($this, 'auth.createUser:redirectUrl', [&$redirectUrl]);
 
-        if ($redirectUrl) {
-            $this->_setRedirectPath($redirectUrl);
+            $app->em->commit();
+
+            $app->enableAccessControl();
+            $redirectUrl = $agent->status == Agent::STATUS_DRAFT ? $agent->editUrl : $this->getRedirectPath();
+            $app->applyHookBoundTo($this, 'auth.createUser:redirectUrl', [&$redirectUrl]);
+
+            if ($redirectUrl) {
+                $this->_setRedirectPath($redirectUrl);
+            }
+
+            return $user;
+
+        } catch (\Throwable $th) {
+            $app->em->rollback();
+            return null;
         }
-        
-        return $user;
     }
 
     function mask($val, $mask) {
