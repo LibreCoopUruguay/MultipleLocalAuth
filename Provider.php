@@ -68,7 +68,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             'urlSupportEmail' => env('AUTH_SUPPORT_EMAIL', ''),
             'urlSupportSite' => env('AUTH_SUPPORT_SITE', $app->baseUrl),
             'textSupportSite' => env('AUTH_SUPPORT_TEXT', ''),
-            'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE' , $app->baseUrl . 'assets/img/main-logo.png'),
+            'urlImageToUseInEmails' => env('AUTH_EMAIL_IMAGE' , null),
 
             'urlTermsOfUse' => env('LINK_TERMOS', $app->createUrl('auth', 'termos-e-condicoes')),
             'statusCreateAgent' => env('STATUS_CREATE_AGENT', Agent::STATUS_ENABLED),
@@ -1502,7 +1502,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             return $this->_config['urlImageToUseInEmails'];
         } else {
             $app = App::i();
-            return $app->view->asset('img/mail-image.png', false);
+            return $app->view->asset('img/main-logo.png', false);
         }
     }
     
