@@ -1321,7 +1321,7 @@ class Provider extends \MapasCulturais\AuthProvider {
             $meta = self::$passMetaName;
             $savedPass = $user->getMetadata($meta);
     
-            error_log("Login Debug: About to verify password for user " . $user->id);
+
     
         if (password_verify($pass, $savedPass)) {
             error_log("Login Debug: Password verified successfully for user " . $user->id);
