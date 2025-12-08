@@ -45,11 +45,9 @@ $this->import('
                         <input type="text" name="email" id="email" v-model="email" />
                     </div>
 
-<!-- Comento la solicitud del campo CPF
-
                     <div class="field col-12">
                         <label class="document-label" for="cpf"> 
-                            <?= i::__('CPF') ?> 
+                            <?= i::__('Documento / CI') ?> 
                             <div class="question">
                                 <VMenu class="popover">
                                     <button tabindex="-1" class="question" type="button"> <?= i::__('Por que pedimos este dado') ?> <mc-icon name="question"></mc-icon> </button>
@@ -59,9 +57,11 @@ $this->import('
                                 </VMenu>
                             </div>
                         </label>
+                        <!-- La máscara inicial es estándar, luego uruguay-masks.js la reemplazará si detecta el data-maska. 
+                             Sin embargo, podemos poner directamnte una máscara más genérica o la específica de UY si queremos evitar el "salto".
+                             uruguay-masks.js busca data-maska="#.###.###-#" para reemplazarlo. Lo dejaremos así para que el script legacy funcione. -->
                         <input type="text" name="cpf" id="cpf" v-model="cpf" v-maska data-maska="#.###.###-#" maxlength="14" /> 
                     </div>
- -->
 
                     <div class="field col-12 password">
                         <label for="pwd"> <?= i::__('Senha'); ?> </label>
