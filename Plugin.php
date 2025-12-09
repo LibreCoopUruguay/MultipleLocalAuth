@@ -17,7 +17,7 @@ class Plugin extends \MapasCulturais\Plugin {
         $app = App::i();
         
         // register translation text domain
-        i::load_textdomain( 'multipleLocal', __DIR__ . "/translations" );
+        i::load_textdomain( 'multipleLocal', __DIR__ . "/translations", i::get_locale() );
         
         // Load JS & CSS
         $app->hook('GET(<<auth|panel>>.<<*>>):before', function() use ($app) {
