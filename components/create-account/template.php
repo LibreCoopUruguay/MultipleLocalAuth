@@ -47,7 +47,7 @@ $taxonomies = $app->getRegisteredTaxonomies("MapasCulturais\Entities\Agent");
                                 <VMenu class="popover">
                                     <button tabindex="-1" class="question" type="button"> <?= i::__('Por que pedimos este dado') ?> <mc-icon name="question"></mc-icon> </button>
                                     <template #popper>
-                                        <?= i::__('Texto sobre o motivo da coleta do CPF') ?>
+                                        <?= i::__('Para previnir fraudes e por questão de segurança, sendo utilizado para verificar a identidade do <br> usuário e garantir a segurança dos processos de identificação na plataforma, <br> evitando golpes e contas falsas.') ?>
                                     </template>
                                 </VMenu>
                             </div>
