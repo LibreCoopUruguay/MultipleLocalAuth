@@ -25,7 +25,7 @@ app.component('mfa-verify', {
                 if (dataReturn.error) {
                     this.error = dataReturn.data;
                 } else if (dataReturn.success) {
-                    window.location.href = dataReturn.redirectTo;
+                    window.location.href = dataReturn.redirectTo || dataReturn.redirectUrl;
                 }
             } catch (e) {
                 this.error = 'Ocurrió un error inesperado.';

@@ -411,12 +411,13 @@ class Provider extends \MapasCulturais\AuthProvider {
                     unset($_SESSION['mfa_user_id']);
                     unset($_SESSION['mfa_token']);
                     
+                    $redirectUrl = $app->auth->getRedirectPath() ?: $app->createUrl('panel', 'index');
                     $app->auth->authenticateUser($user);
                     
                     header('Content-Type: application/json');
                     echo json_encode([
                         'success' => true,
-                        'redirectTo' => $app->createUrl('panel', 'index')
+                        'redirectTo' => $redirectUrl
                     ]);
                     exit;
                 } else {
