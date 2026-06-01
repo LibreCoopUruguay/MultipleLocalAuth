@@ -65,5 +65,6 @@ class Plugin extends \MapasCulturais\Plugin {
         $this->registerUserMetadata(Provider::$mfaCodeExpiresMetadata, ['label' => i::__('Expira Código MFA')]);
         $this->registerUserMetadata('mfa_temp_token', ['label' => i::__('Token Temporal MFA')]);
         $this->registerUserMetadata('mfa_temp_token_expires', ['label' => i::__('Expira Token Temporal MFA')]);        
+        $this->registerUserMetadata('mfa_temp_method', ['label' => i::__('Método Temporal MFA')]);
     }
 }
