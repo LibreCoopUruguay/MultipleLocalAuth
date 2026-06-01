@@ -2,6 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Multiple Local Auth\n"
 "POT-Creation-Date: 2025-04-07 19:07-0300\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.6\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-KeywordsList: _e;__;esc_attr_e;i::__\n"
@@ -527,3 +530,8 @@ msgstr "Entrar a mi cuenta"
 
 #~ msgid "teste pt"
 #~ msgstr "teste es"
+
+#: Provider.php:1505
+#, php-format
+msgid "Bem-vindo ao %s"
+msgstr "Bienvenido a %s"

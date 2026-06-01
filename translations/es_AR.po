@@ -596,3 +596,8 @@ msgstr "Vincular cuenta con"
 
 #~ msgid "teste pt"
 #~ msgstr "teste es"
+
+#: Provider.php:1505
+#, php-format
+msgid "Bem-vindo ao %s"
+msgstr "Bienvenido a %s"

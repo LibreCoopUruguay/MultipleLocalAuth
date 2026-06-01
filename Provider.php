@@ -1502,10 +1502,14 @@ class Provider extends \MapasCulturais\AuthProvider {
                 )
             );
 
+            $email_subject = sprintf(i::__('Bem-vindo ao %s', 'multipleLocal'), $site_name);
+            $app->applyHook('multipleLocalAuth.welcomeEmailSubject', [&$email_subject]);
+            $app->applyHook('multipleLocalAuth.welcomeEmailBody', [&$content]);
+
             $app->createAndSendMailMessage([
                 'from' => $app->config['mailer.from'],
                 'to' => $user->email,
-                'subject' => "Bem-vindo ao ".$site_name,
+                'subject' => $email_subject,
                 'body' => $content
             ]);
 
