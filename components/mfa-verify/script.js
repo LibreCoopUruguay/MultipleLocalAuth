@@ -49,6 +49,7 @@ app.component('mfa-verify', {
                     this.error = dataReturn.data;
                 } else if (dataReturn.success) {
                     this.success = dataReturn.data;
+                    this.code = '';
                 }
             } catch (e) {
                 this.error = 'Error de conexión.';
