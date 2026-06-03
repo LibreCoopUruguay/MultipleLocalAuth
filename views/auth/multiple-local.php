@@ -23,8 +23,8 @@ if ($mode === 'mfa') {
     <?php
 } else {
     // Normal login mode
-    $this->import('login');
     $this->import('password-strongness');
+    $this->import('login');
     ?>
     <login config='<?= $configs; ?>' ></login>
     <?php
