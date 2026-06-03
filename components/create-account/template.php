@@ -13,7 +13,6 @@ $this->import('
     mc-card
     mc-icon
     mc-stepper
-    password-strongness
 ');
 ?>
 

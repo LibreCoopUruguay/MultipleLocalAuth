@@ -9,7 +9,6 @@ use MapasCulturais\i;
 
 $this->import('
     mc-card
-    password-strongness
 ');
 ?>
 

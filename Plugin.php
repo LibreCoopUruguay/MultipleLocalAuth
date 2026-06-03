@@ -22,6 +22,7 @@ class Plugin extends \MapasCulturais\Plugin {
         // Load JS & CSS
         $app->hook('GET(<<auth|panel>>.<<*>>):before', function() use ($app) {
             $app->view->enqueueStyle('app-v2', 'multipleLocal-v2', 'css/plugin-MultiplLocalAuth.css');
+            $app->view->import('password-strongness');
         });
 
         $app->hook('GET(auth.<<index|register>>)', function() use($app) {
