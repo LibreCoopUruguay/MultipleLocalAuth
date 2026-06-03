@@ -1,16 +1,22 @@
-app.component('password-strongness', {
-    template: $TEMPLATES['password-strongness'],
-
-    components: {
-        VueRecaptcha
-    },
-
-    props: {
-        password: {
-            type: String,
-            required: true
+(function () {
+    function registerComponent() {
+        if (typeof app === 'undefined' && typeof window.app === 'undefined') {
+            setTimeout(registerComponent, 50);
+            return;
         }
-    },
+
+        const vueApp = (typeof app !== 'undefined') ? app : window.app;
+        const templateContent = (window.$TEMPLATES && window.$TEMPLATES['password-strongness']) ? window.$TEMPLATES['password-strongness'] : '';
+        
+        vueApp.component('password-strongness', {
+            template: templateContent,
+
+            props: {
+                password: {
+                    type: String,
+                    required: true
+                }
+            },
 
     setup() {
         const text = Utils.getTexts('password-strongness')
@@ -32,7 +38,7 @@ app.component('password-strongness', {
 
         const passwordMustHaveCapitalLetters = /[A-Z]/;
         const passwordMustHaveLowercaseLetters = /[a-z]/;
-        const passwordMustHaveSpecialCharacters = /[$@$!%*#?&\.\,\:<>+\_\-\"\'()]/;
+        const passwordMustHaveSpecialCharacters = /[$@!%*#?&.,:<>+_\-"'()]/;
         const passwordMustHaveNumbers = /[0-9]/;
 
         return {
@@ -131,5 +137,13 @@ app.component('password-strongness', {
                 return 'forte';
             }
         }
-    },
+    }
 });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', registerComponent);
+} else {
+    registerComponent();
+}
+})();
