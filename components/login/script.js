@@ -1,4 +1,11 @@
-app.component('login', {
+(function waitForApp() {
+    if (typeof app === 'undefined' && typeof window.app === 'undefined') {
+        setTimeout(waitForApp, 50);
+        return;
+    }
+    const vueApp = (typeof app !== 'undefined') ? app : window.app;
+
+    vueApp.component('login', {
     template: $TEMPLATES['login'],
 
     components: {
@@ -168,3 +175,4 @@ app.component('login', {
         },
     },
 });
+})();
