@@ -1,17 +1,7 @@
-(function () {
-    function registerComponent() {
-        if (typeof app === 'undefined' && typeof window.app === 'undefined') {
-            setTimeout(registerComponent, 50);
-            return;
-        }
+app.component('password-strongness', {
+    template: $TEMPLATES['password-strongness'],
 
-        const vueApp = (typeof app !== 'undefined') ? app : window.app;
-        const templateContent = (window.$TEMPLATES && window.$TEMPLATES['password-strongness']) ? window.$TEMPLATES['password-strongness'] : '';
-        
-        vueApp.component('password-strongness', {
-            template: templateContent,
-
-            props: {
+    props: {
                 password: {
                     type: String,
                     required: true
@@ -139,11 +129,3 @@
         }
     }
 });
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', registerComponent);
-} else {
-    registerComponent();
-}
-})();

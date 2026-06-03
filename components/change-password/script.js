@@ -1,17 +1,7 @@
-(function () {
-    function registerComponent() {
-        if (typeof app === 'undefined' && typeof window.app === 'undefined') {
-            setTimeout(registerComponent, 50);
-            return;
-        }
+app.component('change-password', {
+    template: $TEMPLATES['change-password'],
 
-        const vueApp = (typeof app !== 'undefined') ? app : window.app;
-        const templateContent = (window.$TEMPLATES && window.$TEMPLATES['change-password']) ? window.$TEMPLATES['change-password'] : '';
-        
-        vueApp.component('change-password', {
-            template: templateContent,
-
-            components: {
+    components: {
                 VueRecaptcha
             },
 
@@ -134,12 +124,4 @@
             }
         }
     }
-    });
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', registerComponent);
-} else {
-    registerComponent();
-}
-})();
+});
