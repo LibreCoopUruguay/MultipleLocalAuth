@@ -22,8 +22,8 @@ app.component('login', {
             recoveryRequest: false,
             recoveryEmailSent: false,
 
-            recoveryMode: $MAPAS.recoveryMode?.status ?? '',
-            recoveryToken: $MAPAS.recoveryMode?.token ?? '',
+            recoveryMode: ($MAPAS.recoveryMode && $MAPAS.recoveryMode.status) ? $MAPAS.recoveryMode.status : '',
+            recoveryToken: ($MAPAS.recoveryMode && $MAPAS.recoveryMode.token) ? $MAPAS.recoveryMode.token : '',
         }
     },
 
@@ -47,7 +47,7 @@ app.component('login', {
         },
 
         multiple() {
-            return this.configs.strategies.Google?.visible && this.configs.strategies.govbr?.visible;
+            return (this.configs.strategies.Google && this.configs.strategies.Google.visible) && (this.configs.strategies.govbr && this.configs.strategies.govbr.visible);
         }
     },
 

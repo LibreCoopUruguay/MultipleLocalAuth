@@ -16,7 +16,7 @@ app.component('create-account', {
         const termsQtd = Object.entries(terms).length;
 
         return {
-            actualStep: globalState['stepper'] ?? 0,
+            actualStep: (globalState['stepper'] !== undefined && globalState['stepper'] !== null) ? globalState['stepper'] : 0,
             totalSteps: termsQtd + 2,
             terms,
             passwordRules: {},
