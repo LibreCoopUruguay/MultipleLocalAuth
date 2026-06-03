@@ -10,6 +10,7 @@ $configs = json_encode($config);
 $this->import('
     create-account
     mc-breadcrumb
+    password-strongness
 ');
 
 $this->breadcrumb = [
