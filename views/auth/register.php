@@ -7,11 +7,9 @@ $app = App::i();
 
 $configs = json_encode($config);
 
-$this->import('
-    create-account
-    mc-breadcrumb
-    password-strongness
-');
+$this->import('create-account');
+$this->import('mc-breadcrumb');
+$this->import('password-strongness');
 
 $this->breadcrumb = [
     ['label'=> i::__('Volver'), 'url' => $app->createUrl('auth')],

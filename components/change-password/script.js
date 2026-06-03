@@ -1,9 +1,19 @@
-app.component('change-password', {
-    template: $TEMPLATES['change-password'],
+(function () {
+    function registerComponent() {
+        if (typeof app === 'undefined' && typeof window.app === 'undefined') {
+            setTimeout(registerComponent, 50);
+            return;
+        }
 
-    components: {
-        VueRecaptcha
-    },
+        const vueApp = (typeof app !== 'undefined') ? app : window.app;
+        const templateContent = (window.$TEMPLATES && window.$TEMPLATES['change-password']) ? window.$TEMPLATES['change-password'] : '';
+        
+        vueApp.component('change-password', {
+            template: templateContent,
+
+            components: {
+                VueRecaptcha
+            },
 
     setup() {
         const messages = useMessages();
@@ -122,6 +132,14 @@ app.component('change-password', {
                 event.target.style.background = "url('https://api.iconify.design/carbon/view-filled.svg') no-repeat center center / 22.5px"
                 document.getElementById(id).type = 'password';
             }
-        },
-    },
-});
+        }
+    }
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', registerComponent);
+} else {
+    registerComponent();
+}
+})();
