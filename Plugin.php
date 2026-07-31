@@ -9,7 +9,9 @@ include('Google/GoogleStrategy.php');
 include('LinkedIn/LinkedInStrategy.php');
 include('LoginCidadao/LoginCidadaoStrategy.php');
 include('GovBr/GovBrStrategy.php');
-include('GovBr/GovBrAccountService.php');
+if (!class_exists(__NAMESPACE__ . '\\GovBrAccountService', false)) {
+    include __DIR__ . '/GovBr/GovBrAccountService.php';
+}
 include('Decidim/DecidimStrategy.php');
 
 class Plugin extends \MapasCulturais\Plugin {

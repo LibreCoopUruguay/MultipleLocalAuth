@@ -235,12 +235,18 @@ class GovBrStrategy extends OpauthStrategy
 		$app = App::i();
 
 		$agent = $user->profile;
-		$sealId = $response['auth']['applySeal'];
+		$sealId = $response['auth']['applySeal'] ?? null;
 
 		if($sealId){
 			$app->disableAccessControl();
 
 			$seal = $app->repo('Seal')->find($sealId);
+			if (!$seal) {
+				$app->log->error("Gov.br applySeal: selo {$sealId} não encontrado");
+				$app->enableAccessControl();
+				return;
+			}
+
 			$relations = $agent->getSealRelations();
 
 			$has_new_seal = false;

@@ -8,6 +8,11 @@ use MapasCulturais\Entities;
 use Respect\Validation\Validator;
 use MapasCulturais\Entities\Agent;
 
+// AuthProvider inicia antes dos plugins; carrega dependências usadas em _getAuthenticatedUser().
+if (!class_exists(__NAMESPACE__ . '\\GovBrAccountService', false)) {
+    require_once __DIR__ . '/GovBr/GovBrAccountService.php';
+}
+
 class Provider extends \MapasCulturais\AuthProvider {
     protected $opauth;
     
@@ -366,10 +371,10 @@ class Provider extends \MapasCulturais\AuthProvider {
             $auth->authenticateUser($user);
 
             if (method_exists('GovBrStrategy', 'verifyUpdateData')) {
-                GovBrStrategy::verifyUpdateData($user, $response);
+                \GovBrStrategy::verifyUpdateData($user, $response);
             }
             if (method_exists('GovBrStrategy', 'applySeal')) {
-                GovBrStrategy::applySeal($user, $response);
+                \GovBrStrategy::applySeal($user, $response);
             }
 
             $app->applyHook('auth.successful');
@@ -418,11 +423,32 @@ class Provider extends \MapasCulturais\AuthProvider {
             $login = $app->auth->doLogin();
 
             if ($login['success']) {
-                $app->applyHook('auth.successful');
-                
+                // Mantém auth.successful (AccountStatus, lastLogin, etc.), mas:
+                // 1) grava a sessão ANTES do trabalho pesado do hook
+                // 2) responde o JSON na hora
+                // 3) roda o hook no shutdown (após a resposta ao browser)
+                $redirectTo = $app->auth->getRedirectPath();
+
+                if (session_status() === PHP_SESSION_ACTIVE) {
+                    session_write_close();
+                }
+
+                register_shutdown_function(function () use ($app) {
+                    try {
+                        ignore_user_abort(true);
+                        set_time_limit(120);
+                        if (function_exists('fastcgi_finish_request')) {
+                            @fastcgi_finish_request();
+                        }
+                        $app->applyHook('auth.successful');
+                    } catch (\Throwable $e) {
+                        $app->log->error('auth.successful after login failed: ' . $e->getMessage());
+                    }
+                });
+
                 $this->json([
-                    'error' => false, 
-                    'redirectTo' => $app->auth->getRedirectPath()
+                    'error' => false,
+                    'redirectTo' => $redirectTo
                 ]);
             } else {
                 $this->errorJson($login['errors'], 200);
