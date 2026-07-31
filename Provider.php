@@ -309,6 +309,75 @@ class Provider extends \MapasCulturais\AuthProvider {
             }
         });
 
+        // Coleta de e-mail alternativo quando o e-mail do Gov.br já existe no Mapa
+        $app->hook('GET(auth.govbr-email)', function () use ($app, $config) {
+            $pending = GovBrAccountService::getPendingRegistration();
+            if (!$pending) {
+                $app->redirect($this->createUrl(''));
+                return;
+            }
+
+            $conflict_email = GovBrAccountService::extractEmailFromResponse($pending);
+            $this->render('govbr-email', [
+                'config' => $config,
+                'conflictEmail' => $conflict_email,
+                'formAction' => $app->createUrl('auth', 'govbr-email'),
+            ]);
+        });
+
+        $app->hook('POST(auth.govbr-email)', function () use ($app, $config) {
+            /** @var \MultipleLocalAuth\Provider $auth */
+            $auth = $app->auth;
+            $pending = GovBrAccountService::getPendingRegistration();
+            if (!$pending) {
+                $app->redirect($this->createUrl(''));
+                return;
+            }
+
+            $new_email = $app->request->post('email');
+            $errors = GovBrAccountService::validateAlternateEmail($new_email);
+            if ($errors) {
+                $this->render('govbr-email', [
+                    'config' => $config,
+                    'conflictEmail' => GovBrAccountService::extractEmailFromResponse($pending),
+                    'formAction' => $app->createUrl('auth', 'govbr-email'),
+                    'errors' => $errors,
+                    'triedEmail' => $new_email,
+                ]);
+                return;
+            }
+
+            $response = GovBrAccountService::applyEmailToResponse($pending, $new_email);
+            GovBrAccountService::clearPendingRegistration();
+
+            $user = $auth->createUserFromGovBrPending($response);
+            if (!$user) {
+                GovBrAccountService::storePendingRegistration($pending);
+                $this->render('govbr-email', [
+                    'config' => $config,
+                    'conflictEmail' => GovBrAccountService::extractEmailFromResponse($pending),
+                    'formAction' => $app->createUrl('auth', 'govbr-email'),
+                    'errors' => [i::__('Não foi possível criar o usuário. Tente novamente.', 'multipleLocal')],
+                    'triedEmail' => $new_email,
+                ]);
+                return;
+            }
+
+            $auth->authenticateUser($user);
+
+            if (method_exists('GovBrStrategy', 'verifyUpdateData')) {
+                GovBrStrategy::verifyUpdateData($user, $response);
+            }
+            if (method_exists('GovBrStrategy', 'applySeal')) {
+                GovBrStrategy::applySeal($user, $response);
+            }
+
+            $app->applyHook('auth.successful');
+            $redirect_url = $auth->getRedirectPath();
+            unset($_SESSION['mapasculturais.auth.redirect_path']);
+            $app->redirect($redirect_url);
+        });
+
 
         /******* INIT LOCAL AUTH **********/
 
@@ -1356,14 +1425,41 @@ class Provider extends \MapasCulturais\AuthProvider {
         if (is_object($this->_authenticatedUser)) {
             return $this->_authenticatedUser;
         }
-        
-        if (isset($_SESSION['multipleLocalUserId'])) {
+
+        $govBrResponse = null;
+        if ($this->_validateResponse()) {
+            $response = $this->_getResponse();
+            if (GovBrAccountService::isGovBrProvider($response['auth']['provider'] ?? null)) {
+                $govBrResponse = $response;
+            }
+        }
+
+        // Em callback Gov.br, não reutilizar sessão de outro CPF.
+        if (!$govBrResponse && isset($_SESSION['multipleLocalUserId'])) {
             $user_id = $_SESSION['multipleLocalUserId'];
             $user = App::i()->repo("User")->find($user_id);
             return $user;
         }
         
         $user = null;
+        if ($govBrResponse) {
+            $app = App::i();
+            $cpf = GovBrAccountService::extractCpfFromResponse($govBrResponse);
+            if (!empty($cpf)) {
+                $metadataFieldCpf = $this->getMetadataFieldCpfFromConfig();
+                $agent_meta = $app->repo('AgentMeta')->findOneBy(["key" => $metadataFieldCpf, "value" => $cpf]);
+                if (empty($agent_meta)) {
+                    $digits = preg_replace('/\D+/', '', $cpf);
+                    $agent_meta = $app->repo('AgentMeta')->findOneBy(["key" => $metadataFieldCpf, "value" => $digits]);
+                }
+                if (!empty($agent_meta)) {
+                    $user = $agent_meta->owner->user;
+                }
+            }
+            // Gov.br: sem fallback por e-mail (evita hijack de conta).
+            return $user;
+        }
+
         if($this->_validateResponse()){
             $app = App::i();
             $response = $this->_getResponse();
@@ -1401,7 +1497,16 @@ class Provider extends \MapasCulturais\AuthProvider {
             // e ainda não existe um usuário no sistema
             $user = $this->_getAuthenticatedUser();
             $response = $this->_getResponse();
+
             if(!$user){
+                if (GovBrAccountService::isGovBrProvider($response['auth']['provider'] ?? null)
+                    && GovBrAccountService::hasEmailConflictOnCreate($response)
+                ) {
+                    GovBrAccountService::storePendingRegistration($response);
+                    App::i()->redirect(App::i()->createUrl('auth', 'govbr-email'));
+                    return false;
+                }
+
                 $user = $this->createUser($response);
 
                 $profile = $user->profile;
@@ -1425,6 +1530,19 @@ class Provider extends \MapasCulturais\AuthProvider {
         } else {
             $this->_setAuthenticatedUser();
             return false;
+        }
+    }
+
+    /**
+     * Cria usuário a partir do fluxo pendente Gov.br (após e-mail alternativo).
+     * Expõe o createUser final do core sem alterar o core.
+     */
+    public function createUserFromGovBrPending(array $response)
+    {
+        try {
+            return $this->createUser($response);
+        } catch (\Throwable $e) {
+            return null;
         }
     }
     

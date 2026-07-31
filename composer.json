@@ -1,0 +1,24 @@
+{
+    "name": "mapasculturais/plugin-multiple-local-auth",
+    "description": "Multiple local and social authentication for Mapas Culturais",
+    "type": "library",
+    "require": {
+        "php": ">=8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "MultipleLocalAuth\\": ""
+        },
+        "classmap": [
+            "GovBr/GovBrAccountService.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MultipleLocalAuth\\Tests\\": "tests/"
+        }
+    }
+}

@@ -105,6 +105,9 @@ Cada estratégia pode receber `visible => bool` para controlar se o botão apare
 - `applySealId` (opcional): selo aplicado ao agente autenticado.
 - `dic_agent_fields_update`: mapa de campos que podem ser atualizados automaticamente (JSON, ex: `{"name": "full_name"}`).
 - `menssagem_authenticated`: mensagem exibida quando o usuário já autenticou via Gov.br.
+- Identidade estável: matching **somente por CPF** (`sub`); `authUid` usa `sub` (não `jti`). Sem fallback por e-mail (evita hijack).
+- Se o e-mail do Gov.br já existir em `usr.email` (único/obrigatório no core), a criação é interrompida e o usuário informa outro e-mail em `auth/govbr-email`.
+- `verifyUpdateData` não sobrescreve perfil cujo CPF diverge do token Gov.br.
 
 #### Decidim
 - `client_id`, `client_secret`, `auth_endpoint`, `token_endpoint`, `userinfo_endpoint`, `redirect_uri`, `scope`.
@@ -124,6 +127,16 @@ Você pode adicionar ou remover estratégias conforme necessário; qualquer estr
 - `POST auth.changepassword` / `POST auth.newpassword`: alteração de senha logado ou via token.
 - `POST auth.adminchangeuseremail` / `POST auth.adminchangeuserpassword`: rotinas administrativas (acessos protegidos).
 - `GET auth.passwordvalidationinfos`: retorna as regras de senha atuais para o front-end.
+- `GET|POST auth.govbr-email`: coleta e-mail alternativo quando o e-mail do Gov.br já está em uso (criação de conta).
+
+## Testes
+Regras de conta Gov.br (CPF / e-mail único) têm testes unitários em `tests/`:
+
+```bash
+cd plugins/MultipleLocalAuth
+php composer.phar install   # ou: composer install
+./vendor/bin/phpunit
+```
 
 ## Componentes que acompanham o plugin
 - `components/login`: formulário de login com reCAPTCHA, recuperação de senha e botões sociais.

@@ -94,8 +94,10 @@ class GovBrStrategy extends OpauthStrategy
 					'dic_agent_fields_update' => $this->strategy['dic_agent_fields_update']
 				];
 				
+				// CPF (sub) é a identidade estável no Gov.br.
+				// jti muda a cada token e não pode ser usado como authUid.
 				$this->auth = array(
-					'uid' => $userinfo->jti,
+					'uid' => $userinfo->sub,
 					'credentials' => array(
 						'token' => $results->id_token,
 						'expires' => $userinfo->exp
@@ -264,6 +266,17 @@ class GovBrStrategy extends OpauthStrategy
 
 		$auth_data = $response['auth']['info'];
 		$userinfo = (object) $response['auth']['raw'];
+		$metadataFieldCpf = $app->config['auth.config']['metadataFieldCPF'] ?? 'documento';
+
+		// Nunca sobrescrever perfil de outra pessoa (CPF diferente do token Gov.br).
+		$govCpf = \MultipleLocalAuth\GovBrAccountService::extractCpfFromResponse($response);
+		$profileCpf = \MultipleLocalAuth\GovBrAccountService::maskCpf((string) ($user->profile->$metadataFieldCpf ?? ''));
+		if ($profileCpf === null) {
+			$profileCpf = \MultipleLocalAuth\GovBrAccountService::maskCpf((string) ($user->profile->cpf ?? ''));
+		}
+		if ($govCpf && $profileCpf && $govCpf !== $profileCpf) {
+			return;
+		}
 
 		$app->hook("entity(Agent).get(lockedFields)", function(&$lockedFields) use ($app){
 			$config = $app->config['auth.config']['strategies']['govbr'];

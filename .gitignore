@@ -4,3 +4,7 @@ assets/js/app.js
 assets/css/plugin-MultiplLocalAuth.css
 mix-manifest.json
 node_modules/
+vendor/
+.phpunit.cache/
+composer.phar
+composer-setup.php
