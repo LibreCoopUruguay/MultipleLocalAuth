@@ -17,7 +17,7 @@ $this->import('
 
     <!-- Login action -->
 
-    <div v-if="!recoveryRequest && !recoveryMode" class="login__action">
+    <div v-if="!recoveryRequest && !recoveryMode && !accountInTrash && !forcePasswordChangeMode" class="login__action">
         <div class="login__card">
             <div class="login__card__header">
                 <h3> <?= $this->text('welcome', i::__('Boas vindas!')) ?> </h3>
@@ -112,6 +112,74 @@ $this->import('
                     <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('Não recebi o e-mail') ?> </button>
                     <a @click="recoveryEmailSent = false" class="col-12 button button--secondarylight button--large button--md"> <?= i::__('Voltar') ?> </a>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account with partial deletion -->
+    <div v-if="accountInTrash" class="login__recovery--request">
+        <div class="login__card" v-if="!restoreEmailSent">
+            <div class="login__card__header">
+                <h3> <?= i::__('Sua conta foi excluída parcialmente') ?> </h3>
+                <h6>
+                    <?= i::__('Olá') ?> {{trashProfileName}}, <?= i::__('sua conta foi excluída parcialmente e para continuar a usar você deve clicar no botão abaixo e confirmar que quer recuperar sua conta.') ?>
+                </h6>
+            </div>
+
+            <div class="login__card__content">
+                <div class="grid-12">
+                    <button @click="confirmRestore();" class="col-12 button button--primary button--large button--md" type="button"> <?= i::__('Confirmar recuperação da conta') ?> </button>
+                    <a @click="accountInTrash = false" class="col-12 button button--secondarylight button--large button--md"> <?= i::__('Voltar') ?> </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="login__card" v-if="restoreEmailSent">
+            <div class="login__card__content">
+                <div class="grid-12">
+                    <div class="col-12 header">
+                        <label class="header__title"> <?= i::__('Sua conta foi excluída parcialmente') ?> </label>
+                        <mc-icon name="circle-checked" class="header__icon"></mc-icon>
+                        <label class="header__label"> <?= i::__('Enviamos um e-mail de confirmação. Clique no link recebido para concluir a recuperação da sua conta.') ?> </label>
+                    </div>
+
+                    <a @click="accountInTrash = false; restoreEmailSent = false" class="col-12 button button--secondarylight button--large button--md"> <?= i::__('Voltar') ?> </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forced password change -->
+    <div v-if="forcePasswordChangeMode" class="login__recovery--action">
+        <div class="login__card">
+            <div class="login__card__header">
+                <h3> <?= i::__('Troca de senha obrigatória') ?> </h3>
+                <h6> <?= i::__('Por segurança, você precisa cadastrar uma nova senha antes de continuar.') ?> </h6>
+            </div>
+
+            <div class="login__card__content">
+                <form class="grid-12" @submit.prevent="doForcedPasswordChange();">
+                    <div class="field col-12">
+                        <label> <?= i::__('Usuário'); ?> </label>
+                        <input type="text" :value="forcePasswordChangeEmail" disabled />
+                    </div>
+
+                    <div class="field col-12 password">
+                        <label for="pwd"> <?= i::__('Nova senha'); ?> </label>
+                        <input autocomplete="off" id="pwd" type="password" name="password" v-model="password" />
+                    </div>
+
+                    <div class="field col-12 password">
+                        <label for="pwd"> <?= i::__('Confirme a nova senha'); ?> </label>
+                        <input autocomplete="off" id="pwd" type="password" name="confirmPassword" v-model="confirmPassword" />
+                    </div>
+
+                    <div class="col-12">
+                        <password-strongness :password="password"></password-strongness>
+                    </div>
+
+                    <button class="col-12 button button--primary button--large button--md" type="submit"> <?= i::__('Trocar senha') ?> </button>
+                </form>
             </div>
         </div>
     </div>

@@ -21,9 +21,17 @@ app.component('login', {
             
             recoveryRequest: false,
             recoveryEmailSent: false,
-            
+
+            accountInTrash: false,
+            trashProfileName: '',
+            restoreEmailSent: false,
+
+
             recoveryMode: $MAPAS.recoveryMode?.status ?? '',
             recoveryToken: $MAPAS.recoveryMode?.token ?? '',
+
+            forcePasswordChangeMode: $MAPAS.forcePasswordChangeMode ?? false,
+            forcePasswordChangeEmail: $MAPAS.forcePasswordChangeEmail ?? '',
         }
     },
 
@@ -65,13 +73,53 @@ app.component('login', {
 
             await api.POST($MAPAS.baseURL+"autenticacao/login", dataPost).then(response => response.json().then(dataReturn => {
                 if (dataReturn.error) {
-                    this.throwErrors(dataReturn.data);
+                    if (dataReturn.accountInTrash) {
+                        this.accountInTrash = true;
+                        this.trashProfileName = dataReturn.profileName;
+                    } else {
+                        this.throwErrors(dataReturn.data);
+                    }
                 } else {
                     if(dataReturn.redirectTo) {
                         window.location.href = dataReturn.redirectTo;
                     } else {
                         window.location.href = Utils.createUrl('panel', 'index');
                     }
+                }
+            }));
+        },
+
+        /* Mandatory password change, forced by an admin, after a successful login */
+        async doForcedPasswordChange() {
+            let api = new API();
+
+            let dataPost = {
+                'new_password': this.password,
+                'confirm_new_password': this.confirmPassword
+            }
+
+            await api.POST($MAPAS.baseURL+"autenticacao/doforcedpasswordchange", dataPost).then(response => response.json().then(dataReturn => {
+                if (dataReturn.error) {
+                    this.throwErrors(dataReturn.data);
+                } else {
+                    const messages = useMessages();
+                    messages.success('Senha alterada com sucesso!');
+                    setTimeout(() => {
+                        window.location.href = Utils.createUrl('panel', 'index');
+                    }, "1000")
+                }
+            }));
+        },
+
+        /* Confirm the restore of an account found in the trash bin during login */
+        async confirmRestore() {
+            let api = new API();
+
+            await api.POST($MAPAS.baseURL+"autenticacao/confirmrestore", {}).then(response => response.json().then(dataReturn => {
+                if (dataReturn.error) {
+                    this.throwErrors(dataReturn.data);
+                } else {
+                    this.restoreEmailSent = true;
                 }
             }));
         },
