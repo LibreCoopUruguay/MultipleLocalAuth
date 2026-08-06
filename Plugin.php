@@ -60,6 +60,8 @@ class Plugin extends \MapasCulturais\Plugin {
         $this->registerUserMetadata(Provider::$accountIsActiveMetadata, ['label' => i::__('Conta ativa?')]);
         $this->registerUserMetadata(Provider::$tokenVerifyAccountMetadata, ['label' => i::__('Token de verificação')]);
         $this->registerUserMetadata(Provider::$loginAttempMetadata, ['label' => i::__('Número de tentativas de login')]);
-        $this->registerUserMetadata(Provider::$timeBlockedloginAttempMetadata, ['label' => i::__('Tempo de bloqueio por excesso de tentativas')]);        
+        $this->registerUserMetadata(Provider::$timeBlockedloginAttempMetadata, ['label' => i::__('Tempo de bloqueio por excesso de tentativas')]);
+        $this->registerUserMetadata(Provider::$pendingTrashRestoreConfirmMetadata, ['label' => i::__('Aguardando confirmação de recuperação de conta')]);
+        $this->registerUserMetadata(Provider::$forcePasswordChangeMetadata, ['label' => i::__('Forçar troca de senha no próximo login')]);
     }
 }
