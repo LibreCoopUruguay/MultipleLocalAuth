@@ -32,6 +32,11 @@ class Provider extends \MapasCulturais\AuthProvider {
     public static $accountIsActiveMetadata    = 'accountIsActive';
     public static $tokenVerifyAccountMetadata = 'tokenVerifyAccount';
 
+    public static $pendingTrashRestoreConfirmMetadata = AccountLifecycleService::PENDING_TRASH_RESTORE_CONFIRM_METADATA;
+    public static $pendingTrashRestoreSessionKey       = AccountLifecycleService::PENDING_TRASH_RESTORE_SESSION_KEY;
+
+    public static $forcePasswordChangeMetadata = AccountLifecycleService::FORCE_PASSWORD_CHANGE_METADATA;
+
     public static $loginAttempMetadata            = "loginAttemp";
     public static $timeBlockedloginAttempMetadata = "timeBlockedloginAttemp";
     
@@ -185,6 +190,14 @@ class Provider extends \MapasCulturais\AuthProvider {
             $user->setMetadata(Provider::$accountIsActiveMetadata, '1');
 
             $app->disableAccessControl();
+
+            // só agora, com o link do email confirmado, a conta (e tudo que foi pra lixeira
+            // junto com ela) realmente sai da lixeira.
+            if (AccountLifecycleService::shouldRestoreOnEmailConfirm($user->getMetadata(Provider::$pendingTrashRestoreConfirmMetadata))) {
+                $user->setMetadata(Provider::$pendingTrashRestoreConfirmMetadata, '0');
+                $app->auth->restoreUserFromTrash($user, true);
+            }
+
             $user->saveMetadata(true);
             $app->enableAccessControl();
             $app->em->flush();
@@ -276,8 +289,11 @@ class Provider extends \MapasCulturais\AuthProvider {
         }
 
         // add actions to auth controller
-        $app->hook('GET(auth.index)', function () use($config){
-            $this->render('multiple-local', [ 'config' => $config ]);
+        $app->hook('GET(auth.index)', function () use($app, $config){
+            $this->render('multiple-local', [
+                'config' => $config,
+                'forcePasswordChange' => $app->auth->userMustChangePassword(),
+            ]);
         });
 
         $app->hook('GET(auth.register)', function () use($config){
@@ -450,8 +466,28 @@ class Provider extends \MapasCulturais\AuthProvider {
                     'error' => false,
                     'redirectTo' => $redirectTo
                 ]);
+            } else if (!empty($login['accountInTrash'])) {
+                $this->json([
+                    'error' => true,
+                    'accountInTrash' => true,
+                    'profileName' => $login['profileName'],
+                ]);
             } else {
                 $this->errorJson($login['errors'], 200);
+            }
+        });
+
+        $app->hook('POST(auth.confirmrestore)', function () use($app){
+            /**
+             * @var \MapasCulturais\Controller $this
+             */
+
+            $restore = $app->auth->confirmRestoreAccount();
+
+            if ($restore['success']) {
+                $this->json(['error' => false]);
+            } else {
+                $this->errorJson($restore['errors'], 200);
             }
         });
 
@@ -497,6 +533,22 @@ class Provider extends \MapasCulturais\AuthProvider {
             }
         });
 
+        $app->hook('POST(auth.doforcedpasswordchange)', function () use($app){
+            /**
+             * @var \MapasCulturais\Controller $this
+             */
+
+            $this->requireAuthentication();
+
+            $doForcedPasswordChange = $app->auth->doForcedPasswordChange();
+
+            if ($doForcedPasswordChange['success']) {
+                $this->json(['error' => false]);
+            } else {
+                $this->errorJson($doForcedPasswordChange['errors'], 200);
+            }
+        });
+
         $app->hook('POST(auth.newpassword)', function () use($app){
             /**
              * @var \MapasCulturais\Controller $this
@@ -524,8 +576,46 @@ class Provider extends \MapasCulturais\AuthProvider {
                 $this->errorJson($adminchangeuserpassword['errors'], 200);
             }
         });
-    
-        
+
+        $app->hook('POST(auth.forcepasswordchange)', function () use ($app) {
+            /**
+             * @var \MapasCulturais\Controller $this
+             */
+
+            $forcePasswordChange = $app->auth->forcePasswordChange();
+
+            if ($forcePasswordChange['success']) {
+                $this->json(['error' => false]);
+            } else {
+                $this->errorJson($forcePasswordChange['errors'], 200);
+            }
+        });
+
+        $app->hook('auth.redirectUrl', function (&$redirect) use ($app) {
+            if ($app->auth->userMustChangePassword()) {
+                $redirect = $app->createUrl('auth', 'index');
+            }
+        });
+
+        // Enquanto a troca de senha estiver pendente, o usuário fica preso em /autenticacao/
+        // (form de troca, logout e endpoints auxiliares do auth). Qualquer outra rota
+        // (incluindo API) redireciona de volta — o controller auth fica liberado.
+        // O padrão segue o do módulo LGPD: callAction dispara ALL(controller.action):before,
+        // então ALL(<<*>>):before casa com qualquer controller/ação.
+        $app->hook('ALL(<<*>>):before,API(<<*>>):before,-ALL(auth.<<*>>):before,-API(auth.<<*>>):before', function () use ($app) {
+            /** @var \MapasCulturais\Controller $this */
+            if (!$app->auth->userMustChangePassword()) {
+                return;
+            }
+
+            if ($app->request->isAjax()) {
+                $app->halt(403, i::__('É necessário trocar a senha antes de continuar.', 'multipleLocal'));
+            }
+
+            $app->redirect($app->createUrl('auth', 'index'));
+        });
+
+
         $app->hook('panel.menu:after', function () use($app){
         
             $active = $this->template == 'panel/my-account' ? 'class="active"' : '';
@@ -925,16 +1015,123 @@ class Provider extends \MapasCulturais\AuthProvider {
         }
         
         if (!$hasErrors) {
+            $user->setMetadata(self::$forcePasswordChangeMetadata, '0');
+
             $app->disableAccessControl();
             $user->saveMetadata(true);
             $app->enableAccessControl();
             $user->save(true);
             $app->em->flush();
-            return [ 
+            return [
                 'success' => true
             ];
         } else {
-            return [ 
+            return [
+                'success' => false,
+                'errors' => $errors
+            ];
+        }
+    }
+
+    /**
+     * Ação de admin: marca o usuário para ser obrigado a trocar a senha no próximo login
+     * bem-sucedido (o redirecionamento pós-login é tratado no hook 'auth.redirectUrl').
+     */
+    function forcePasswordChange() {
+        $app = App::i();
+
+        $errors = [
+            'forcePasswordChange' => []
+        ];
+
+        $email = $app->request->post('email');
+        $user = $this->getUserFromDB($email);
+
+        $preconditionError = AccountLifecycleService::forcePasswordChangeError(
+            $app->user->is('admin'),
+            (bool) $user
+        );
+
+        if ($preconditionError === 'permission') {
+            array_push($errors['forcePasswordChange'], i::__('Você não tem permissão para executar esta ação.', 'multipleLocal'));
+            return [
+                'success' => false,
+                'errors' => $errors
+            ];
+        }
+
+        if ($preconditionError === 'not_found') {
+            array_push($errors['forcePasswordChange'], i::__('Usuário não encontrado.', 'multipleLocal'));
+            return [
+                'success' => false,
+                'errors' => $errors
+            ];
+        }
+
+        $user->setMetadata(self::$forcePasswordChangeMetadata, '1');
+
+        $app->disableAccessControl();
+        $user->saveMetadata(true);
+        $app->enableAccessControl();
+        $app->em->flush();
+
+        return [
+            'success' => true
+        ];
+    }
+
+    /**
+     * True se o usuário logado precisa trocar a senha antes de continuar usando o sistema
+     * (flag marcada por um admin via forcePasswordChange()).
+     */
+    function userMustChangePassword() {
+        $app = App::i();
+        $user = $app->user;
+
+        return $user instanceof Entities\User
+            && AccountLifecycleService::mustChangePassword($user->getMetadata(self::$forcePasswordChangeMetadata));
+    }
+
+    /**
+     * Troca a senha do usuário já autenticado que está com a troca de senha obrigatória
+     * pendente. Diferente de changePassword(), não pede a senha atual: o próprio login
+     * bem-sucedido (com a senha antiga) já provou que o usuário é quem diz ser.
+     */
+    function doForcedPasswordChange() {
+        $app = App::i();
+        $user = $app->user;
+
+        $hasErrors = false;
+        $errors = [
+            'password' => [],
+        ];
+
+        if (!AccountLifecycleService::canDoForcedPasswordChange($this->userMustChangePassword())) {
+            array_push($errors['password'], i::__('Não há troca de senha pendente para este usuário.', 'multipleLocal'));
+            return [
+                'success' => false,
+                'errors' => $errors
+            ];
+        }
+
+        $newPassword = $app->request->post('new_password');
+        $confirmNewPassword = $app->request->post('confirm_new_password');
+
+        $errors['password'] = $this->verifyPassowrds($newPassword, $confirmNewPassword);
+        if (!empty($errors['password'])) {
+            $hasErrors = true;
+        } else {
+            $user->setMetadata(self::$passMetaName, $this->hashPassword($newPassword));
+            $user->setMetadata(self::$forcePasswordChangeMetadata, '0');
+        }
+
+        if (!$hasErrors) {
+            $user->save(true);
+            return [
+                'success' => true
+            ];
+        } else {
+            return [
                 'success' => false,
                 'errors' => $errors
             ];
@@ -964,17 +1161,18 @@ class Provider extends \MapasCulturais\AuthProvider {
                     $hasErrors = true;
                 } else {
                     $user->setMetadata($meta, $app->auth->hashPassword($newPassword));
-                }                
+                    $user->setMetadata(self::$forcePasswordChangeMetadata, '0');
+                }
             } else {
                 array_push($errors['password'], i::__('Senha atual inválida.', 'multipleLocal'));
                 $hasErrors = true;
-            }  
+            }
 
         } else {
             array_push($errors['password'], i::__('Insira sua nova senha.', 'multipleLocal'));
             $hasErrors = true;
         }
-        
+
         if (!$hasErrors) {
             $user->save(true);
             return [ 
@@ -1172,12 +1370,10 @@ class Provider extends \MapasCulturais\AuthProvider {
             }
         } else {
             // LOGIN COM EMAIL
-            $query = new \MapasCulturais\ApiQuery ('MapasCulturais\Entities\User', ['@select' => 'id', 'email' => 'ILIKE(' . $emailToCheck . ')']);
-            if($user = $query->findOne()){
-                unset($user['@entityType']);
-                array_filter($user);
-                $user = $app->repo("User")->findOneBy($user);
-            }
+            // getUserFromDB() usa uma query direta (sem o filtro de status do ApiQuery), então
+            // também encontra contas na lixeira: precisamos disso para mostrar o aviso de
+            // recuperação de conta em vez de simplesmente negar o login.
+            $user = $this->getUserFromDB($emailToCheck);
         }
 
 
@@ -1190,14 +1386,14 @@ class Provider extends \MapasCulturais\AuthProvider {
             array_push($errors['login'], i::__('Usuário ou senha inválidos.', 'multipleLocal'));
             $hasErrors = true;
         } else {
-            $accountIsActive = $user->getMetadata(self::$accountIsActiveMetadata);    
-            if($config['userMustConfirmEmailToUseTheSystem']) {    
+            $accountIsActive = $user->getMetadata(self::$accountIsActiveMetadata);
+            if($config['userMustConfirmEmailToUseTheSystem']) {
                 if(isset($user) && $accountIsActive === '0' ) {
                     array_push($errors['confirmEmail'], i::__('Verifique seu email para validar a sua conta.', 'multipleLocal'));
                     $hasErrors = true;
-                }    
+                }
             }
-            
+
             $config = $this->_config;
             $timeBlockedloginAttemp = $config['timeBlockedloginAttemp'];
             //verifica se o metadata 'timeBlockedloginAttempMetadata' existe e é maior que o tempo de agora, se for, então o usuario ta bloqueado te tentar fazer login
@@ -1215,8 +1411,18 @@ class Provider extends \MapasCulturais\AuthProvider {
             
             $meta = self::$passMetaName;
             $savedPass = $user->getMetadata($meta);
-    
+
             if (password_verify($pass, $savedPass)) {
+                if (AccountLifecycleService::shouldOfferTrashRestore($hasErrors, (int) $userToLogin->status, \MapasCulturais\Entity::STATUS_TRASH)) {
+                    $this->middlewareLoginAttempts(true);
+                    AccountLifecycleService::storePendingTrashRestore((int) $userToLogin->id);
+
+                    return AccountLifecycleService::buildAccountInTrashLoginResult(
+                        $userToLogin->profile ? $userToLogin->profile->name : '',
+                        $errors
+                    );
+                }
+
                 $this->middlewareLoginAttempts(true);
                 $this->authenticateUser($userToLogin);
             } else {
@@ -1224,14 +1430,130 @@ class Provider extends \MapasCulturais\AuthProvider {
                 array_push($errors['login'], i::__('Usuário ou senha inválidos.', 'multipleLocal'));
                 $hasErrors = true;
             }
-        }        
+        }
 
         return [
             'success' => !$hasErrors,
             'errors' => $errors
         ];;
     }
-    
+
+    /**
+     * Inverso do User::delete() do core: tira o usuário e as entidades que foram pra
+     * lixeira junto com ele. Fica no plugin (não no core) porque só o fluxo de
+     * recuperação de conta do MultipleLocalAuth usa isso.
+     */
+    function restoreUserFromTrash(Entities\User $user, $flush = false) {
+        $app = App::i();
+        $user->checkPermission('undelete');
+
+        $app->disableAccessControl();
+
+        $user->undelete($flush);
+
+        foreach (AccountLifecycleService::relatedEntityTypesToRestore() as $entity_type) {
+            foreach ($user->$entity_type as $entity) {
+                if (AccountLifecycleService::entityShouldBeUndeleted((int) $entity->status, Entities\User::STATUS_TRASH)) {
+                    $entity->undelete($flush);
+                }
+            }
+        }
+
+        $app->enableAccessControl();
+
+        if ($flush) {
+            $app->em->flush();
+        }
+    }
+
+    /**
+     * Envia o email de confirmação para restaurar uma conta (e tudo que foi pra lixeira junto
+     * com ela) de um usuário cujo login foi barrado por estar na lixeira (ver o bloco
+     * 'accountInTrash' em doLogin()). A conta só sai da lixeira de fato quando o link do
+     * email é clicado (ver GET(auth.confirma-email)) — aqui só preparamos o token e avisamos.
+     */
+    function confirmRestoreAccount() {
+        $app = App::i();
+
+        $errors = [
+            'restore' => []
+        ];
+
+        $userId = AccountLifecycleService::getPendingTrashRestoreUserId();
+        $user = $userId ? $app->repo("User")->find($userId) : null;
+
+        $preconditionError = AccountLifecycleService::confirmRestoreError(
+            $userId,
+            $user,
+            \MapasCulturais\Entity::STATUS_TRASH
+        );
+
+        if ($preconditionError === 'expired') {
+            array_push($errors['restore'], i::__('Sessão expirada, faça login novamente.', 'multipleLocal'));
+            return [
+                'success' => false,
+                'errors' => $errors
+            ];
+        }
+
+        if ($preconditionError === 'not_trash') {
+            AccountLifecycleService::clearPendingTrashRestore();
+            array_push($errors['restore'], i::__('Esta conta não está mais com exclusão parcial.', 'multipleLocal'));
+            return [
+                'success' => false,
+                'errors' => $errors
+            ];
+        }
+
+        // generate the token hash
+        $source = rand(3333, 8888);
+        $cut = rand(10, 30);
+        $string = $this->hashPassword($source);
+        $token = substr($string, $cut, 20);
+
+        $app->disableAccessControl();
+        $user->setMetadata(self::$tokenVerifyAccountMetadata, $token);
+        $user->setMetadata(self::$pendingTrashRestoreConfirmMetadata, '1');
+        $user->saveMetadata(true);
+        $app->enableAccessControl();
+
+        AccountLifecycleService::clearPendingTrashRestore();
+
+        $baseUrl = $app->getBaseUrl();
+        $site_name = $app->siteName;
+
+        $mustache = new \Mustache_Engine();
+        $content = $mustache->render(
+            file_get_contents(
+                __DIR__.
+                DIRECTORY_SEPARATOR.'views'.
+                DIRECTORY_SEPARATOR.'auth'.
+                DIRECTORY_SEPARATOR.'email-account-restored.html'
+            ), array(
+                "siteName" => $site_name,
+                "user" => $user->profile->name,
+                "urlToValidateAccount" => $baseUrl.'auth/confirma-email?token='.$token,
+                "baseUrl" => $baseUrl,
+                "urlSupportChat" => $this->_config['urlSupportChat'],
+                "urlSupportEmail" => $this->_config['urlSupportEmail'],
+                "urlSupportSite" => $this->_config['urlSupportSite'],
+                "textSupportSite" => $this->_config['textSupportSite'],
+                "urlImageToUseInEmails" => $this->getImageImageURl(),
+            )
+        );
+
+        $app->createAndSendMailMessage([
+            'from' => $app->config['mailer.from'],
+            'to' => $user->email,
+            'subject' => sprintf(i::__('Confirme a recuperação da sua conta no %s', 'multipleLocal'), $site_name),
+            'body' => $content
+        ]);
+
+        return [
+            'success' => true
+        ];
+    }
+
     function doRegister() {
         $app = App::i();
         $config = $app->_config;
