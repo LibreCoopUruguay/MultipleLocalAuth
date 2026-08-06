@@ -6,6 +6,8 @@ Plugin de autenticação para o Mapas Culturais que combina login local (e-mail 
 - Cadastro local com fluxo multi-etapas, validação de CPF e aceite de termos LGPD.
 - Login por e-mail ou CPF, com limite de tentativas e bloqueio temporário automático.
 - Confirmação de conta por e-mail, recuperação de senha com token e troca de senha pelo painel.
+- Troca de senha forçada por admin: no próximo login o usuário fica preso em `/autenticacao/` até definir uma nova senha.
+- Recuperação de conta na lixeira: login com senha correta em conta soft-deleted oferece confirmação por e-mail antes de restaurar usuário e entidades relacionadas.
 - Integração com Google reCAPTCHA v2 (visível) para login, cadastro e recuperação.
 - Autenticação social via Opauth (Google, Facebook, LinkedIn, Twitter, Login Cidadão, Gov.br, Decidim) com mapeamento automático de dados.
 - Atualização opcional de avatar e metadados ao autenticar via Gov.br ou Decidim.
@@ -116,21 +118,26 @@ Cada estratégia pode receber `visible => bool` para controlar se o botão apare
 Você pode adicionar ou remover estratégias conforme necessário; qualquer estratégia Opauth disponível no diretório do plugin pode ser configurada.
 
 ## Fluxos e endpoints
-- `GET auth.index`: renderiza o componente de login.
+- `GET auth.index`: renderiza o componente de login (ou o formulário de troca forçada, se `forcePasswordChange` estiver pendente).
 - `GET auth.register`: fluxo multi-etapas de cadastro.
 - `GET auth.recover`: formulário para solicitar redefinição de senha.
-- `GET auth.confirma-email`: valida o token enviado por e-mail e ativa a conta.
+- `GET auth.confirma-email`: valida o token enviado por e-mail e ativa a conta; se houver `pendingTrashRestoreConfirm`, também restaura a conta da lixeira.
 - `POST auth.validate`: validação assíncrona do primeiro passo do cadastro.
 - `POST auth.register`: criação de conta (gera agente, token de verificação e envia e-mail).
-- `POST auth.login`: autenticação local (com bloqueio por tentativas via metadata).
+- `POST auth.login`: autenticação local (com bloqueio por tentativas via metadata). Conta na lixeira + senha correta → resposta `accountInTrash` (sem autenticar).
+- `POST auth.confirmrestore`: após o aviso de conta na lixeira, envia e-mail de confirmação de recuperação (token + flag `pendingTrashRestoreConfirm`).
 - `POST auth.recover` / `POST auth.dorecover`: solicitação e conclusão da recuperação de senha.
-- `POST auth.changepassword` / `POST auth.newpassword`: alteração de senha logado ou via token.
-- `POST auth.adminchangeuseremail` / `POST auth.adminchangeuserpassword`: rotinas administrativas (acessos protegidos).
+- `POST auth.changepassword` / `POST auth.newpassword`: alteração de senha logado ou via token (limpa `forcePasswordChange`).
+- `POST auth.forcepasswordchange`: admin marca o usuário para trocar a senha no próximo login.
+- `POST auth.doforcedpasswordchange`: usuário autenticado com troca pendente define a nova senha (sem pedir a senha atual).
+- `POST auth.adminchangeuseremail` / `POST auth.adminchangeuserpassword`: rotinas administrativas (acessos protegidos; alteração de senha por admin também limpa `forcePasswordChange`).
 - `GET auth.passwordvalidationinfos`: retorna as regras de senha atuais para o front-end.
 - `GET|POST auth.govbr-email`: coleta e-mail alternativo quando o e-mail do Gov.br já está em uso (criação de conta).
 
+Metadados de usuário usados nesses fluxos: `forcePasswordChange`, `pendingTrashRestoreConfirm` (mais `tokenVerifyAccount` no e-mail de restore).
+
 ## Testes
-Regras de conta Gov.br (CPF / e-mail único) têm testes unitários em `tests/`:
+Regras isoladas em services (`GovBrAccountService`, `AccountLifecycleService`) têm testes unitários em `tests/` — cobrem CPF/e-mail único do Gov.br, troca de senha forçada e recuperação de conta na lixeira:
 
 ```bash
 cd plugins/MultipleLocalAuth
@@ -139,15 +146,15 @@ php composer.phar install   # ou: composer install
 ```
 
 ## Componentes que acompanham o plugin
-- `components/login`: formulário de login com reCAPTCHA, recuperação de senha e botões sociais.
+- `components/login`: formulário de login com reCAPTCHA, recuperação de senha, aviso de conta na lixeira e botões sociais.
 - `components/create-account`: esteira de cadastro com validações de senha, CPF e aceite de termos LGPD.
-- `components/change-password`: formulário para troca de senha no painel.
+- `components/change-password`: formulário para troca de senha no painel e fluxo de troca forçada pós-login.
 - `components/password-strongness`: barra de força da senha, reutilizada em cadastro e redefinição.
 
 Todos os componentes carregam textos a partir de `components/*/texts.php`, permitindo tradução personalizada.
 
 ## Personalização
-- E-mails: templates Mustache em `views/auth/email-to-validate-account.html` e `views/auth/email-resert-password.html`. Você pode copiar/adaptar mantendo as variáveis esperadas.
+- E-mails: templates Mustache em `views/auth/email-to-validate-account.html`, `views/auth/email-resert-password.html` e `views/auth/email-account-restored.html` (confirmação de recuperação de conta na lixeira). Você pode copiar/adaptar mantendo as variáveis esperadas.
 - Telas: `views/auth/*.php` rendem os componentes Vue; é possível sobrescrever esses arquivos em um tema customizado.
 - Estilos: CSS compilado em `assets/css/plugin-MultiplLocalAuth.css`. O SCSS-fonte está em `assets-src/sass/`.
 - Traduções: arquivos `.po` em `translations/` (domínio `multipleLocal`).
