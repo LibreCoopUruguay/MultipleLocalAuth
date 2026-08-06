@@ -14,6 +14,11 @@ $this->import('
 <div class="change-password">
     <label class="change-password__title"> <?= i::__('Senha:') ?> </label>
 
+    <div v-if="!myAccount && entity.forcePasswordChange == '1'" class="change-password__pending-warning">
+        <mc-icon name="exclamation"></mc-icon>
+        <span> <?= i::__('Foi solicitada a troca de senha deste usuário. O aviso some assim que ele efetivamente trocar a senha.') ?> </span>
+    </div>
+
     <div class="change-password__password">
         <div class="change-password__password--fakePassword">
             <div v-for="n in 12" class="dot"></div>
@@ -58,6 +63,28 @@ $this->import('
             <template #actions="modal">
                 <button class="button button--primary" @click="changePassword(modal)"> <?= i::__('Alterar senha') ?> </button>
                 <button class="button button--text button--text-del" @click="cancel(modal)"><?= i::__("Cancelar") ?></button>
+            </template>
+        </mc-modal>
+    </div>
+
+    <div v-if="!myAccount && entity.forcePasswordChange != '1'" class="change-password__force">
+        <mc-modal title="<?= i::esc_attr__('Forçar troca de senha') ?>" classes="change-password__modal">
+            <template #default>
+                <p> <?= i::__('Na próxima vez que este usuário entrar com a senha atual, ele será obrigado a trocá-la.') ?> </p>
+                <p> <?= i::__('Confirma?') ?> </p>
+            </template>
+
+            <template #button="modal">
+                <a class="change-password__force--action" @click="modal.open()">
+                    <!-- no iconset do core, "lock-open" é o cadeado fechado -->
+                    <mc-icon name="lock-open"></mc-icon>
+                    <label class="label"> <?= i::__('Forçar troca de senha no próximo login') ?> </label>
+                </a>
+            </template>
+
+            <template #actions="modal">
+                <button class="button button--primary" @click="forcePasswordChange(modal)"> <?= i::__('Confirmar') ?> </button>
+                <button class="button button--text button--text-del" @click="modal.close()"><?= i::__("Cancelar") ?></button>
             </template>
         </mc-modal>
     </div>

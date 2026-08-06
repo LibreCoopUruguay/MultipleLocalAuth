@@ -65,11 +65,28 @@ app.component('change-password', {
                     if (dataReturn.error) {
                         this.throwErrors(dataReturn.data);
                     } else {
+                        this.entity.forcePasswordChange = '0';
                         this.messages.success('Senha alterada com sucesso!');
                         this.cancel(modal);
                     }
                 }));
             }
+        },
+
+        async forcePasswordChange(modal) {
+            let api = new API();
+            let data = {
+                'email': this.entity.email,
+            }
+            await api.POST($MAPAS.baseURL+"autenticacao/forcepasswordchange", data).then(response => response.json().then(dataReturn => {
+                if (dataReturn.error) {
+                    this.throwErrors(dataReturn.data);
+                } else {
+                    this.entity.forcePasswordChange = '1';
+                    this.messages.success('Na próxima vez que este usuário entrar com a senha atual, ele será levado a trocá-la.');
+                    modal.close();
+                }
+            }));
         },
 
         cancel(modal) {
